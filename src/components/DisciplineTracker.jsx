@@ -1,0 +1,271 @@
+import { useState, useMemo } from 'react'
+import { format, addDays, subDays } from 'date-fns'
+import { motion, AnimatePresence } from 'framer-motion'
+import PageWrapper from './PageWrapper'
+import { ProgressRing } from './CapitalCard'
+import { CAPITALS, CAPITAL_ORDER, getDisciplinesForCapital } from '../utils/capitals'
+import { getDailyCompletionRate } from '../utils/streaks'
+
+function DisciplineCheckItem({ discipline, checked, capitalColor, onToggle }) {
+  return (
+    <motion.button
+      layout
+      onClick={onToggle}
+      className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl transition-colors"
+      style={{ background: checked ? `${capitalColor}10` : 'transparent' }}
+    >
+      <div
+        className={`checkbox ${checked ? 'checked' : ''}`}
+        style={checked ? { background: capitalColor, borderColor: capitalColor } : { borderColor: capitalColor + '60' }}
+      >
+        {checked && (
+          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+          </svg>
+        )}
+      </div>
+      <span
+        className="text-[15px] flex-1 text-left"
+        style={{
+          color: checked ? 'var(--text-tertiary)' : 'var(--text-primary)',
+          textDecoration: checked ? 'line-through' : 'none',
+        }}
+      >
+        {discipline.label}
+      </span>
+    </motion.button>
+  )
+}
+
+function CapitalRating({ value, color, onChange }) {
+  return (
+    <div className="flex items-center gap-2 px-4">
+      <span className="text-[12px] font-medium" style={{ color: 'var(--text-muted)' }}>Rate:</span>
+      <div className="flex gap-1.5">
+        {[1, 2, 3, 4, 5].map(i => (
+          <button
+            key={i}
+            onClick={() => onChange(value === i ? 0 : i)}
+            className="w-7 h-7 rounded-full flex items-center justify-center transition-all"
+            style={{
+              background: i <= value ? color : 'var(--bg-tertiary)',
+              border: `2px solid ${i <= value ? color : 'var(--border)'}`,
+            }}
+          >
+            {i <= value && (
+              <span className="text-[10px] font-bold text-white">{i}</span>
+            )}
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function ReflectionJournal({ value, color, onChange }) {
+  const [expanded, setExpanded] = useState(false)
+
+  return (
+    <div className="px-4 mt-2">
+      <button
+        onClick={() => setExpanded(!expanded)}
+        className="flex items-center gap-2 text-[13px] font-medium mb-2"
+        style={{ color: color }}
+      >
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+        </svg>
+        {value ? 'Edit reflection' : 'Add reflection'}
+        <motion.svg
+          animate={{ rotate: expanded ? 180 : 0 }}
+          className="w-3 h-3"
+          fill="none" stroke="currentColor" viewBox="0 0 24 24"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </motion.svg>
+      </button>
+      <AnimatePresence>
+        {expanded && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="overflow-hidden"
+          >
+            <textarea
+              value={value || ''}
+              onChange={(e) => onChange(e.target.value)}
+              placeholder="How did this area go today? What stood out?"
+              rows={3}
+              className="w-full px-4 py-3 rounded-xl text-[14px] outline-none resize-none"
+              style={{
+                background: 'var(--bg-tertiary)',
+                color: 'var(--text-primary)',
+                border: `1px solid ${color}30`,
+              }}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  )
+}
+
+function DisciplineTracker({ disciplines, setDisciplines, reflections, setReflections, ratings, setRatings, settings, customDisciplines }) {
+  const [selectedDate, setSelectedDate] = useState(new Date())
+  const dateStr = format(selectedDate, 'yyyy-MM-dd')
+  const capitalToggles = settings?.capitals || {}
+
+  const dayData = disciplines[dateStr] || {}
+  const dayRatings = ratings[dateStr] || {}
+  const dayReflections = reflections[dateStr] || {}
+
+  const completionRate = getDailyCompletionRate(disciplines, dateStr, capitalToggles, customDisciplines)
+
+  const activeCapitals = CAPITAL_ORDER.filter(id => capitalToggles[id] !== false)
+
+  const handleToggleDiscipline = (discId) => {
+    setDisciplines(prev => ({
+      ...prev,
+      [dateStr]: {
+        ...(prev[dateStr] || {}),
+        [discId]: !(prev[dateStr]?.[discId]),
+      },
+    }))
+  }
+
+  const handleRatingChange = (capitalId, value) => {
+    setRatings(prev => ({
+      ...prev,
+      [dateStr]: {
+        ...(prev[dateStr] || {}),
+        [capitalId]: value,
+      },
+    }))
+  }
+
+  const handleReflectionChange = (capitalId, text) => {
+    setReflections(prev => ({
+      ...prev,
+      [dateStr]: {
+        ...(prev[dateStr] || {}),
+        [capitalId]: text,
+      },
+    }))
+  }
+
+  const navigateDate = (direction) => {
+    setSelectedDate(prev => direction === 'next' ? addDays(prev, 1) : subDays(prev, 1))
+  }
+
+  const isToday = format(selectedDate, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd')
+
+  return (
+    <PageWrapper className="min-h-screen pb-24">
+      {/* Date Navigation */}
+      <header className="px-5 pt-6 pb-4">
+        <div className="flex items-center justify-between mb-4">
+          <button onClick={() => navigateDate('prev')} className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: 'var(--bg-tertiary)' }}>
+            <svg className="w-5 h-5" style={{ color: 'var(--text-secondary)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          <div className="text-center">
+            <button
+              onClick={() => setSelectedDate(new Date())}
+              className="text-[18px] font-semibold"
+              style={{ color: 'var(--text-primary)' }}
+            >
+              {isToday ? 'Today' : format(selectedDate, 'EEEE')}
+            </button>
+            <p className="text-[13px]" style={{ color: 'var(--text-tertiary)' }}>
+              {format(selectedDate, 'MMMM d, yyyy')}
+            </p>
+          </div>
+          <button onClick={() => navigateDate('next')} className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: 'var(--bg-tertiary)' }}>
+            <svg className="w-5 h-5" style={{ color: 'var(--text-secondary)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        </div>
+
+        {/* Overall Progress Ring */}
+        <div className="flex justify-center">
+          <div className="relative">
+            <ProgressRing progress={completionRate} color="var(--accent)" size={80} strokeWidth={6} />
+            <span className="absolute inset-0 flex items-center justify-center text-[18px] font-bold" style={{ color: 'var(--accent)' }}>
+              {Math.round(completionRate * 100)}%
+            </span>
+          </div>
+        </div>
+      </header>
+
+      {/* Capital Sections */}
+      <div className="px-5 space-y-6">
+        {activeCapitals.map(capitalId => {
+          const capital = CAPITALS[capitalId]
+          const capitalDiscs = getDisciplinesForCapital(capitalId, customDisciplines)
+          const completedCount = capitalDiscs.filter(d => dayData[d.id]).length
+
+          return (
+            <motion.section
+              key={capitalId}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="rounded-3xl overflow-hidden"
+              style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
+            >
+              {/* Section Header */}
+              <div className="flex items-center gap-3 px-4 py-3" style={{ borderBottom: '1px solid var(--separator)' }}>
+                <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: `${capital.color}20` }}>
+                  <div className="w-3 h-3 rounded-full" style={{ background: capital.color }} />
+                </div>
+                <h3 className="text-[16px] font-semibold flex-1" style={{ color: capital.color }}>
+                  {capital.name}
+                </h3>
+                <span className="text-[13px] font-medium" style={{ color: 'var(--text-muted)' }}>
+                  {completedCount}/{capitalDiscs.length}
+                </span>
+              </div>
+
+              {/* Discipline Checklist */}
+              <div className="py-1">
+                {capitalDiscs.map(disc => (
+                  <DisciplineCheckItem
+                    key={disc.id}
+                    discipline={disc}
+                    checked={!!dayData[disc.id]}
+                    capitalColor={capital.color}
+                    onToggle={() => handleToggleDiscipline(disc.id)}
+                  />
+                ))}
+              </div>
+
+              {/* Rating */}
+              <div className="py-2" style={{ borderTop: '1px solid var(--separator)' }}>
+                <CapitalRating
+                  value={dayRatings[capitalId] || 0}
+                  color={capital.color}
+                  onChange={(val) => handleRatingChange(capitalId, val)}
+                />
+              </div>
+
+              {/* Reflection */}
+              <div className="pb-3">
+                <ReflectionJournal
+                  value={dayReflections[capitalId] || ''}
+                  color={capital.color}
+                  onChange={(text) => handleReflectionChange(capitalId, text)}
+                />
+              </div>
+            </motion.section>
+          )
+        })}
+
+        <div className="h-4" />
+      </div>
+    </PageWrapper>
+  )
+}
+
+export default DisciplineTracker

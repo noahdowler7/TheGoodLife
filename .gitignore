@@ -1,0 +1,39 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+
+# Archives / binary artifacts
+*.zip
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Testing
+test-results/
+playwright-report/
+playwright/.cache/
+
+# Temp files
+.tmp/
+tmp/
+
+# PWA generated files
+dev-dist/
+.vercel
