@@ -14,7 +14,7 @@ export default defineConfig(({ mode }) => ({
       manifest: {
         name: 'The Good Life',
         short_name: 'Good Life',
-        description: 'Spiritual Disciplines Tracker - Track your Five Capitals for Movement Church.',
+        description: 'Living the Good Life — Track your Five Capitals and grow daily with Movement Church.',
         theme_color: '#0A0A0A',
         background_color: '#0A0A0A',
         display: 'standalone',

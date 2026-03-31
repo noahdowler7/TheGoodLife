@@ -28,7 +28,7 @@ function DisciplineCheckItem({ discipline, checked, capitalColor, onToggle }) {
         className="text-[15px] flex-1 text-left"
         style={{
           color: checked ? 'var(--text-tertiary)' : 'var(--text-primary)',
-          textDecoration: checked ? 'line-through' : 'none',
+          opacity: checked ? 0.6 : 1,
         }}
       >
         {discipline.label}
@@ -95,7 +95,7 @@ function ReflectionJournal({ value, color, onChange }) {
             <textarea
               value={value || ''}
               onChange={(e) => onChange(e.target.value)}
-              placeholder="How did this area go today? What stood out?"
+              placeholder="How did you experience God in this area today?"
               rows={3}
               className="w-full px-4 py-3 rounded-xl text-[14px] outline-none resize-none"
               style={{
@@ -220,7 +220,7 @@ function DisciplineTracker({ disciplines, setDisciplines, reflections, setReflec
                 <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: `${capital.color}20` }}>
                   <div className="w-3 h-3 rounded-full" style={{ background: capital.color }} />
                 </div>
-                <h3 className="text-[16px] font-semibold flex-1" style={{ color: capital.color }}>
+                <h3 className="text-[17px] font-semibold flex-1" style={{ color: capital.color, fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '0.08em' }}>
                   {capital.name}
                 </h3>
                 <span className="text-[13px] font-medium" style={{ color: 'var(--text-muted)' }}>
@@ -228,7 +228,7 @@ function DisciplineTracker({ disciplines, setDisciplines, reflections, setReflec
                 </span>
               </div>
 
-              {/* Discipline Checklist */}
+              {/* Spiritual Practices */}
               <div className="py-1">
                 {capitalDiscs.map(disc => (
                   <DisciplineCheckItem

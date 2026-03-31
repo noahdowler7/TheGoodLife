@@ -9,7 +9,7 @@ const SLIDES = [
       </svg>
     ),
     title: 'Five Capitals',
-    description: 'Spiritual, Relational, Physical, Intellectual, Financial — invest in what matters most for a life well lived.',
+    description: 'Spiritual, Relational, Physical, Intellectual, Financial — invest in what matters most as you become who God made you to be.',
   },
   {
     icon: (
@@ -17,8 +17,8 @@ const SLIDES = [
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
       </svg>
     ),
-    title: 'Daily Disciplines',
-    description: 'Check off your spiritual practices each day. Rate your progress, journal your reflections, and build streaks.',
+    title: 'Daily Rhythms',
+    description: 'Build spiritual rhythms each day. Rate your growth, journal your heart, and develop holy habits.',
   },
   {
     icon: (
@@ -82,7 +82,7 @@ function IntroGuide({ onComplete }) {
             >
               {slide.icon}
             </motion.div>
-            <h1 className="text-[28px] font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>
+            <h1 className="text-[28px] font-semibold mb-4" style={{ color: 'var(--text-primary)', fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '0.03em' }}>
               {slide.title}
             </h1>
             <p className="text-[17px] leading-relaxed max-w-sm" style={{ color: 'var(--text-secondary)' }}>

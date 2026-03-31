@@ -18,9 +18,9 @@ function Dashboard({ disciplines, ratings, settings, setDisciplines, customDisci
   const capitalToggles = settings?.capitals || {}
 
   const greeting = useMemo(() => {
-    if (hour < 12) return { text: 'Good Morning', subtext: 'Start your day with intention' }
-    if (hour < 17) return { text: 'Good Afternoon', subtext: 'Keep investing in the good life' }
-    return { text: 'Good Evening', subtext: 'Reflect on your day' }
+    if (hour < 12) return { text: 'Good Morning', subtext: 'Walk boldly into your day' }
+    if (hour < 17) return { text: 'Good Afternoon', subtext: 'Keep growing into who God created you to be' }
+    return { text: 'Good Evening', subtext: 'Rest in what God has done today' }
   }, [hour])
 
   const userName = settings?.currentUser?.name
@@ -36,7 +36,7 @@ function Dashboard({ disciplines, ratings, settings, setDisciplines, customDisci
       }))
   }, [disciplines, ratings, todayStr, capitalToggles, customDisciplines])
 
-  // Uncompleted disciplines for quick checklist
+  // Uncompleted disciplines to grow in
   const activeDisciplines = useMemo(() => {
     return getActiveDisciplines(capitalToggles, customDisciplines)
   }, [capitalToggles, customDisciplines])
@@ -89,7 +89,7 @@ function Dashboard({ disciplines, ratings, settings, setDisciplines, customDisci
         >
           <div>
             <p className="text-[14px] text-tertiary font-medium">{format(today, 'EEEE, MMMM d')}</p>
-            <h1 className="text-[28px] font-semibold mt-1" style={{ color: 'var(--text-primary)' }}>
+            <h1 className="text-[28px] font-semibold mt-1" style={{ color: 'var(--text-primary)', fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '0.03em' }}>
               {greeting.text}{userName ? `, ${userName}` : ''}
             </h1>
             <p className="text-[15px] text-tertiary mt-0.5">{greeting.subtext}</p>
@@ -123,7 +123,7 @@ function Dashboard({ disciplines, ratings, settings, setDisciplines, customDisci
         {/* Five Capital Progress Rings */}
         <motion.section variants={itemVariants}>
           <div className="flex items-center justify-between mb-3 px-1">
-            <h2 className="text-[13px] font-semibold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
+            <h2 className="text-[15px] font-semibold uppercase" style={{ color: 'var(--text-muted)', fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '0.1em' }}>
               Five Capitals
             </h2>
             <span className="text-[13px] font-medium" style={{ color: 'var(--accent)' }}>
@@ -143,10 +143,10 @@ function Dashboard({ disciplines, ratings, settings, setDisciplines, customDisci
           </div>
         </motion.section>
 
-        {/* Today's Checklist (Quick Access) */}
+        {/* Today's Disciplines (Quick Access) */}
         <motion.section variants={itemVariants}>
           <div className="flex items-center justify-between mb-3 px-1">
-            <h2 className="text-[13px] font-semibold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
+            <h2 className="text-[15px] font-semibold uppercase" style={{ color: 'var(--text-muted)', fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '0.1em' }}>
               Up Next
             </h2>
             <button
@@ -192,7 +192,7 @@ function Dashboard({ disciplines, ratings, settings, setDisciplines, customDisci
                 </svg>
               </div>
               <p className="text-[15px]" style={{ color: 'var(--text-secondary)' }}>
-                All disciplines completed today!
+                A beautiful day of faithfulness!
               </p>
             </div>
           )}
@@ -201,7 +201,7 @@ function Dashboard({ disciplines, ratings, settings, setDisciplines, customDisci
         {/* Active Streaks */}
         {streaks.length > 0 && (
           <motion.section variants={itemVariants}>
-            <h2 className="text-[13px] font-semibold uppercase tracking-wider mb-3 px-1" style={{ color: 'var(--text-muted)' }}>
+            <h2 className="text-[15px] font-semibold uppercase mb-3 px-1" style={{ color: 'var(--text-muted)', fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '0.1em' }}>
               Active Streaks
             </h2>
             <div className="flex flex-wrap gap-2">
@@ -230,7 +230,7 @@ function Dashboard({ disciplines, ratings, settings, setDisciplines, customDisci
 
         {/* Quick Access Grid */}
         <motion.section variants={itemVariants}>
-          <h2 className="text-[13px] font-semibold uppercase tracking-wider mb-3 px-1" style={{ color: 'var(--text-muted)' }}>
+          <h2 className="text-[15px] font-semibold uppercase mb-3 px-1" style={{ color: 'var(--text-muted)', fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '0.1em' }}>
             Quick Access
           </h2>
           <div className="grid grid-cols-2 gap-3">

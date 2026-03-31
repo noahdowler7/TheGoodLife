@@ -49,7 +49,7 @@ function WeeklyProgress({ disciplines, ratings, settings, customDisciplines }) {
   return (
     <PageWrapper className="min-h-screen pb-24">
       <header className="px-5 pt-6 pb-4">
-        <h1 className="text-[28px] font-semibold" style={{ color: 'var(--text-primary)' }}>
+        <h1 className="text-[28px] font-semibold" style={{ color: 'var(--text-primary)', fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '0.03em' }}>
           Weekly Progress
         </h1>
         <p className="text-[14px] mt-1" style={{ color: 'var(--text-tertiary)' }}>
@@ -170,7 +170,7 @@ function WeeklyProgress({ disciplines, ratings, settings, customDisciplines }) {
 
             {/* Average Ratings */}
             <div>
-              <h3 className="text-[13px] font-semibold uppercase tracking-wider mb-3" style={{ color: 'var(--text-muted)' }}>
+              <h3 className="text-[15px] font-semibold uppercase mb-3" style={{ color: 'var(--text-muted)', fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '0.1em' }}>
                 Average Ratings
               </h3>
               <div className="grid grid-cols-2 gap-3">

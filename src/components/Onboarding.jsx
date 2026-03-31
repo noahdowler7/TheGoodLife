@@ -2,6 +2,7 @@ import { useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { compressImage } from '../utils/imageUtils'
 import { CAPITALS, CAPITAL_ORDER } from '../utils/capitals'
+import MovementLogo from './MovementLogo'
 
 function Onboarding({ onComplete }) {
   const [step, setStep] = useState(0)
@@ -62,21 +63,15 @@ function Onboarding({ onComplete }) {
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
-              className="w-20 h-20 rounded-3xl flex items-center justify-center mb-6"
-              style={{ background: 'var(--accent-light)' }}
+              className="mb-4"
             >
-              <svg className="w-10 h-10" style={{ color: 'var(--accent)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
-              </svg>
+              <MovementLogo width={220} />
             </motion.div>
-            <h1 className="text-[32px] font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>
+            <h1 className="text-[28px] font-semibold mb-2" style={{ color: 'var(--text-primary)', fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '0.03em' }}>
               The Good Life
             </h1>
-            <p className="text-[15px] mb-2" style={{ color: 'var(--accent)' }}>
-              Movement Church
-            </p>
             <p className="text-[17px] leading-relaxed mb-8 max-w-sm" style={{ color: 'var(--text-secondary)' }}>
-              Invest in what matters most. Track your Five Capitals and grow daily.
+              Know God. Find Freedom. Discover Purpose. Make a Difference.
             </p>
             <motion.button
               whileTap={{ scale: 0.98 }}
@@ -97,7 +92,7 @@ function Onboarding({ onComplete }) {
             className="flex-1 flex flex-col px-6 pt-16 pb-8"
           >
             <div className="text-center mb-8">
-              <h1 className="text-[28px] font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>
+              <h1 className="text-[28px] font-semibold mb-2" style={{ color: 'var(--text-primary)', fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '0.03em' }}>
                 What's your name?
               </h1>
               <p className="text-[15px]" style={{ color: 'var(--text-tertiary)' }}>
@@ -134,11 +129,11 @@ function Onboarding({ onComplete }) {
             className="flex-1 flex flex-col px-6 pt-16 pb-8"
           >
             <div className="text-center mb-8">
-              <h1 className="text-[28px] font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>
+              <h1 className="text-[28px] font-semibold mb-2" style={{ color: 'var(--text-primary)', fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '0.03em' }}>
                 Your Five Capitals
               </h1>
               <p className="text-[15px]" style={{ color: 'var(--text-tertiary)' }}>
-                Choose which areas to focus on
+                Choose where God is calling you to grow
               </p>
             </div>
             <div className="flex-1 space-y-3">
@@ -200,7 +195,7 @@ function Onboarding({ onComplete }) {
             className="flex-1 flex flex-col px-6 pt-16 pb-8"
           >
             <div className="text-center mb-8">
-              <h1 className="text-[28px] font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>
+              <h1 className="text-[28px] font-semibold mb-2" style={{ color: 'var(--text-primary)', fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '0.03em' }}>
                 Add a photo?
               </h1>
               <p className="text-[15px]" style={{ color: 'var(--text-tertiary)' }}>

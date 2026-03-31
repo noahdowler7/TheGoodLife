@@ -76,7 +76,7 @@ function Calendar({ events, setEvents, disciplines }) {
             </svg>
           </button>
           <div className="text-center">
-            <h1 className="text-[24px] font-semibold" style={{ color: 'var(--text-primary)' }}>
+            <h1 className="text-[24px] font-semibold" style={{ color: 'var(--text-primary)', fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '0.03em' }}>
               {format(currentMonth, 'MMMM yyyy')}
             </h1>
           </div>

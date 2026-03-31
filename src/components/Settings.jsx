@@ -4,6 +4,7 @@ import PageWrapper from './PageWrapper'
 import { CAPITALS, CAPITAL_ORDER } from '../utils/capitals'
 import { compressImage } from '../utils/imageUtils'
 import { STORAGE_KEYS } from '../hooks/useStorage'
+import MovementLogo from './MovementLogo'
 
 function Settings({ settings, setSettings, partners, setPartners, customDisciplines, setCustomDisciplines }) {
   const fileInputRef = useRef(null)
@@ -115,7 +116,7 @@ function Settings({ settings, setSettings, partners, setPartners, customDiscipli
   return (
     <PageWrapper className="min-h-screen pb-24">
       <header className="px-5 pt-6 pb-4">
-        <h1 className="text-[28px] font-semibold" style={{ color: 'var(--text-primary)' }}>Settings</h1>
+        <h1 className="text-[28px] font-semibold" style={{ color: 'var(--text-primary)', fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '0.03em' }}>Settings</h1>
       </header>
 
       <div className="space-y-2">
@@ -293,10 +294,9 @@ function Settings({ settings, setSettings, partners, setPartners, customDiscipli
         </div>
 
         {/* About */}
-        <div className="px-5 py-8 text-center">
-          <p className="text-[13px] font-medium" style={{ color: 'var(--text-muted)' }}>The Good Life</p>
-          <p className="text-[12px] mt-1" style={{ color: 'var(--text-muted)' }}>Movement Church</p>
-          <p className="text-[11px] mt-1" style={{ color: 'var(--text-muted)' }}>Version 1.0.0</p>
+        <div className="px-5 py-8 flex flex-col items-center">
+          <MovementLogo width={140} />
+          <p className="text-[11px] mt-2" style={{ color: 'var(--text-muted)' }}>Version 1.0.0</p>
         </div>
       </div>
     </PageWrapper>

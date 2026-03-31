@@ -1,5 +1,5 @@
 // Five Capitals — core data model for "The Good Life"
-// Based on the sermon series by Movement Church
+// Five Capitals from the Living the Good Life series — Movement Church
 
 export const CAPITALS = {
   spiritual: {

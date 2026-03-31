@@ -254,8 +254,10 @@
   }
 
   .list-header {
-    @apply px-5 pt-8 pb-3 text-[12px] font-semibold uppercase tracking-wider;
+    @apply px-5 pt-8 pb-3 text-[14px] font-semibold uppercase;
     color: var(--text-muted);
+    font-family: 'Bebas Neue', Impact, sans-serif;
+    letter-spacing: 0.1em;
   }
 
   .list-footer {
@@ -517,6 +519,10 @@
 }
 
 @layer utilities {
+  .font-display {
+    font-family: 'Bebas Neue', Impact, sans-serif;
+  }
+
   .safe-top {
     padding-top: env(safe-area-inset-top);
   }

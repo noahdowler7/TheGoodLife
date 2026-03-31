@@ -1,12 +1,14 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="32" height="32">
   <rect width="100" height="100" rx="22" fill="#0A0A0A"/>
-  <!-- Cross -->
-  <rect x="46" y="20" width="8" height="40" rx="4" fill="#D4A843"/>
-  <rect x="33" y="33" width="34" height="8" rx="4" fill="#D4A843"/>
-  <!-- Five dots representing five capitals -->
-  <circle cx="30" cy="75" r="5" fill="#D4A843" opacity="0.9"/>
-  <circle cx="42" cy="75" r="5" fill="#E07B6A" opacity="0.9"/>
-  <circle cx="54" cy="75" r="5" fill="#5BB98B" opacity="0.9"/>
-  <circle cx="66" cy="75" r="5" fill="#6B8DE3" opacity="0.9"/>
-  <circle cx="78" cy="75" r="5" fill="#B07EE0" opacity="0.9"/>
+  <!-- Bold M letterform -->
+  <text
+    x="50" y="76"
+    text-anchor="middle"
+    font-family="'Bebas Neue', Impact, sans-serif"
+    font-size="80"
+    font-weight="400"
+    fill="#F5F5F5"
+  >M</text>
+  <!-- Thick diagonal gold stripe cutting through -->
+  <rect x="-10" y="38" width="120" height="14" fill="#D4A843" transform="rotate(-10 50 45)"/>
 </svg>
