@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { AnimatePresence } from 'framer-motion'
 import Navigation from './components/Navigation'
+import WelcomeScreen from './components/WelcomeScreen'
 import Onboarding from './components/Onboarding'
 import IntroGuide from './components/IntroGuide'
 import Dashboard from './components/Dashboard'
@@ -29,7 +30,7 @@ import { useAuth } from './hooks/useAuth'
 function App() {
   const location = useLocation()
   const navigate = useNavigate()
-  const { isAuthenticated, login, verify, loading, error } = useAuth()
+  const { isAuthenticated, isGuest, hasAccess, continueAsGuest, login, verify, loading, error } = useAuth()
   const [disciplines, setDisciplines] = useDisciplines()
   const [reflections, setReflections] = useReflections()
   const [ratings, setRatings] = useRatings()
@@ -39,6 +40,7 @@ function App() {
   const [customDisciplines, setCustomDisciplines] = useCustomDisciplines()
   const [settings, setSettings] = useSettings()
   const [migrationChecked, setMigrationChecked] = useState(false)
+  const [showAuthScreen, setShowAuthScreen] = useState(false)
 
   // Apply theme to document
   useEffect(() => {
@@ -79,21 +81,47 @@ function App() {
     navigate('/', { replace: true })
   }
 
-  // Auth gate
-  if (!isAuthenticated) {
+  const handleGetStarted = () => {
+    continueAsGuest()
+  }
+
+  const handleSignIn = () => {
+    setShowAuthScreen(true)
+  }
+
+  const handleAuthComplete = () => {
+    setShowAuthScreen(false)
+    // Reset migration check when user authenticates
+    setMigrationChecked(false)
+  }
+
+  // First launch - show welcome screen
+  if (!hasAccess && !showAuthScreen) {
+    return <WelcomeScreen onGetStarted={handleGetStarted} onSignIn={handleSignIn} />
+  }
+
+  // Show auth screen if explicitly requested
+  if (showAuthScreen && !isAuthenticated) {
     return <AuthScreen onLogin={login} onVerify={verify} loading={loading} error={error} />
   }
 
-  // Check for data migration
-  const needsMigration = !migrationChecked &&
+  // Check for data migration (only for authenticated users, not guests)
+  const needsMigration = isAuthenticated &&
+    !migrationChecked &&
     !localStorage.getItem('thegoodlife_migrated') &&
     localStorage.getItem('thegoodlife_disciplines')
 
   if (needsMigration) {
     return (
       <DataMigration
-        onComplete={() => setMigrationChecked(true)}
-        onSkip={() => setMigrationChecked(true)}
+        onComplete={() => {
+          setMigrationChecked(true)
+          handleAuthComplete()
+        }}
+        onSkip={() => {
+          setMigrationChecked(true)
+          handleAuthComplete()
+        }}
       />
     )
   }
@@ -108,7 +136,7 @@ function App() {
 
   return (
     <div className="min-h-screen">
-      <SyncStatus />
+      {isAuthenticated && <SyncStatus />}
       <AnimatePresence mode="wait">
         <Routes location={location} key={location.pathname}>
           <Route path="/" element={<Dashboard {...appState} />} />
@@ -117,7 +145,16 @@ function App() {
           <Route path="/calendar" element={<Calendar {...appState} />} />
           <Route path="/fasting" element={<FastingTracker {...appState} />} />
           <Route path="/devotional" element={<DevotionalGuide {...appState} />} />
-          <Route path="/settings" element={<Settings {...appState} />} />
+          <Route
+            path="/settings"
+            element={
+              <Settings
+                {...appState}
+                isGuest={isGuest}
+                onSignIn={() => setShowAuthScreen(true)}
+              />
+            }
+          />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </AnimatePresence>

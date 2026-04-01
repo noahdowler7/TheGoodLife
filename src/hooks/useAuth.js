@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react'
 import { auth } from '../services/auth'
 
+const GUEST_MODE_KEY = 'thegoodlife_guest_mode'
+
 export function useAuth() {
   const [state, setState] = useState({
     token: auth.getToken(),
     user: auth.getUser(),
+    guestMode: localStorage.getItem(GUEST_MODE_KEY) === 'true',
     loading: false,
     error: null,
   })
@@ -13,7 +16,7 @@ export function useAuth() {
     // Check if token is valid on mount
     if (state.token && !state.user) {
       auth.logout()
-      setState({ token: null, user: null, loading: false, error: null })
+      setState(prev => ({ ...prev, token: null, user: null }))
     }
   }, [])
 
@@ -40,14 +43,23 @@ export function useAuth() {
     }
   }
 
+  const continueAsGuest = () => {
+    localStorage.setItem(GUEST_MODE_KEY, 'true')
+    setState(prev => ({ ...prev, guestMode: true }))
+  }
+
   const logout = () => {
     auth.logout()
-    setState({ token: null, user: null, loading: false, error: null })
+    localStorage.removeItem(GUEST_MODE_KEY)
+    setState({ token: null, user: null, guestMode: false, loading: false, error: null })
   }
 
   return {
     ...state,
     isAuthenticated: !!state.token,
+    isGuest: state.guestMode && !state.token,
+    hasAccess: !!state.token || state.guestMode,
+    continueAsGuest,
     login,
     verify,
     logout,

@@ -6,7 +6,7 @@ import { compressImage } from '../utils/imageUtils'
 import { STORAGE_KEYS } from '../hooks/useStorage'
 import MovementLogo from './MovementLogo'
 
-function Settings({ settings, setSettings, partners, setPartners, customDisciplines, setCustomDisciplines }) {
+function Settings({ settings, setSettings, partners, setPartners, customDisciplines, setCustomDisciplines, isGuest, onSignIn }) {
   const fileInputRef = useRef(null)
   const [newPartnerName, setNewPartnerName] = useState('')
   const [newDiscipline, setNewDiscipline] = useState({ label: '', capitalId: 'spiritual' })
@@ -120,6 +120,39 @@ function Settings({ settings, setSettings, partners, setPartners, customDiscipli
       </header>
 
       <div className="space-y-2">
+        {/* Sign In (Guest Users Only) */}
+        {isGuest && (
+          <>
+            <p className="list-header">ACCOUNT</p>
+            <div className="card-inset">
+              <div className="px-4 py-4">
+                <div className="flex items-start gap-3 mb-3">
+                  <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                    <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                    </svg>
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-[15px] font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>
+                      Sign In to Sync Your Data
+                    </p>
+                    <p className="text-[13px] leading-relaxed" style={{ color: 'var(--text-tertiary)' }}>
+                      Your data is currently stored only on this device. Sign in to sync across devices and keep your progress safe in the cloud.
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={onSignIn}
+                  className="w-full py-3 rounded-xl font-medium text-[15px]"
+                  style={{ background: 'var(--accent)', color: '#0A0A0A' }}
+                >
+                  Sign In Now
+                </button>
+              </div>
+            </div>
+          </>
+        )}
+
         {/* Profile */}
         <p className="list-header">PROFILE</p>
         <div className="card-inset">
