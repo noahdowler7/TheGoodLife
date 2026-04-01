@@ -13,6 +13,15 @@ export default function AuthScreen({ onLogin, onVerify, loading, error }) {
       // For now, auto-fill token (in production, this would be sent via email)
       setToken(magicToken)
       setStep('verify')
+
+      // Auto-verify the token since we have it
+      setTimeout(async () => {
+        try {
+          await onVerify(magicToken)
+        } catch (err) {
+          console.error('Auto-verification failed:', err)
+        }
+      }, 500)
     } catch (err) {
       console.error('Login failed:', err)
     }
@@ -56,7 +65,12 @@ export default function AuthScreen({ onLogin, onVerify, loading, error }) {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="your@email.com"
                 required
-                className="w-full px-4 py-3 bg-surface border border-border rounded-xl text-text-primary placeholder:text-text-tertiary focus:outline-none focus:ring-2 focus:ring-primary"
+                style={{
+                  color: '#000000',
+                  backgroundColor: '#FFFFFF',
+                  WebkitTextFillColor: '#000000'
+                }}
+                className="w-full px-4 py-3 border-2 border-gray-400 rounded-xl placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gold-400"
               />
             </div>
 

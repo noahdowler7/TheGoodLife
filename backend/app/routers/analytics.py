@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, and_, func
+from sqlalchemy import select, and_, func, Integer
 from datetime import date, timedelta
 import uuid
 from app.database import get_db
@@ -25,7 +25,7 @@ async def get_weekly_summary(
         select(
             Investment.capital_id,
             func.count(Investment.id).label('total'),
-            func.sum(func.cast(Investment.completed, func.Integer())).label('completed')
+            func.sum(func.cast(Investment.completed, Integer)).label('completed')
         ).where(
             and_(
                 Investment.user_id == user_id,

@@ -108,6 +108,18 @@
 
   input, textarea {
     @apply text-base;
+    color: var(--text-primary) !important;
+  }
+
+  /* Fix autofill styling */
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  input:-webkit-autofill:active {
+    -webkit-text-fill-color: var(--text-primary) !important;
+    -webkit-box-shadow: 0 0 0px 1000px var(--bg-tertiary) inset !important;
+    box-shadow: 0 0 0px 1000px var(--bg-tertiary) inset !important;
+    transition: background-color 5000s ease-in-out 0s;
   }
 }
 

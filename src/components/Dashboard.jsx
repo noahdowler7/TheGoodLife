@@ -5,6 +5,8 @@ import { motion } from 'framer-motion'
 import PageWrapper from './PageWrapper'
 import CapitalCard from './CapitalCard'
 import StreakIndicator from './StreakIndicator'
+import InsightsCard from './InsightsCard'
+import AlignmentWidget from './AlignmentWidget'
 import { getDailyScripture } from '../utils/scriptures'
 import { CAPITALS, CAPITAL_ORDER, getActiveDisciplines } from '../utils/capitals'
 import { calculateCapitalScore, getActiveStreaks, getDailyCompletionRate } from '../utils/streaks'
@@ -215,6 +217,16 @@ function Dashboard({ disciplines, ratings, settings, setDisciplines, customDisci
             </div>
           </motion.section>
         )}
+
+        {/* Alignment Score */}
+        <motion.section variants={itemVariants}>
+          <AlignmentWidget />
+        </motion.section>
+
+        {/* Insights */}
+        <motion.section variants={itemVariants}>
+          <InsightsCard />
+        </motion.section>
 
         {/* Daily Scripture */}
         <motion.section variants={itemVariants}>

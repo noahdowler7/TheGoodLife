@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from app.database import get_db
-from app.schemas.auth import MagicLinkRequest, TokenResponse
+from app.schemas.auth import MagicLinkRequest, VerifyTokenRequest, TokenResponse
 from app.services.auth import create_magic_token, verify_magic_token, create_access_token
 from app.models.user import User, UserSettings
 
@@ -20,6 +20,7 @@ async def request_magic_link(
     if not user:
         user = User(email=request.email)
         db.add(user)
+        await db.flush()  # Flush to get user.id
 
         # Create default settings
         settings = UserSettings(user_id=user.id)
@@ -36,9 +37,10 @@ async def request_magic_link(
 
 @router.post("/verify", response_model=TokenResponse)
 async def verify_magic_link(
-    token: str,
+    request: VerifyTokenRequest,
     db: AsyncSession = Depends(get_db)
 ):
+    token = request.token
     try:
         email = verify_magic_token(token)
     except Exception:

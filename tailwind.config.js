@@ -7,6 +7,18 @@ export default {
   theme: {
     extend: {
       colors: {
+        // Theme colors mapped to CSS variables
+        background: 'var(--bg-primary)',
+        surface: 'var(--bg-tertiary)',
+        card: 'var(--bg-card)',
+        border: 'var(--border)',
+        primary: 'var(--accent)',
+        text: {
+          primary: 'var(--text-primary)',
+          secondary: 'var(--text-secondary)',
+          tertiary: 'var(--text-tertiary)',
+        },
+        // Capital colors
         gold: {
           50: '#FBF7EE',
           100: '#F5ECD5',

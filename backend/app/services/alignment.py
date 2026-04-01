@@ -1,5 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, and_, func
+from sqlalchemy import select, and_, func, Integer
 from datetime import date, timedelta
 import uuid
 from app.models.investment import Investment
@@ -25,7 +25,7 @@ async def calculate_alignment_score(db: AsyncSession, user_id: uuid.UUID, days: 
         select(
             Investment.capital_id,
             func.count(Investment.id).label('total'),
-            func.sum(func.cast(Investment.completed, func.Integer())).label('completed')
+            func.sum(func.cast(Investment.completed, Integer)).label('completed')
         ).where(
             and_(
                 Investment.user_id == user_id,
