@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { AnimatePresence } from 'framer-motion'
 import Navigation from './components/Navigation'
@@ -11,6 +11,9 @@ import Calendar from './components/Calendar'
 import FastingTracker from './components/FastingTracker'
 import DevotionalGuide from './components/DevotionalGuide'
 import Settings from './components/Settings'
+import AuthScreen from './components/AuthScreen'
+import DataMigration from './components/DataMigration'
+import SyncStatus from './components/SyncStatus'
 import {
   useDisciplines,
   useReflections,
@@ -21,10 +24,12 @@ import {
   useCustomDisciplines,
   useSettings,
 } from './hooks/useStorage'
+import { useAuth } from './hooks/useAuth'
 
 function App() {
   const location = useLocation()
   const navigate = useNavigate()
+  const { isAuthenticated, login, verify, loading, error } = useAuth()
   const [disciplines, setDisciplines] = useDisciplines()
   const [reflections, setReflections] = useReflections()
   const [ratings, setRatings] = useRatings()
@@ -33,6 +38,7 @@ function App() {
   const [partners, setPartners] = usePartners()
   const [customDisciplines, setCustomDisciplines] = useCustomDisciplines()
   const [settings, setSettings] = useSettings()
+  const [migrationChecked, setMigrationChecked] = useState(false)
 
   // Apply theme to document
   useEffect(() => {
@@ -73,6 +79,25 @@ function App() {
     navigate('/', { replace: true })
   }
 
+  // Auth gate
+  if (!isAuthenticated) {
+    return <AuthScreen onLogin={login} onVerify={verify} loading={loading} error={error} />
+  }
+
+  // Check for data migration
+  const needsMigration = !migrationChecked &&
+    !localStorage.getItem('thegoodlife_migrated') &&
+    localStorage.getItem('thegoodlife_disciplines')
+
+  if (needsMigration) {
+    return (
+      <DataMigration
+        onComplete={() => setMigrationChecked(true)}
+        onSkip={() => setMigrationChecked(true)}
+      />
+    )
+  }
+
   if (!settings?.onboardingComplete) {
     return <Onboarding onComplete={handleOnboardingComplete} />
   }
@@ -83,6 +108,7 @@ function App() {
 
   return (
     <div className="min-h-screen">
+      <SyncStatus />
       <AnimatePresence mode="wait">
         <Routes location={location} key={location.pathname}>
           <Route path="/" element={<Dashboard {...appState} />} />

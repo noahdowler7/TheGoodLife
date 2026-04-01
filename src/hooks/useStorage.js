@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
+import { dataService } from '../services/dataService'
 
 const STORAGE_DEBOUNCE_MS = 300
 
@@ -35,16 +36,32 @@ function setStorageItem(key, value) {
 
 export function useStorage(key, defaultValue) {
   const [value, setValue] = useState(() => getStorageItem(key, defaultValue))
+  const [syncStatus, setSyncStatus] = useState('synced')
   const writeTimeoutRef = useRef(null)
   const valueRef = useRef(value)
   valueRef.current = value
 
   useEffect(() => {
     if (writeTimeoutRef.current) clearTimeout(writeTimeoutRef.current)
-    writeTimeoutRef.current = setTimeout(() => {
+    writeTimeoutRef.current = setTimeout(async () => {
       writeTimeoutRef.current = null
+
+      // Write to localStorage (always)
       setStorageItem(key, valueRef.current)
+
+      // Try to sync to API if authenticated and online
+      if (dataService.shouldUseAPI()) {
+        try {
+          await dataService.processSyncQueue()
+          setSyncStatus('synced')
+        } catch (error) {
+          setSyncStatus('pending')
+        }
+      } else {
+        setSyncStatus('offline')
+      }
     }, STORAGE_DEBOUNCE_MS)
+
     return () => {
       if (writeTimeoutRef.current) {
         clearTimeout(writeTimeoutRef.current)
@@ -58,7 +75,7 @@ export function useStorage(key, defaultValue) {
     setValue(prev => typeof newValue === 'function' ? newValue(prev) : newValue)
   }, [])
 
-  return [value, updateValue]
+  return [value, updateValue, syncStatus]
 }
 
 // Disciplines: { "2026-03-30": { "bible-reading": true, "prayer": true, ... } }
