@@ -8,7 +8,7 @@ const STORAGE_KEYS = {
   events: 'thegoodlife_events',
   fasting: 'thegoodlife_fasting',
   partners: 'thegoodlife_partners',
-  customDisciplines: 'thegoodlife_customDisciplines',
+  customDisciplines: 'thegoodlife_custom_disc',
   settings: 'thegoodlife_settings',
   syncQueue: 'thegoodlife_syncQueue',
 }
@@ -289,15 +289,8 @@ class DataService {
 
   // Partners
   async getPartners() {
-    if (this.shouldUseAPI()) {
-      try {
-        const response = await api.get('/api/v1/disciplines/')
-        return response.partners || []
-      } catch (error) {
-        console.error('API failed, falling back to localStorage:', error)
-      }
-    }
-
+    // TODO: Phase 4 will implement dedicated partners API
+    // For now, use localStorage only
     const data = localStorage.getItem(STORAGE_KEYS.partners)
     return data ? JSON.parse(data) : []
   }

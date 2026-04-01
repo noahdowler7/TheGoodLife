@@ -19,7 +19,7 @@ export default function DataMigration({ onComplete, onSkip }) {
       const events = JSON.parse(localStorage.getItem('thegoodlife_events') || '[]')
       const fasting = JSON.parse(localStorage.getItem('thegoodlife_fasting') || '[]')
       const partners = JSON.parse(localStorage.getItem('thegoodlife_partners') || '[]')
-      const customDisciplines = JSON.parse(localStorage.getItem('thegoodlife_customDisciplines') || '[]')
+      const customDisciplines = JSON.parse(localStorage.getItem('thegoodlife_custom_disc') || '[]')
       const settings = JSON.parse(localStorage.getItem('thegoodlife_settings') || '{}')
 
       // Push to server
@@ -44,7 +44,7 @@ export default function DataMigration({ onComplete, onSkip }) {
       localStorage.removeItem('thegoodlife_events')
       localStorage.removeItem('thegoodlife_fasting')
       localStorage.removeItem('thegoodlife_partners')
-      localStorage.removeItem('thegoodlife_customDisciplines')
+      localStorage.removeItem('thegoodlife_custom_disc')
       localStorage.removeItem('thegoodlife_settings')
 
       // Mark migration complete

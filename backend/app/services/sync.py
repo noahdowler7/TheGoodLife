@@ -10,6 +10,7 @@ from app.models.fasting import FastingRecord
 from app.models.partner import AccountabilityPartner
 from app.models.discipline import CustomDiscipline
 from app.models.user import UserSettings
+from app.utils.discipline_map import get_capital_for_discipline
 
 async def bulk_import(db: AsyncSession, user_id: uuid.UUID, data: dict) -> dict:
     counts = {
@@ -39,8 +40,8 @@ async def bulk_import(db: AsyncSession, user_id: uuid.UUID, data: dict) -> dict:
             existing = result.scalar_one_or_none()
 
             if not existing:
-                # Infer capital_id from discipline_id (simplified - should use actual mapping)
-                capital_id = "spiritual"  # TODO: proper mapping
+                # Get capital_id from discipline mapping
+                capital_id = get_capital_for_discipline(discipline_id)
                 investment = Investment(
                     user_id=user_id,
                     date=date_obj,

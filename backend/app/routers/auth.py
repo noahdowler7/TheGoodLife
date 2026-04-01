@@ -21,6 +21,7 @@ async def request_magic_link(
         user = User(email=request.email)
         db.add(user)
         await db.flush()  # Flush to get user.id
+        await db.refresh(user)  # Refresh to ensure user.id is populated
 
         # Create default settings
         settings = UserSettings(user_id=user.id)

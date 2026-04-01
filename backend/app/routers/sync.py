@@ -33,13 +33,20 @@ async def sync_pull(
     user_id: uuid.UUID = Depends(get_current_user_id),
     db: AsyncSession = Depends(get_db)
 ):
-    # TODO: Filter by timestamp when `since` is provided
+    # Parse since parameter for incremental sync
+    since_datetime = None
+    if since:
+        try:
+            since_datetime = datetime.fromisoformat(since.replace('Z', '+00:00'))
+        except ValueError:
+            pass  # Invalid timestamp, ignore and do full sync
 
-    # Get all user data
+    # Get all user data (with optional timestamp filter)
     disciplines_dict = {}
-    result = await db.execute(
-        select(Investment).where(Investment.user_id == user_id)
-    )
+    query = select(Investment).where(Investment.user_id == user_id)
+    if since_datetime:
+        query = query.where(Investment.updated_at >= since_datetime)
+    result = await db.execute(query)
     for inv in result.scalars().all():
         date_str = inv.date.strftime("%Y-%m-%d")
         if date_str not in disciplines_dict:
@@ -47,9 +54,10 @@ async def sync_pull(
         disciplines_dict[date_str][inv.discipline_id] = inv.completed
 
     ratings_dict = {}
-    result = await db.execute(
-        select(Rating).where(Rating.user_id == user_id)
-    )
+    query = select(Rating).where(Rating.user_id == user_id)
+    if since_datetime:
+        query = query.where(Rating.updated_at >= since_datetime)
+    result = await db.execute(query)
     for rating in result.scalars().all():
         date_str = rating.date.strftime("%Y-%m-%d")
         if date_str not in ratings_dict:
@@ -57,9 +65,10 @@ async def sync_pull(
         ratings_dict[date_str][rating.capital_id] = rating.score
 
     reflections_dict = {}
-    result = await db.execute(
-        select(Reflection).where(Reflection.user_id == user_id)
-    )
+    query = select(Reflection).where(Reflection.user_id == user_id)
+    if since_datetime:
+        query = query.where(Reflection.updated_at >= since_datetime)
+    result = await db.execute(query)
     for refl in result.scalars().all():
         date_str = refl.date.strftime("%Y-%m-%d")
         if date_str not in reflections_dict:
@@ -68,9 +77,10 @@ async def sync_pull(
         reflections_dict[date_str][key] = refl.content
 
     # Events
-    result = await db.execute(
-        select(CalendarEvent).where(CalendarEvent.user_id == user_id)
-    )
+    query = select(CalendarEvent).where(CalendarEvent.user_id == user_id)
+    if since_datetime:
+        query = query.where(CalendarEvent.updated_at >= since_datetime)
+    result = await db.execute(query)
     events_list = [
         {
             "id": str(e.id),
@@ -84,9 +94,10 @@ async def sync_pull(
     ]
 
     # Fasting
-    result = await db.execute(
-        select(FastingRecord).where(FastingRecord.user_id == user_id)
-    )
+    query = select(FastingRecord).where(FastingRecord.user_id == user_id)
+    if since_datetime:
+        query = query.where(FastingRecord.updated_at >= since_datetime)
+    result = await db.execute(query)
     fasting_list = [
         {
             "id": str(f.id),
@@ -101,9 +112,10 @@ async def sync_pull(
     ]
 
     # Partners
-    result = await db.execute(
-        select(AccountabilityPartner).where(AccountabilityPartner.user_id == user_id)
-    )
+    query = select(AccountabilityPartner).where(AccountabilityPartner.user_id == user_id)
+    if since_datetime:
+        query = query.where(AccountabilityPartner.updated_at >= since_datetime)
+    result = await db.execute(query)
     partners_list = [
         {
             "id": str(p.id),
@@ -115,9 +127,10 @@ async def sync_pull(
     ]
 
     # Custom disciplines
-    result = await db.execute(
-        select(CustomDiscipline).where(CustomDiscipline.user_id == user_id)
-    )
+    query = select(CustomDiscipline).where(CustomDiscipline.user_id == user_id)
+    if since_datetime:
+        query = query.where(CustomDiscipline.updated_at >= since_datetime)
+    result = await db.execute(query)
     custom_disc_list = [
         {
             "id": str(d.id),
