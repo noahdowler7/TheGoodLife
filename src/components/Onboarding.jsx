@@ -7,6 +7,7 @@ import MovementLogo from './MovementLogo'
 function Onboarding({ onComplete }) {
   const [step, setStep] = useState(0)
   const [name, setName] = useState('')
+  const [theme, setTheme] = useState('dark')
   const [capitals, setCapitals] = useState({
     spiritual: true,
     relational: true,
@@ -34,8 +35,15 @@ function Onboarding({ onComplete }) {
     onComplete({
       name: name.trim() || null,
       capitals,
+      theme,
       profilePicture: profilePicture || null,
     })
+  }
+
+  const handleThemeSelect = (selectedTheme) => {
+    setTheme(selectedTheme)
+    // Apply theme immediately
+    document.documentElement.setAttribute('data-theme', selectedTheme)
   }
 
   const toggleCapital = (id) => {
@@ -120,8 +128,79 @@ function Onboarding({ onComplete }) {
           </motion.div>
         )}
 
-        {/* Step 2: Capital Focus */}
+        {/* Step 2: Why Five Capitals? */}
         {step === 2 && (
+          <motion.div
+            key="why-capitals"
+            variants={containerVariants}
+            initial="hidden" animate="visible" exit="exit"
+            className="flex-1 flex flex-col px-6 pt-16 pb-8"
+          >
+            <div className="text-center mb-8">
+              <h1 className="text-[28px] font-semibold mb-2" style={{ color: 'var(--text-primary)', fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '0.03em' }}>
+                The Five Capitals
+              </h1>
+              <p className="text-[15px]" style={{ color: 'var(--text-tertiary)' }}>
+                A framework for life aligned with God's priorities
+              </p>
+            </div>
+            <div className="flex-1 flex flex-col justify-center space-y-6">
+              {/* Priority Pyramid */}
+              <div className="space-y-2">
+                {CAPITAL_ORDER.map((id, index) => {
+                  const capital = CAPITALS[id]
+                  const width = 100 - (index * 15)
+                  return (
+                    <motion.div
+                      key={id}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.1 * index }}
+                      className="flex items-center gap-3"
+                      style={{ marginLeft: `${index * 7.5}%` }}
+                    >
+                      <div
+                        className="h-12 rounded-xl flex items-center justify-center font-medium text-[15px] text-white shadow-lg"
+                        style={{
+                          background: capital.color,
+                          width: `${width}%`
+                        }}
+                      >
+                        {capital.name}
+                      </div>
+                    </motion.div>
+                  )
+                })}
+              </div>
+
+              {/* Explanation */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.6 }}
+                className="bg-surface border border-border rounded-2xl p-5 space-y-3"
+              >
+                <p className="text-[15px] leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+                  <strong style={{ color: 'var(--text-primary)' }}>Invest</strong> in what matters. <strong style={{ color: 'var(--text-primary)' }}>Grow</strong> in every area. <strong style={{ color: 'var(--text-primary)' }}>Align</strong> your life with God's design.
+                </p>
+                <p className="text-[14px] leading-relaxed" style={{ color: 'var(--text-tertiary)' }}>
+                  When you prioritize the Spiritual first, everything else finds its proper place. This isn't about balance—it's about alignment.
+                </p>
+              </motion.div>
+            </div>
+            <div className="space-y-3">
+              <motion.button whileTap={{ scale: 0.98 }} onClick={() => setStep(3)} className="btn-primary w-full">
+                Continue
+              </motion.button>
+              <button onClick={() => setStep(1)} className="w-full py-3 text-[15px] font-medium" style={{ color: 'var(--text-tertiary)' }}>
+                Go back
+              </button>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Step 3: Capital Focus with Descriptions */}
+        {step === 3 && (
           <motion.div
             key="capitals"
             variants={containerVariants}
@@ -155,11 +234,11 @@ function Onboarding({ onComplete }) {
                       <div className="w-4 h-4 rounded-full" style={{ background: enabled ? 'white' : 'var(--text-muted)' }} />
                     </div>
                     <div className="flex-1 text-left">
-                      <p className="text-[16px] font-medium" style={{ color: enabled ? capital.color : 'var(--text-primary)' }}>
+                      <p className="text-[16px] font-medium mb-1" style={{ color: enabled ? capital.color : 'var(--text-primary)' }}>
                         {capital.name}
                       </p>
-                      <p className="text-[13px]" style={{ color: 'var(--text-tertiary)' }}>
-                        {capital.disciplines.length} disciplines
+                      <p className="text-[13px] leading-relaxed" style={{ color: 'var(--text-tertiary)' }}>
+                        {capital.description}
                       </p>
                     </div>
                     <div className={`w-6 h-6 rounded-full flex items-center justify-center ${enabled ? '' : 'border-2'}`}
@@ -176,18 +255,120 @@ function Onboarding({ onComplete }) {
               })}
             </div>
             <div className="space-y-3 mt-6">
-              <motion.button whileTap={{ scale: 0.98 }} onClick={() => setStep(3)} className="btn-primary w-full">
+              <motion.button whileTap={{ scale: 0.98 }} onClick={() => setStep(4)} className="btn-primary w-full">
                 Continue
               </motion.button>
-              <button onClick={() => setStep(1)} className="w-full py-3 text-[15px] font-medium" style={{ color: 'var(--text-tertiary)' }}>
+              <button onClick={() => setStep(2)} className="w-full py-3 text-[15px] font-medium" style={{ color: 'var(--text-tertiary)' }}>
                 Go back
               </button>
             </div>
           </motion.div>
         )}
 
-        {/* Step 3: Profile Photo */}
-        {step === 3 && (
+        {/* Step 4: Theme Selection */}
+        {step === 4 && (
+          <motion.div
+            key="theme"
+            variants={containerVariants}
+            initial="hidden" animate="visible" exit="exit"
+            className="flex-1 flex flex-col px-6 pt-16 pb-8"
+          >
+            <div className="text-center mb-8">
+              <h1 className="text-[28px] font-semibold mb-2" style={{ color: 'var(--text-primary)', fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '0.03em' }}>
+                Choose Your Look
+              </h1>
+              <p className="text-[15px]" style={{ color: 'var(--text-tertiary)' }}>
+                Pick a theme that fits your style
+              </p>
+            </div>
+            <div className="flex-1 flex flex-col justify-center space-y-4">
+              {/* Dark Theme */}
+              <motion.button
+                whileTap={{ scale: 0.97 }}
+                onClick={() => handleThemeSelect('dark')}
+                className="relative rounded-2xl overflow-hidden border-4 transition-all"
+                style={{
+                  borderColor: theme === 'dark' ? 'var(--accent)' : 'transparent',
+                }}
+              >
+                <div className="bg-[#0A0A0A] p-6 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-full bg-[#1A1A1A]" />
+                      <div className="h-3 w-24 bg-[#1A1A1A] rounded" />
+                    </div>
+                    {theme === 'dark' && (
+                      <div className="w-6 h-6 rounded-full bg-gold-400 flex items-center justify-center">
+                        <svg className="w-4 h-4 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                        </svg>
+                      </div>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <div className="h-2 bg-[#1A1A1A] rounded w-full" />
+                    <div className="h-2 bg-[#1A1A1A] rounded w-3/4" />
+                  </div>
+                  <div className="flex gap-2">
+                    <div className="h-16 flex-1 bg-[#1A1A1A] rounded-xl" />
+                    <div className="h-16 flex-1 bg-[#1A1A1A] rounded-xl" />
+                  </div>
+                  <p className="text-[15px] font-semibold text-white text-center pt-2">
+                    Dark Mode
+                  </p>
+                </div>
+              </motion.button>
+
+              {/* Light Theme */}
+              <motion.button
+                whileTap={{ scale: 0.97 }}
+                onClick={() => handleThemeSelect('light')}
+                className="relative rounded-2xl overflow-hidden border-4 transition-all"
+                style={{
+                  borderColor: theme === 'light' ? 'var(--accent)' : 'transparent',
+                }}
+              >
+                <div className="bg-[#FAFAF8] p-6 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-full bg-[#E8E8E6]" />
+                      <div className="h-3 w-24 bg-[#E8E8E6] rounded" />
+                    </div>
+                    {theme === 'light' && (
+                      <div className="w-6 h-6 rounded-full bg-gold-400 flex items-center justify-center">
+                        <svg className="w-4 h-4 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                        </svg>
+                      </div>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <div className="h-2 bg-[#E8E8E6] rounded w-full" />
+                    <div className="h-2 bg-[#E8E8E6] rounded w-3/4" />
+                  </div>
+                  <div className="flex gap-2">
+                    <div className="h-16 flex-1 bg-white border border-[#E8E8E6] rounded-xl" />
+                    <div className="h-16 flex-1 bg-white border border-[#E8E8E6] rounded-xl" />
+                  </div>
+                  <p className="text-[15px] font-semibold text-gray-900 text-center pt-2">
+                    Light Mode
+                  </p>
+                </div>
+              </motion.button>
+            </div>
+            <div className="space-y-3">
+              <motion.button whileTap={{ scale: 0.98 }} onClick={() => setStep(5)} className="btn-primary w-full">
+                Continue
+              </motion.button>
+              <button onClick={() => setStep(3)} className="w-full py-3 text-[15px] font-medium" style={{ color: 'var(--text-tertiary)' }}>
+                Go back
+              </button>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Step 5: Profile Photo */}
+        {step === 5 && (
           <motion.div
             key="photo"
             variants={containerVariants}
@@ -233,7 +414,7 @@ function Onboarding({ onComplete }) {
               <motion.button whileTap={{ scale: 0.98 }} onClick={handleComplete} className="btn-primary w-full">
                 {profilePicture ? 'Finish' : 'Skip for now'}
               </motion.button>
-              <button onClick={() => setStep(2)} className="w-full py-3 text-[15px] font-medium" style={{ color: 'var(--text-tertiary)' }}>
+              <button onClick={() => setStep(4)} className="w-full py-3 text-[15px] font-medium" style={{ color: 'var(--text-tertiary)' }}>
                 Go back
               </button>
             </div>
@@ -243,7 +424,7 @@ function Onboarding({ onComplete }) {
 
       {/* Progress dots */}
       <div className="flex justify-center gap-2 pb-8">
-        {[0, 1, 2, 3].map((i) => (
+        {[0, 1, 2, 3, 4, 5].map((i) => (
           <div
             key={i}
             className="h-2 rounded-full transition-all"
