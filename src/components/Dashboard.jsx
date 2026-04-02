@@ -8,11 +8,12 @@ import StreakIndicator from './StreakIndicator'
 import InsightsCard from './InsightsCard'
 import AlignmentWidget from './AlignmentWidget'
 import { getDailyScripture } from '../utils/scriptures'
+import ThreePillars from './ThreePillars'
 import { CAPITALS, CAPITAL_ORDER, getActiveDisciplines } from '../utils/capitals'
 import { calculateCapitalScore, getActiveStreaks, getDailyCompletionRate } from '../utils/streaks'
 import { ALL_DISCIPLINES } from '../utils/capitals'
 
-function Dashboard({ disciplines, ratings, settings, setDisciplines, customDisciplines }) {
+function Dashboard({ disciplines, ratings, reflections, setReflections, settings, setDisciplines, customDisciplines }) {
   const navigate = useNavigate()
   const today = new Date()
   const hour = today.getHours()
@@ -217,6 +218,11 @@ function Dashboard({ disciplines, ratings, settings, setDisciplines, customDisci
             </div>
           </motion.section>
         )}
+
+        {/* Three Pillars Check-in */}
+        <motion.section variants={itemVariants}>
+          <ThreePillars reflections={reflections} setReflections={setReflections} />
+        </motion.section>
 
         {/* Alignment Score */}
         <motion.section variants={itemVariants}>
