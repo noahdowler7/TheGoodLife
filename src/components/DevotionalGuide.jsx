@@ -3,6 +3,7 @@ import { format, subDays } from 'date-fns'
 import { motion, AnimatePresence } from 'framer-motion'
 import PageWrapper from './PageWrapper'
 import { getDailyScripture, getDailyPrompt } from '../utils/scriptures'
+import { getDailyExposition, getDailyCrossRefs, getDailyReading, DISCIPLESHIP_TEACHINGS } from '../utils/devotional'
 import { CAPITALS } from '../utils/capitals'
 
 function DevotionalGuide({ reflections, setReflections }) {
@@ -11,9 +12,13 @@ function DevotionalGuide({ reflections, setReflections }) {
   const todayStr = format(today, 'yyyy-MM-dd')
 
   const dailyScripture = useMemo(() => getDailyScripture(today), [todayStr])
-
   const todayPrompt = useMemo(() => getDailyPrompt(today), [todayStr])
   const capital = dailyScripture.capital ? CAPITALS[dailyScripture.capital] : null
+  const capitalId = dailyScripture.capital || 'spiritual'
+
+  const exposition = useMemo(() => getDailyExposition(today)(capitalId), [todayStr, capitalId])
+  const crossRefs = useMemo(() => getDailyCrossRefs(today)(capitalId), [todayStr, capitalId])
+  const dailyReading = useMemo(() => getDailyReading(today)(capitalId), [todayStr, capitalId])
 
   const devotionalReflection = reflections[todayStr]?.devotional || ''
 
@@ -27,49 +32,56 @@ function DevotionalGuide({ reflections, setReflections }) {
     }))
   }
 
-  // Past 7 days of scriptures
+  // Past 7 days
   const pastScriptures = useMemo(() => {
     return Array.from({ length: 7 }, (_, i) => {
       const date = subDays(today, i + 1)
+      const scripture = getDailyScripture(date)
       return {
         date: format(date, 'yyyy-MM-dd'),
         dateLabel: format(date, 'EEEE, MMM d'),
-        scripture: getDailyScripture(date),
+        scripture,
+        capital: scripture.capital ? CAPITALS[scripture.capital] : null,
         reflection: reflections[format(date, 'yyyy-MM-dd')]?.devotional || null,
       }
     })
   }, [todayStr, reflections])
 
+  // Current discipleship teaching (rotates weekly)
+  const weeklyTeaching = useMemo(() => {
+    const weekOfYear = Math.floor((today - new Date(today.getFullYear(), 0, 1)) / (7 * 24 * 60 * 60 * 1000))
+    return DISCIPLESHIP_TEACHINGS[weekOfYear % DISCIPLESHIP_TEACHINGS.length]
+  }, [todayStr])
+
   return (
     <PageWrapper className="min-h-screen pb-24">
       <header className="px-5 pt-6 pb-4">
-        <h1 className="text-[28px] font-semibold" style={{ color: 'var(--text-primary)', fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '0.03em' }}>Devotional</h1>
-        <p className="text-[14px] mt-1" style={{ color: 'var(--text-tertiary)' }}>Scripture & reflection</p>
+        <h1 className="text-[28px] font-semibold" style={{ color: 'var(--text-primary)', fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '0.03em' }}>The Word</h1>
+        <p className="text-[14px] mt-1" style={{ color: 'var(--text-tertiary)' }}>Scripture, exposition & discipleship</p>
       </header>
 
       {/* Tabs */}
       <div className="px-5 mb-5">
         <div className="segmented-control">
-          <button className={`segment ${tab === 'today' ? 'active' : ''}`} onClick={() => setTab('today')}>
-            Today
-          </button>
-          <button className={`segment ${tab === 'archive' ? 'active' : ''}`} onClick={() => setTab('archive')}>
-            Archive
-          </button>
+          {['today', 'discipleship', 'archive'].map(t => (
+            <button key={t} className={`segment ${tab === t ? 'active' : ''}`} onClick={() => setTab(t)}>
+              {t === 'today' ? 'Today' : t === 'discipleship' ? 'Grow' : 'Archive'}
+            </button>
+          ))}
         </div>
       </div>
 
       <div className="px-5 space-y-5">
-        {tab === 'today' ? (
+        {tab === 'today' && (
           <>
-            {/* Today's Scripture - Large Display */}
+            {/* Scripture Card */}
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="rounded-3xl py-10 px-6 text-center"
+              className="rounded-3xl py-8 px-6 text-center"
               style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
             >
-              <div className="flex items-center justify-center gap-2 mb-6">
+              <div className="flex items-center justify-center gap-2 mb-5">
                 <p className="text-[11px] tracking-widest uppercase" style={{ color: 'var(--accent)' }}>
                   Today's Scripture
                 </p>
@@ -79,7 +91,7 @@ function DevotionalGuide({ reflections, setReflections }) {
                   </span>
                 )}
               </div>
-              <p className="text-[20px] italic leading-relaxed mb-6" style={{ color: 'var(--text-primary)', fontWeight: 400 }}>
+              <p className="text-[20px] italic leading-relaxed mb-5" style={{ color: 'var(--text-primary)', fontWeight: 400 }}>
                 "{dailyScripture.verse}"
               </p>
               <p className="text-[13px] tracking-wider uppercase font-medium" style={{ color: 'var(--text-muted)' }}>
@@ -87,11 +99,80 @@ function DevotionalGuide({ reflections, setReflections }) {
               </p>
             </motion.div>
 
-            {/* Reflection Prompt */}
+            {/* Exposition */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.05 }}
+              className="rounded-2xl p-5"
+              style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
+            >
+              <p className="text-[11px] font-semibold uppercase tracking-wider mb-3" style={{ color: capital?.color || 'var(--accent)' }}>
+                Devotional Thought
+              </p>
+              <p className="text-[15px] leading-[1.7]" style={{ color: 'var(--text-secondary)' }}>
+                {exposition}
+              </p>
+            </motion.div>
+
+            {/* Cross References */}
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
+              className="rounded-2xl p-5"
+              style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
+            >
+              <p className="text-[11px] font-semibold uppercase tracking-wider mb-3" style={{ color: 'var(--text-muted)' }}>
+                Go Deeper
+              </p>
+              <div className="space-y-3">
+                {crossRefs.map((ref, i) => (
+                  <div key={i} className="flex items-start gap-3">
+                    <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5" style={{ background: `${capital?.color || 'var(--accent)'}15` }}>
+                      <span className="text-[10px] font-bold" style={{ color: capital?.color || 'var(--accent)' }}>{i + 1}</span>
+                    </div>
+                    <div>
+                      <p className="text-[14px] leading-relaxed" style={{ color: 'var(--text-primary)' }}>
+                        "{ref.text}"
+                      </p>
+                      <p className="text-[11px] mt-1 tracking-wider uppercase" style={{ color: 'var(--text-muted)' }}>
+                        {ref.ref}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+
+            {/* Daily Reading Suggestion */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.15 }}
+              className="rounded-2xl p-4 flex items-center gap-4"
+              style={{ background: `${capital?.color || 'var(--accent)'}10`, border: `1px solid ${capital?.color || 'var(--accent)'}30` }}
+            >
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: `${capital?.color || 'var(--accent)'}20` }}>
+                <svg className="w-5 h-5" style={{ color: capital?.color || 'var(--accent)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+              </div>
+              <div className="flex-1">
+                <p className="text-[11px] font-semibold uppercase tracking-wider mb-0.5" style={{ color: capital?.color || 'var(--accent)' }}>
+                  Today's Reading
+                </p>
+                <p className="text-[15px] font-medium" style={{ color: 'var(--text-primary)' }}>
+                  {dailyReading}
+                </p>
+              </div>
+            </motion.div>
+
+            {/* Reflection Prompt */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
               className="rounded-2xl p-4"
               style={{ background: 'var(--accent-light)', border: '1px solid var(--accent)30' }}
             >
@@ -107,7 +188,7 @@ function DevotionalGuide({ reflections, setReflections }) {
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
+              transition={{ delay: 0.25 }}
             >
               <h3 className="text-[15px] font-semibold uppercase mb-3" style={{ color: 'var(--text-muted)', fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '0.1em' }}>
                 Your Reflection
@@ -118,11 +199,7 @@ function DevotionalGuide({ reflections, setReflections }) {
                 placeholder="Write your thoughts, prayers, and reflections here..."
                 rows={6}
                 className="w-full px-5 py-4 rounded-2xl text-[15px] outline-none resize-none leading-relaxed"
-                style={{
-                  background: 'var(--bg-card)',
-                  color: 'var(--text-primary)',
-                  border: '1px solid var(--border)',
-                }}
+                style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', border: '1px solid var(--border)' }}
               />
               {devotionalReflection && (
                 <p className="text-[12px] mt-2 text-right" style={{ color: 'var(--text-muted)' }}>
@@ -131,8 +208,69 @@ function DevotionalGuide({ reflections, setReflections }) {
               )}
             </motion.div>
           </>
-        ) : (
-          /* Archive - Past scriptures */
+        )}
+
+        {tab === 'discipleship' && (
+          <>
+            {/* Weekly Teaching */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="rounded-3xl p-6"
+              style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
+            >
+              {(() => {
+                const teachCapital = CAPITALS[weeklyTeaching.capital]
+                return (
+                  <>
+                    <div className="flex items-center gap-2 mb-4">
+                      <div className="w-3 h-3 rounded-full" style={{ background: teachCapital?.color }} />
+                      <p className="text-[11px] font-semibold uppercase tracking-wider" style={{ color: teachCapital?.color }}>
+                        This Week's Focus
+                      </p>
+                    </div>
+                    <h2 className="text-[22px] font-semibold mb-4" style={{ color: 'var(--text-primary)', fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '0.02em' }}>
+                      {weeklyTeaching.title}
+                    </h2>
+                    <p className="text-[15px] leading-[1.75] mb-6" style={{ color: 'var(--text-secondary)' }}>
+                      {weeklyTeaching.teaching}
+                    </p>
+
+                    {/* Key Verse */}
+                    <div className="rounded-xl p-4 mb-5" style={{ background: `${teachCapital?.color}10`, border: `1px solid ${teachCapital?.color}30` }}>
+                      <p className="text-[14px] italic leading-relaxed" style={{ color: 'var(--text-primary)' }}>
+                        "{weeklyTeaching.keyVerse}"
+                      </p>
+                    </div>
+
+                    {/* Practice */}
+                    <div className="rounded-xl p-4" style={{ background: 'var(--bg-tertiary)' }}>
+                      <p className="text-[11px] font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--accent)' }}>
+                        Practice This Week
+                      </p>
+                      <p className="text-[14px] leading-relaxed" style={{ color: 'var(--text-primary)' }}>
+                        {weeklyTeaching.practice}
+                      </p>
+                    </div>
+                  </>
+                )
+              })()}
+            </motion.div>
+
+            {/* All Five Capitals Summaries */}
+            <h3 className="text-[15px] font-semibold uppercase" style={{ color: 'var(--text-muted)', fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '0.1em' }}>
+              The Five Capitals
+            </h3>
+            {DISCIPLESHIP_TEACHINGS.map((teaching, i) => {
+              const tc = CAPITALS[teaching.capital]
+              return (
+                <ExpandableTeaching key={i} teaching={teaching} capital={tc} />
+              )
+            })}
+          </>
+        )}
+
+        {tab === 'archive' && (
           <div className="space-y-4">
             {pastScriptures.map((entry) => (
               <motion.div
@@ -142,9 +280,16 @@ function DevotionalGuide({ reflections, setReflections }) {
                 className="rounded-2xl p-4"
                 style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
               >
-                <p className="text-[12px] font-medium mb-2" style={{ color: 'var(--text-muted)' }}>
-                  {entry.dateLabel}
-                </p>
+                <div className="flex items-center gap-2 mb-2">
+                  <p className="text-[12px] font-medium" style={{ color: 'var(--text-muted)' }}>
+                    {entry.dateLabel}
+                  </p>
+                  {entry.capital && (
+                    <span className="text-[9px] font-medium px-1.5 py-0.5 rounded-full" style={{ background: `${entry.capital.color}20`, color: entry.capital.color }}>
+                      {entry.capital.name}
+                    </span>
+                  )}
+                </div>
                 <p className="text-[15px] italic leading-relaxed mb-2" style={{ color: 'var(--text-primary)' }}>
                   "{entry.scripture.verse}"
                 </p>
@@ -167,6 +312,63 @@ function DevotionalGuide({ reflections, setReflections }) {
         <div className="h-4" />
       </div>
     </PageWrapper>
+  )
+}
+
+function ExpandableTeaching({ teaching, capital }) {
+  const [expanded, setExpanded] = useState(false)
+
+  return (
+    <motion.div
+      className="rounded-2xl overflow-hidden"
+      style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
+    >
+      <button
+        onClick={() => setExpanded(!expanded)}
+        className="w-full p-4 flex items-center gap-3 text-left"
+      >
+        <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: `${capital?.color}20` }}>
+          <div className="w-3 h-3 rounded-full" style={{ background: capital?.color }} />
+        </div>
+        <span className="flex-1 text-[15px] font-medium" style={{ color: 'var(--text-primary)' }}>
+          {teaching.title}
+        </span>
+        <svg
+          className="w-4 h-4 transition-transform"
+          style={{ color: 'var(--text-muted)', transform: expanded ? 'rotate(180deg)' : 'rotate(0deg)' }}
+          fill="none" stroke="currentColor" viewBox="0 0 24 24"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+      <AnimatePresence>
+        {expanded && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="overflow-hidden"
+          >
+            <div className="px-4 pb-4 space-y-3">
+              <p className="text-[14px] leading-[1.7]" style={{ color: 'var(--text-secondary)' }}>
+                {teaching.teaching}
+              </p>
+              <div className="rounded-xl p-3" style={{ background: `${capital?.color}10` }}>
+                <p className="text-[13px] italic leading-relaxed" style={{ color: 'var(--text-primary)' }}>
+                  "{teaching.keyVerse}"
+                </p>
+              </div>
+              <div className="rounded-xl p-3" style={{ background: 'var(--bg-tertiary)' }}>
+                <p className="text-[11px] font-semibold uppercase tracking-wider mb-1" style={{ color: 'var(--accent)' }}>Practice</p>
+                <p className="text-[13px] leading-relaxed" style={{ color: 'var(--text-primary)' }}>
+                  {teaching.practice}
+                </p>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
   )
 }
 
