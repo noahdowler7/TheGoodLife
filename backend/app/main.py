@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from app.config import settings
 from app.routers import (
     auth,
     users,
@@ -16,9 +17,13 @@ from app.routers import (
 
 app = FastAPI()
 
+_origins = ["http://localhost:5173", "http://localhost:5174", "http://localhost:5175"]
+if settings.frontend_url not in _origins:
+    _origins.append(settings.frontend_url)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:5174", "http://localhost:5175"],
+    allow_origins=_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
