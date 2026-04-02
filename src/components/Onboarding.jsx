@@ -16,6 +16,7 @@ function Onboarding({ onComplete }) {
     financial: true,
   })
   const [profilePicture, setProfilePicture] = useState(null)
+  const [expandedCapital, setExpandedCapital] = useState(null)
   const fileInputRef = useRef(null)
 
   const handleImageSelect = async (e) => {
@@ -198,8 +199,95 @@ function Onboarding({ onComplete }) {
           </motion.div>
         )}
 
-        {/* Step 3: Capital Focus with Descriptions */}
+        {/* Step 3: Why We Rate */}
         {step === 3 && (
+          <motion.div
+            key="why-rate"
+            variants={containerVariants}
+            initial="hidden" animate="visible" exit="exit"
+            className="flex-1 flex flex-col px-6 pt-16 pb-8"
+          >
+            <div className="text-center mb-8">
+              <h1 className="text-[28px] font-semibold mb-2" style={{ color: 'var(--text-primary)', fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '0.03em' }}>
+                Daily Ratings
+              </h1>
+              <p className="text-[15px]" style={{ color: 'var(--text-tertiary)' }}>
+                Awareness leads to transformation
+              </p>
+            </div>
+            <div className="flex-1 flex flex-col justify-center overflow-y-auto space-y-6 mb-6">
+              {/* Explanation */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.2 }}
+                className="bg-surface border border-border rounded-2xl p-5 space-y-3"
+              >
+                <p className="text-[15px] leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+                  Each day you'll rate how you're investing in each capital (1-5). This isn't about perfection — it's about <strong style={{ color: 'var(--text-primary)' }}>awareness</strong>.
+                </p>
+                <p className="text-[14px] leading-relaxed" style={{ color: 'var(--text-tertiary)' }}>
+                  Over time, you'll see patterns that reveal where God is growing you.
+                </p>
+              </motion.div>
+
+              {/* Mini Visual: Example Rating */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4 }}
+                className="space-y-3"
+              >
+                <p className="text-[13px] font-medium text-center" style={{ color: 'var(--text-tertiary)' }}>
+                  Example: Today's investment
+                </p>
+                {CAPITAL_ORDER.map((id, index) => {
+                  const capital = CAPITALS[id]
+                  const exampleRating = [5, 4, 3, 4, 2][index] // Example ratings
+                  return (
+                    <motion.div
+                      key={id}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.5 + (index * 0.1) }}
+                      className="flex items-center gap-3"
+                    >
+                      <div className="w-3 h-3 rounded-full" style={{ background: capital.color }} />
+                      <div className="flex-1 flex items-center gap-2">
+                        <span className="text-[13px] font-medium w-24" style={{ color: 'var(--text-secondary)' }}>
+                          {capital.name}
+                        </span>
+                        <div className="flex-1 h-2 bg-tertiary rounded-full overflow-hidden">
+                          <div
+                            className="h-full rounded-full transition-all"
+                            style={{
+                              background: capital.color,
+                              width: `${(exampleRating / 5) * 100}%`
+                            }}
+                          />
+                        </div>
+                        <span className="text-[13px] font-medium w-6 text-right" style={{ color: capital.color }}>
+                          {exampleRating}
+                        </span>
+                      </div>
+                    </motion.div>
+                  )
+                })}
+              </motion.div>
+            </div>
+            <div className="space-y-3 mt-auto">
+              <motion.button whileTap={{ scale: 0.98 }} onClick={() => setStep(4)} className="btn-primary w-full">
+                Continue
+              </motion.button>
+              <button onClick={() => setStep(2)} className="w-full py-3 text-[15px] font-medium" style={{ color: 'var(--text-tertiary)' }}>
+                Go back
+              </button>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Step 4: Capital Focus with Descriptions */}
+        {step === 4 && (
           <motion.div
             key="capitals"
             variants={containerVariants}
@@ -218,54 +306,102 @@ function Onboarding({ onComplete }) {
               {CAPITAL_ORDER.map(id => {
                 const capital = CAPITALS[id]
                 const enabled = capitals[id]
+                const isExpanded = expandedCapital === id
                 return (
-                  <motion.button
+                  <motion.div
                     key={id}
-                    whileTap={{ scale: 0.97 }}
-                    onClick={() => toggleCapital(id)}
-                    className="w-full rounded-2xl p-4 flex items-center gap-4 transition-all"
+                    className="w-full rounded-2xl p-4 transition-all"
                     style={{
                       background: enabled ? `${capital.color}15` : 'var(--bg-card)',
                       border: `2px solid ${enabled ? capital.color : 'var(--border)'}`,
                     }}
                   >
-                    <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: enabled ? capital.color : 'var(--bg-tertiary)' }}>
-                      <div className="w-4 h-4 rounded-full" style={{ background: enabled ? 'white' : 'var(--text-muted)' }} />
-                    </div>
-                    <div className="flex-1 text-left">
-                      <p className="text-[16px] font-medium mb-1" style={{ color: enabled ? capital.color : 'var(--text-primary)' }}>
-                        {capital.name}
-                      </p>
-                      <p className="text-[13px] leading-relaxed" style={{ color: 'var(--text-tertiary)' }}>
-                        {capital.description}
-                      </p>
-                    </div>
-                    <div className={`w-6 h-6 rounded-full flex items-center justify-center ${enabled ? '' : 'border-2'}`}
-                      style={enabled ? { background: capital.color } : { borderColor: 'var(--text-muted)' }}
-                    >
-                      {enabled && (
-                        <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                    {/* Card Header - clickable to expand */}
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: enabled ? capital.color : 'var(--bg-tertiary)' }}>
+                        <div className="w-4 h-4 rounded-full" style={{ background: enabled ? 'white' : 'var(--text-muted)' }} />
+                      </div>
+                      <button
+                        onClick={() => setExpandedCapital(isExpanded ? null : id)}
+                        className="flex-1 text-left"
+                      >
+                        <p className="text-[16px] font-medium mb-1" style={{ color: enabled ? capital.color : 'var(--text-primary)' }}>
+                          {capital.name}
+                        </p>
+                        <p className="text-[13px] leading-relaxed" style={{ color: 'var(--text-tertiary)' }}>
+                          {capital.description}
+                        </p>
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          toggleCapital(id)
+                        }}
+                        className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${enabled ? '' : 'border-2'}`}
+                        style={enabled ? { background: capital.color } : { borderColor: 'var(--text-muted)' }}
+                      >
+                        {enabled && (
+                          <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                          </svg>
+                        )}
+                      </button>
+                      <button
+                        onClick={() => setExpandedCapital(isExpanded ? null : id)}
+                        className="flex-shrink-0 transition-transform"
+                        style={{ transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)' }}
+                      >
+                        <svg className="w-5 h-5" style={{ color: 'var(--text-tertiary)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                         </svg>
-                      )}
+                      </button>
                     </div>
-                  </motion.button>
+
+                    {/* Expanded Details */}
+                    <AnimatePresence>
+                      {isExpanded && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: 'auto', opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.3 }}
+                          className="overflow-hidden"
+                        >
+                          <div className="mt-4 pt-4 space-y-3" style={{ borderTop: '1px solid var(--border)' }}>
+                            <div>
+                              <p className="text-[12px] font-semibold mb-2" style={{ color: capital.color }}>
+                                Why It Matters
+                              </p>
+                              <p className="text-[13px] leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+                                {capital.whyItMatters}
+                              </p>
+                            </div>
+                            <div className="bg-surface rounded-xl p-3">
+                              <p className="text-[12px] italic leading-relaxed" style={{ color: 'var(--text-tertiary)' }}>
+                                {capital.verse}
+                              </p>
+                            </div>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </motion.div>
                 )
               })}
             </div>
             <div className="space-y-3 mt-auto">
-              <motion.button whileTap={{ scale: 0.98 }} onClick={() => setStep(4)} className="btn-primary w-full">
+              <motion.button whileTap={{ scale: 0.98 }} onClick={() => setStep(5)} className="btn-primary w-full">
                 Continue
               </motion.button>
-              <button onClick={() => setStep(2)} className="w-full py-3 text-[15px] font-medium" style={{ color: 'var(--text-tertiary)' }}>
+              <button onClick={() => setStep(3)} className="w-full py-3 text-[15px] font-medium" style={{ color: 'var(--text-tertiary)' }}>
                 Go back
               </button>
             </div>
           </motion.div>
         )}
 
-        {/* Step 4: Theme Selection */}
-        {step === 4 && (
+        {/* Step 5: Theme Selection */}
+        {step === 5 && (
           <motion.div
             key="theme"
             variants={containerVariants}
@@ -356,18 +492,18 @@ function Onboarding({ onComplete }) {
               </motion.button>
             </div>
             <div className="space-y-3 mt-auto">
-              <motion.button whileTap={{ scale: 0.98 }} onClick={() => setStep(5)} className="btn-primary w-full">
+              <motion.button whileTap={{ scale: 0.98 }} onClick={() => setStep(6)} className="btn-primary w-full">
                 Continue
               </motion.button>
-              <button onClick={() => setStep(3)} className="w-full py-3 text-[15px] font-medium" style={{ color: 'var(--text-tertiary)' }}>
+              <button onClick={() => setStep(4)} className="w-full py-3 text-[15px] font-medium" style={{ color: 'var(--text-tertiary)' }}>
                 Go back
               </button>
             </div>
           </motion.div>
         )}
 
-        {/* Step 5: Profile Photo */}
-        {step === 5 && (
+        {/* Step 6: Profile Photo */}
+        {step === 6 && (
           <motion.div
             key="photo"
             variants={containerVariants}
@@ -413,7 +549,7 @@ function Onboarding({ onComplete }) {
               <motion.button whileTap={{ scale: 0.98 }} onClick={handleComplete} className="btn-primary w-full">
                 {profilePicture ? 'Finish' : 'Skip for now'}
               </motion.button>
-              <button onClick={() => setStep(4)} className="w-full py-3 text-[15px] font-medium" style={{ color: 'var(--text-tertiary)' }}>
+              <button onClick={() => setStep(5)} className="w-full py-3 text-[15px] font-medium" style={{ color: 'var(--text-tertiary)' }}>
                 Go back
               </button>
             </div>
@@ -423,7 +559,7 @@ function Onboarding({ onComplete }) {
 
       {/* Progress dots */}
       <div className="flex justify-center gap-2 pb-8">
-        {[0, 1, 2, 3, 4, 5].map((i) => (
+        {[0, 1, 2, 3, 4, 5, 6].map((i) => (
           <div
             key={i}
             className="h-2 rounded-full transition-all"

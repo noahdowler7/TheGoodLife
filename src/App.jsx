@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react'
 import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { AnimatePresence } from 'framer-motion'
 import Navigation from './components/Navigation'
-import WelcomeScreen from './components/WelcomeScreen'
 import Onboarding from './components/Onboarding'
 import IntroGuide from './components/IntroGuide'
 import Dashboard from './components/Dashboard'
@@ -81,24 +80,18 @@ function App() {
     navigate('/', { replace: true })
   }
 
-  const handleGetStarted = () => {
-    continueAsGuest()
-  }
-
-  const handleSignIn = () => {
-    setShowAuthScreen(true)
-  }
-
   const handleAuthComplete = () => {
     setShowAuthScreen(false)
     // Reset migration check when user authenticates
     setMigrationChecked(false)
   }
 
-  // First launch - show welcome screen
-  if (!hasAccess && !showAuthScreen) {
-    return <WelcomeScreen onGetStarted={handleGetStarted} onSignIn={handleSignIn} />
-  }
+  // First launch - auto continue as guest (skip WelcomeScreen)
+  useEffect(() => {
+    if (!hasAccess && !showAuthScreen) {
+      continueAsGuest()
+    }
+  }, [hasAccess, showAuthScreen, continueAsGuest])
 
   // Show auth screen if explicitly requested
   if (showAuthScreen && !isAuthenticated) {
