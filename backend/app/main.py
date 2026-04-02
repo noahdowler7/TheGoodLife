@@ -10,7 +10,8 @@ from app.routers import (
     disciplines,
     events,
     analytics,
-    sync
+    sync,
+    partners
 )
 
 app = FastAPI()
@@ -33,6 +34,7 @@ app.include_router(disciplines.router, prefix="/api/v1")
 app.include_router(events.router, prefix="/api/v1")
 app.include_router(analytics.router, prefix="/api/v1")
 app.include_router(sync.router, prefix="/api/v1")
+app.include_router(partners.router, prefix="/api/v1")
 
 @app.get("/api/v1/health")
 async def health_check():
