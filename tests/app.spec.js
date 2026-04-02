@@ -326,7 +326,7 @@ test.describe('Navigation', () => {
     await expect(nav).toBeVisible()
     await expect(nav.getByText('Home')).toBeVisible()
     await expect(nav.getByText('Today')).toBeVisible()
-    await expect(nav.getByText('Calendar')).toBeVisible()
+    await expect(nav.getByText('Word')).toBeVisible()
     await expect(nav.getByText('Fasting')).toBeVisible()
     await expect(nav.getByText('Settings')).toBeVisible()
   })
@@ -335,8 +335,8 @@ test.describe('Navigation', () => {
     await page.getByRole('navigation').getByText('Today').click()
     await expect(page).toHaveURL(/\/today/)
 
-    await page.getByRole('navigation').getByText('Calendar').click()
-    await expect(page).toHaveURL(/\/calendar/)
+    await page.getByRole('navigation').getByText('Word').click()
+    await expect(page).toHaveURL(/\/devotional/)
 
     await page.getByRole('navigation').getByText('Fasting').click()
     await expect(page).toHaveURL(/\/fasting/)
@@ -464,6 +464,12 @@ test.describe('Calendar', () => {
     const currentMonth = monthNames[new Date().getMonth()]
     await expect(page.getByText(currentMonth)).toBeVisible()
   })
+
+  test('calendar accessible from dashboard quick access', async ({ page }) => {
+    await page.goto('/')
+    await page.getByText('Events & milestones').click()
+    await expect(page).toHaveURL(/\/calendar/)
+  })
 })
 
 // ====================
@@ -526,7 +532,7 @@ test.describe('Edge Cases', () => {
     await page.goto('/week')
     await expect(page.getByText(/Week/i)).toBeVisible()
 
-    await page.goto('/calendar')
+    await page.goto('/devotional')
     await expect(page.locator('nav')).toBeVisible()
 
     await page.goto('/settings')

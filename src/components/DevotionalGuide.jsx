@@ -2,15 +2,8 @@ import { useState, useMemo } from 'react'
 import { format, subDays } from 'date-fns'
 import { motion, AnimatePresence } from 'framer-motion'
 import PageWrapper from './PageWrapper'
-import { getDailyScripture } from '../utils/scriptures'
-
-const REFLECTION_PROMPTS = [
-  "What is God saying to you through this verse today?",
-  "How can you apply this truth in your life right now?",
-  "What area of your life does this scripture speak into?",
-  "Is there a promise to claim or a command to follow here?",
-  "How does this verse connect to what you're going through?",
-]
+import { getDailyScripture, getDailyPrompt } from '../utils/scriptures'
+import { CAPITALS } from '../utils/capitals'
 
 function DevotionalGuide({ reflections, setReflections }) {
   const [tab, setTab] = useState('today')
@@ -19,13 +12,8 @@ function DevotionalGuide({ reflections, setReflections }) {
 
   const dailyScripture = useMemo(() => getDailyScripture(today), [todayStr])
 
-  // Get a deterministic prompt for today
-  const todayPrompt = useMemo(() => {
-    const start = new Date(today.getFullYear(), 0, 0)
-    const diff = today - start
-    const dayOfYear = Math.floor(diff / (1000 * 60 * 60 * 24))
-    return REFLECTION_PROMPTS[dayOfYear % REFLECTION_PROMPTS.length]
-  }, [todayStr])
+  const todayPrompt = useMemo(() => getDailyPrompt(today), [todayStr])
+  const capital = dailyScripture.capital ? CAPITALS[dailyScripture.capital] : null
 
   const devotionalReflection = reflections[todayStr]?.devotional || ''
 
@@ -81,9 +69,16 @@ function DevotionalGuide({ reflections, setReflections }) {
               className="rounded-3xl py-10 px-6 text-center"
               style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
             >
-              <p className="text-[11px] tracking-widest uppercase mb-6" style={{ color: 'var(--accent)' }}>
-                Today's Scripture
-              </p>
+              <div className="flex items-center justify-center gap-2 mb-6">
+                <p className="text-[11px] tracking-widest uppercase" style={{ color: 'var(--accent)' }}>
+                  Today's Scripture
+                </p>
+                {capital && (
+                  <span className="text-[10px] font-medium px-2 py-0.5 rounded-full" style={{ background: `${capital.color}20`, color: capital.color }}>
+                    {capital.name}
+                  </span>
+                )}
+              </div>
               <p className="text-[20px] italic leading-relaxed mb-6" style={{ color: 'var(--text-primary)', fontWeight: 400 }}>
                 "{dailyScripture.verse}"
               </p>

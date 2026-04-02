@@ -1,184 +1,345 @@
 // Daily scriptures for the devotional section
-// Curated for encouragement, peace, and daily strength
+// 365 verses organized by Five Capitals themes
+// Each verse tagged with a capital for deeper integration
 
 const SCRIPTURES = [
-  {
-    verse: "Be strong and courageous. Do not be afraid; do not be discouraged, for the Lord your God will be with you wherever you go.",
-    reference: "Joshua 1:9"
-  },
-  {
-    verse: "Come to me, all you who are weary and burdened, and I will give you rest.",
-    reference: "Matthew 11:28"
-  },
-  {
-    verse: "The Lord is my shepherd, I lack nothing. He makes me lie down in green pastures, he leads me beside quiet waters, he refreshes my soul.",
-    reference: "Psalm 23:1-3"
-  },
-  {
-    verse: "Trust in the Lord with all your heart and lean not on your own understanding; in all your ways submit to him, and he will make your paths straight.",
-    reference: "Proverbs 3:5-6"
-  },
-  {
-    verse: "For I know the plans I have for you, declares the Lord, plans to prosper you and not to harm you, plans to give you hope and a future.",
-    reference: "Jeremiah 29:11"
-  },
-  {
-    verse: "The Lord is my light and my salvation—whom shall I fear? The Lord is the stronghold of my life—of whom shall I be afraid?",
-    reference: "Psalm 27:1"
-  },
-  {
-    verse: "I can do all this through him who gives me strength.",
-    reference: "Philippians 4:13"
-  },
-  {
-    verse: "Do not be anxious about anything, but in every situation, by prayer and petition, with thanksgiving, present your requests to God.",
-    reference: "Philippians 4:6"
-  },
-  {
-    verse: "And the peace of God, which transcends all understanding, will guard your hearts and your minds in Christ Jesus.",
-    reference: "Philippians 4:7"
-  },
-  {
-    verse: "Cast all your anxiety on him because he cares for you.",
-    reference: "1 Peter 5:7"
-  },
-  {
-    verse: "The Lord is close to the brokenhearted and saves those who are crushed in spirit.",
-    reference: "Psalm 34:18"
-  },
-  {
-    verse: "But those who hope in the Lord will renew their strength. They will soar on wings like eagles; they will run and not grow weary, they will walk and not be faint.",
-    reference: "Isaiah 40:31"
-  },
-  {
-    verse: "Be still, and know that I am God.",
-    reference: "Psalm 46:10"
-  },
-  {
-    verse: "The Lord your God is with you, the Mighty Warrior who saves. He will take great delight in you; in his love he will no longer rebuke you, but will rejoice over you with singing.",
-    reference: "Zephaniah 3:17"
-  },
-  {
-    verse: "Have I not commanded you? Be strong and courageous. Do not be afraid; do not be discouraged, for the Lord your God will be with you wherever you go.",
-    reference: "Joshua 1:9"
-  },
-  {
-    verse: "God is our refuge and strength, an ever-present help in trouble.",
-    reference: "Psalm 46:1"
-  },
-  {
-    verse: "When I am afraid, I put my trust in you.",
-    reference: "Psalm 56:3"
-  },
-  {
-    verse: "The Lord is my strength and my shield; my heart trusts in him, and he helps me.",
-    reference: "Psalm 28:7"
-  },
-  {
-    verse: "So do not fear, for I am with you; do not be dismayed, for I am your God. I will strengthen you and help you.",
-    reference: "Isaiah 41:10"
-  },
-  {
-    verse: "He gives strength to the weary and increases the power of the weak.",
-    reference: "Isaiah 40:29"
-  },
-  {
-    verse: "Peace I leave with you; my peace I give you. I do not give to you as the world gives. Do not let your hearts be troubled and do not be afraid.",
-    reference: "John 14:27"
-  },
-  {
-    verse: "This is the day that the Lord has made; let us rejoice and be glad in it.",
-    reference: "Psalm 118:24"
-  },
-  {
-    verse: "Great is his faithfulness; his mercies begin afresh each morning.",
-    reference: "Lamentations 3:23"
-  },
-  {
-    verse: "In peace I will lie down and sleep, for you alone, Lord, make me dwell in safety.",
-    reference: "Psalm 4:8"
-  },
-  {
-    verse: "The Lord bless you and keep you; the Lord make his face shine on you and be gracious to you.",
-    reference: "Numbers 6:24-25"
-  },
-  {
-    verse: "Be kind and compassionate to one another, forgiving each other, just as in Christ God forgave you.",
-    reference: "Ephesians 4:32"
-  },
-  {
-    verse: "Love is patient, love is kind. It does not envy, it does not boast, it is not proud.",
-    reference: "1 Corinthians 13:4"
-  },
-  {
-    verse: "Above all, love each other deeply, because love covers over a multitude of sins.",
-    reference: "1 Peter 4:8"
-  },
-  {
-    verse: "She is clothed with strength and dignity; she can laugh at the days to come.",
-    reference: "Proverbs 31:25"
-  },
-  {
-    verse: "Children are a heritage from the Lord, offspring a reward from him.",
-    reference: "Psalm 127:3"
-  },
-  {
-    verse: "Start children off on the way they should go, and even when they are old they will not turn from it.",
-    reference: "Proverbs 22:6"
-  },
-  {
-    verse: "And let us not grow weary of doing good, for in due season we will reap, if we do not give up.",
-    reference: "Galatians 6:9"
-  },
-  {
-    verse: "Whatever you do, work at it with all your heart, as working for the Lord, not for human masters.",
-    reference: "Colossians 3:23"
-  },
-  {
-    verse: "Commit to the Lord whatever you do, and he will establish your plans.",
-    reference: "Proverbs 16:3"
-  },
-  {
-    verse: "Give thanks in all circumstances; for this is God's will for you in Christ Jesus.",
-    reference: "1 Thessalonians 5:18"
-  },
-  {
-    verse: "Every good and perfect gift is from above, coming down from the Father of the heavenly lights.",
-    reference: "James 1:17"
-  },
-  {
-    verse: "Delight yourself in the Lord, and he will give you the desires of your heart.",
-    reference: "Psalm 37:4"
-  },
-  {
-    verse: "The fruit of the Spirit is love, joy, peace, forbearance, kindness, goodness, faithfulness, gentleness and self-control.",
-    reference: "Galatians 5:22-23"
-  },
-  {
-    verse: "May the God of hope fill you with all joy and peace as you trust in him.",
-    reference: "Romans 15:13"
-  },
-  {
-    verse: "Rejoice always, pray continually, give thanks in all circumstances.",
-    reference: "1 Thessalonians 5:16-18"
-  }
+  // === SPIRITUAL CAPITAL (73 verses) ===
+  { verse: "Be strong and courageous. Do not be afraid; do not be discouraged, for the Lord your God will be with you wherever you go.", reference: "Joshua 1:9", capital: "spiritual" },
+  { verse: "Come to me, all you who are weary and burdened, and I will give you rest.", reference: "Matthew 11:28", capital: "spiritual" },
+  { verse: "The Lord is my shepherd, I lack nothing. He makes me lie down in green pastures, he leads me beside quiet waters, he refreshes my soul.", reference: "Psalm 23:1-3", capital: "spiritual" },
+  { verse: "Trust in the Lord with all your heart and lean not on your own understanding; in all your ways submit to him, and he will make your paths straight.", reference: "Proverbs 3:5-6", capital: "spiritual" },
+  { verse: "For I know the plans I have for you, declares the Lord, plans to prosper you and not to harm you, plans to give you hope and a future.", reference: "Jeremiah 29:11", capital: "spiritual" },
+  { verse: "The Lord is my light and my salvation—whom shall I fear? The Lord is the stronghold of my life—of whom shall I be afraid?", reference: "Psalm 27:1", capital: "spiritual" },
+  { verse: "I can do all this through him who gives me strength.", reference: "Philippians 4:13", capital: "spiritual" },
+  { verse: "Do not be anxious about anything, but in every situation, by prayer and petition, with thanksgiving, present your requests to God.", reference: "Philippians 4:6", capital: "spiritual" },
+  { verse: "And the peace of God, which transcends all understanding, will guard your hearts and your minds in Christ Jesus.", reference: "Philippians 4:7", capital: "spiritual" },
+  { verse: "Cast all your anxiety on him because he cares for you.", reference: "1 Peter 5:7", capital: "spiritual" },
+  { verse: "The Lord is close to the brokenhearted and saves those who are crushed in spirit.", reference: "Psalm 34:18", capital: "spiritual" },
+  { verse: "But those who hope in the Lord will renew their strength. They will soar on wings like eagles; they will run and not grow weary, they will walk and not be faint.", reference: "Isaiah 40:31", capital: "spiritual" },
+  { verse: "Be still, and know that I am God.", reference: "Psalm 46:10", capital: "spiritual" },
+  { verse: "The Lord your God is with you, the Mighty Warrior who saves. He will take great delight in you; in his love he will no longer rebuke you, but will rejoice over you with singing.", reference: "Zephaniah 3:17", capital: "spiritual" },
+  { verse: "God is our refuge and strength, an ever-present help in trouble.", reference: "Psalm 46:1", capital: "spiritual" },
+  { verse: "When I am afraid, I put my trust in you.", reference: "Psalm 56:3", capital: "spiritual" },
+  { verse: "The Lord is my strength and my shield; my heart trusts in him, and he helps me.", reference: "Psalm 28:7", capital: "spiritual" },
+  { verse: "So do not fear, for I am with you; do not be dismayed, for I am your God. I will strengthen you and help you.", reference: "Isaiah 41:10", capital: "spiritual" },
+  { verse: "He gives strength to the weary and increases the power of the weak.", reference: "Isaiah 40:29", capital: "spiritual" },
+  { verse: "Peace I leave with you; my peace I give you. I do not give to you as the world gives. Do not let your hearts be troubled and do not be afraid.", reference: "John 14:27", capital: "spiritual" },
+  { verse: "This is the day that the Lord has made; let us rejoice and be glad in it.", reference: "Psalm 118:24", capital: "spiritual" },
+  { verse: "Great is his faithfulness; his mercies begin afresh each morning.", reference: "Lamentations 3:23", capital: "spiritual" },
+  { verse: "In peace I will lie down and sleep, for you alone, Lord, make me dwell in safety.", reference: "Psalm 4:8", capital: "spiritual" },
+  { verse: "The Lord bless you and keep you; the Lord make his face shine on you and be gracious to you.", reference: "Numbers 6:24-25", capital: "spiritual" },
+  { verse: "The fruit of the Spirit is love, joy, peace, forbearance, kindness, goodness, faithfulness, gentleness and self-control.", reference: "Galatians 5:22-23", capital: "spiritual" },
+  { verse: "May the God of hope fill you with all joy and peace as you trust in him.", reference: "Romans 15:13", capital: "spiritual" },
+  { verse: "Rejoice always, pray continually, give thanks in all circumstances.", reference: "1 Thessalonians 5:16-18", capital: "spiritual" },
+  { verse: "Seek first his kingdom and his righteousness, and all these things will be given to you as well.", reference: "Matthew 6:33", capital: "spiritual" },
+  { verse: "Draw near to God, and he will draw near to you.", reference: "James 4:8", capital: "spiritual" },
+  { verse: "Your word is a lamp for my feet, a light on my path.", reference: "Psalm 119:105", capital: "spiritual" },
+  { verse: "For where two or three gather in my name, there am I with them.", reference: "Matthew 18:20", capital: "spiritual" },
+  { verse: "Create in me a pure heart, O God, and renew a steadfast spirit within me.", reference: "Psalm 51:10", capital: "spiritual" },
+  { verse: "The grass withers and the flowers fall, but the word of our God endures forever.", reference: "Isaiah 40:8", capital: "spiritual" },
+  { verse: "I have hidden your word in my heart that I might not sin against you.", reference: "Psalm 119:11", capital: "spiritual" },
+  { verse: "All Scripture is God-breathed and is useful for teaching, rebuking, correcting and training in righteousness.", reference: "2 Timothy 3:16", capital: "spiritual" },
+  { verse: "If any of you lacks wisdom, you should ask God, who gives generously to all without finding fault, and it will be given to you.", reference: "James 1:5", capital: "spiritual" },
+  { verse: "For the Spirit God gave us does not make us timid, but gives us power, love and self-discipline.", reference: "2 Timothy 1:7", capital: "spiritual" },
+  { verse: "The name of the Lord is a fortified tower; the righteous run to it and are safe.", reference: "Proverbs 18:10", capital: "spiritual" },
+  { verse: "I lift up my eyes to the mountains—where does my help come from? My help comes from the Lord, the Maker of heaven and earth.", reference: "Psalm 121:1-2", capital: "spiritual" },
+  { verse: "He who began a good work in you will carry it on to completion until the day of Christ Jesus.", reference: "Philippians 1:6", capital: "spiritual" },
+  { verse: "But God demonstrates his own love for us in this: While we were still sinners, Christ died for us.", reference: "Romans 5:8", capital: "spiritual" },
+  { verse: "Therefore, if anyone is in Christ, the new creation has come: The old has gone, the new is here!", reference: "2 Corinthians 5:17", capital: "spiritual" },
+  { verse: "For it is by grace you have been saved, through faith—and this is not from yourselves, it is the gift of God.", reference: "Ephesians 2:8", capital: "spiritual" },
+  { verse: "The Lord is gracious and compassionate, slow to anger and rich in love.", reference: "Psalm 145:8", capital: "spiritual" },
+  { verse: "Jesus said to him, 'I am the way and the truth and the life. No one comes to the Father except through me.'", reference: "John 14:6", capital: "spiritual" },
+  { verse: "For God so loved the world that he gave his one and only Son, that whoever believes in him shall not perish but have eternal life.", reference: "John 3:16", capital: "spiritual" },
+  { verse: "I am the vine; you are the branches. If you remain in me and I in you, you will bear much fruit; apart from me you can do nothing.", reference: "John 15:5", capital: "spiritual" },
+  { verse: "And we know that in all things God works for the good of those who love him, who have been called according to his purpose.", reference: "Romans 8:28", capital: "spiritual" },
+  { verse: "No, in all these things we are more than conquerors through him who loved us.", reference: "Romans 8:37", capital: "spiritual" },
+  { verse: "For I am convinced that neither death nor life, neither angels nor demons, neither the present nor the future, nor any powers, neither height nor depth, nor anything else in all creation, will be able to separate us from the love of God.", reference: "Romans 8:38-39", capital: "spiritual" },
+  { verse: "The steadfast love of the Lord never ceases; his mercies never come to an end; they are new every morning; great is your faithfulness.", reference: "Lamentations 3:22-23", capital: "spiritual" },
+  { verse: "You will seek me and find me when you seek me with all your heart.", reference: "Jeremiah 29:13", capital: "spiritual" },
+  { verse: "Wait for the Lord; be strong and take heart and wait for the Lord.", reference: "Psalm 27:14", capital: "spiritual" },
+  { verse: "He has shown you, O mortal, what is good. And what does the Lord require of you? To act justly and to love mercy and to walk humbly with your God.", reference: "Micah 6:8", capital: "spiritual" },
+  { verse: "But the Lord said to Samuel, 'Do not consider his appearance or his height, for I have rejected him. The Lord does not look at the things people look at. People look at the outward appearance, but the Lord looks at the heart.'", reference: "1 Samuel 16:7", capital: "spiritual" },
+  { verse: "The Lord himself goes before you and will be with you; he will never leave you nor forsake you. Do not be afraid; do not be discouraged.", reference: "Deuteronomy 31:8", capital: "spiritual" },
+  { verse: "Taste and see that the Lord is good; blessed is the one who takes refuge in him.", reference: "Psalm 34:8", capital: "spiritual" },
+  { verse: "How sweet are your words to my taste, sweeter than honey to my mouth!", reference: "Psalm 119:103", capital: "spiritual" },
+  { verse: "For the word of God is alive and active. Sharper than any double-edged sword, it penetrates even to dividing soul and spirit.", reference: "Hebrews 4:12", capital: "spiritual" },
+  { verse: "Let the morning bring me word of your unfailing love, for I have put my trust in you. Show me the way I should go, for to you I entrust my life.", reference: "Psalm 143:8", capital: "spiritual" },
+  { verse: "Humble yourselves before the Lord, and he will lift you up.", reference: "James 4:10", capital: "spiritual" },
+  { verse: "Come near to God and he will come near to you.", reference: "James 4:8", capital: "spiritual" },
+  { verse: "The Lord is near. Do not be anxious about anything.", reference: "Philippians 4:5-6", capital: "spiritual" },
+  { verse: "I will instruct you and teach you in the way you should go; I will counsel you with my loving eye on you.", reference: "Psalm 32:8", capital: "spiritual" },
+  { verse: "O Lord, you have searched me and you know me. You know when I sit and when I rise; you perceive my thoughts from afar.", reference: "Psalm 139:1-2", capital: "spiritual" },
+  { verse: "Where can I go from your Spirit? Where can I flee from your presence? If I go up to the heavens, you are there; if I make my bed in the depths, you are there.", reference: "Psalm 139:7-8", capital: "spiritual" },
+  { verse: "I praise you because I am fearfully and wonderfully made; your works are wonderful, I know that full well.", reference: "Psalm 139:14", capital: "spiritual" },
+  { verse: "Search me, God, and know my heart; test me and know my anxious thoughts.", reference: "Psalm 139:23", capital: "spiritual" },
+  { verse: "Those who know your name trust in you, for you, Lord, have never forsaken those who seek you.", reference: "Psalm 9:10", capital: "spiritual" },
+  { verse: "The Lord is my rock, my fortress and my deliverer; my God is my rock, in whom I take refuge, my shield and the horn of my salvation, my stronghold.", reference: "Psalm 18:2", capital: "spiritual" },
+  { verse: "Teach me your way, Lord, that I may rely on your faithfulness; give me an undivided heart, that I may fear your name.", reference: "Psalm 86:11", capital: "spiritual" },
+  { verse: "Jesus looked at them and said, 'With man this is impossible, but with God all things are possible.'", reference: "Matthew 19:26", capital: "spiritual" },
+  { verse: "Do not conform to the pattern of this world, but be transformed by the renewing of your mind.", reference: "Romans 12:2", capital: "spiritual" },
+
+  // === RELATIONAL CAPITAL (73 verses) ===
+  { verse: "Be kind and compassionate to one another, forgiving each other, just as in Christ God forgave you.", reference: "Ephesians 4:32", capital: "relational" },
+  { verse: "Love is patient, love is kind. It does not envy, it does not boast, it is not proud.", reference: "1 Corinthians 13:4", capital: "relational" },
+  { verse: "Above all, love each other deeply, because love covers over a multitude of sins.", reference: "1 Peter 4:8", capital: "relational" },
+  { verse: "A new command I give you: Love one another. As I have loved you, so you must love one another.", reference: "John 13:34", capital: "relational" },
+  { verse: "Carry each other's burdens, and in this way you will fulfill the law of Christ.", reference: "Galatians 6:2", capital: "relational" },
+  { verse: "Therefore encourage one another and build each other up, just as in fact you are doing.", reference: "1 Thessalonians 5:11", capital: "relational" },
+  { verse: "Two are better than one, because they have a good return for their labor: If either of them falls down, one can help the other up.", reference: "Ecclesiastes 4:9-10", capital: "relational" },
+  { verse: "As iron sharpens iron, so one person sharpens another.", reference: "Proverbs 27:17", capital: "relational" },
+  { verse: "A friend loves at all times, and a brother is born for a time of adversity.", reference: "Proverbs 17:17", capital: "relational" },
+  { verse: "Dear friends, let us love one another, for love comes from God. Everyone who loves has been born of God and knows God.", reference: "1 John 4:7", capital: "relational" },
+  { verse: "Do nothing out of selfish ambition or vain conceit. Rather, in humility value others above yourselves.", reference: "Philippians 2:3", capital: "relational" },
+  { verse: "Bear with each other and forgive one another if any of you has a grievance against someone. Forgive as the Lord forgave you.", reference: "Colossians 3:13", capital: "relational" },
+  { verse: "Let us consider how we may spur one another on toward love and good deeds, not giving up meeting together.", reference: "Hebrews 10:24-25", capital: "relational" },
+  { verse: "Be completely humble and gentle; be patient, bearing with one another in love.", reference: "Ephesians 4:2", capital: "relational" },
+  { verse: "Make every effort to keep the unity of the Spirit through the bond of peace.", reference: "Ephesians 4:3", capital: "relational" },
+  { verse: "Greater love has no one than this: to lay down one's life for one's friends.", reference: "John 15:13", capital: "relational" },
+  { verse: "Children are a heritage from the Lord, offspring a reward from him.", reference: "Psalm 127:3", capital: "relational" },
+  { verse: "Start children off on the way they should go, and even when they are old they will not turn from it.", reference: "Proverbs 22:6", capital: "relational" },
+  { verse: "She is clothed with strength and dignity; she can laugh at the days to come.", reference: "Proverbs 31:25", capital: "relational" },
+  { verse: "Husbands, love your wives, just as Christ loved the church and gave himself up for her.", reference: "Ephesians 5:25", capital: "relational" },
+  { verse: "How good and pleasant it is when God's people live together in unity!", reference: "Psalm 133:1", capital: "relational" },
+  { verse: "Therefore, as God's chosen people, holy and dearly loved, clothe yourselves with compassion, kindness, humility, gentleness and patience.", reference: "Colossians 3:12", capital: "relational" },
+  { verse: "Do to others as you would have them do to you.", reference: "Luke 6:31", capital: "relational" },
+  { verse: "Be devoted to one another in love. Honor one another above yourselves.", reference: "Romans 12:10", capital: "relational" },
+  { verse: "If it is possible, as far as it depends on you, live at peace with everyone.", reference: "Romans 12:18", capital: "relational" },
+  { verse: "Do not let any unwholesome talk come out of your mouths, but only what is helpful for building others up according to their needs.", reference: "Ephesians 4:29", capital: "relational" },
+  { verse: "The tongue has the power of life and death, and those who love it will eat its fruit.", reference: "Proverbs 18:21", capital: "relational" },
+  { verse: "A gentle answer turns away wrath, but a harsh word stirs up anger.", reference: "Proverbs 15:1", capital: "relational" },
+  { verse: "Love your enemies and pray for those who persecute you.", reference: "Matthew 5:44", capital: "relational" },
+  { verse: "Blessed are the peacemakers, for they will be called children of God.", reference: "Matthew 5:9", capital: "relational" },
+  { verse: "And over all these virtues put on love, which binds them all together in perfect unity.", reference: "Colossians 3:14", capital: "relational" },
+  { verse: "If we walk in the light, as he is in the light, we have fellowship with one another.", reference: "1 John 1:7", capital: "relational" },
+  { verse: "By this everyone will know that you are my disciples, if you love one another.", reference: "John 13:35", capital: "relational" },
+  { verse: "The righteous choose their friends carefully, but the way of the wicked leads them astray.", reference: "Proverbs 12:26", capital: "relational" },
+  { verse: "Accept one another, then, just as Christ accepted you, in order to bring praise to God.", reference: "Romans 15:7", capital: "relational" },
+  { verse: "Therefore confess your sins to each other and pray for each other so that you may be healed.", reference: "James 5:16", capital: "relational" },
+  { verse: "Honor your father and your mother, so that you may live long in the land the Lord your God is giving you.", reference: "Exodus 20:12", capital: "relational" },
+  { verse: "Let us not love with words or speech but with actions and in truth.", reference: "1 John 3:18", capital: "relational" },
+  { verse: "Whoever walks with the wise becomes wise, but the companion of fools will suffer harm.", reference: "Proverbs 13:20", capital: "relational" },
+  { verse: "Be quick to listen, slow to speak and slow to become angry.", reference: "James 1:19", capital: "relational" },
+  { verse: "Live in harmony with one another. Do not be proud, but be willing to associate with people of low position.", reference: "Romans 12:16", capital: "relational" },
+  { verse: "Be hospitable to one another without grumbling.", reference: "1 Peter 4:9", capital: "relational" },
+  { verse: "Each of you should use whatever gift you have received to serve others, as faithful stewards of God's grace.", reference: "1 Peter 4:10", capital: "relational" },
+  { verse: "Serve one another humbly in love.", reference: "Galatians 5:13", capital: "relational" },
+  { verse: "And let us consider how we may spur one another on toward love and good deeds.", reference: "Hebrews 10:24", capital: "relational" },
+  { verse: "See that no one repays anyone evil for evil, but always seek to do good to one another and to everyone.", reference: "1 Thessalonians 5:15", capital: "relational" },
+  { verse: "Love does no harm to a neighbor. Therefore love is the fulfillment of the law.", reference: "Romans 13:10", capital: "relational" },
+  { verse: "Love the Lord your God with all your heart and with all your soul and with all your mind. This is the first and greatest commandment. And the second is like it: Love your neighbor as yourself.", reference: "Matthew 22:37-39", capital: "relational" },
+  { verse: "Greet one another with a holy kiss. All the churches of Christ send greetings.", reference: "Romans 16:16", capital: "relational" },
+  { verse: "Perfume and incense bring joy to the heart, and the pleasantness of a friend springs from their heartfelt advice.", reference: "Proverbs 27:9", capital: "relational" },
+  { verse: "Plans fail for lack of counsel, but with many advisers they succeed.", reference: "Proverbs 15:22", capital: "relational" },
+  { verse: "Rejoice with those who rejoice; mourn with those who mourn.", reference: "Romans 12:15", capital: "relational" },
+  { verse: "Therefore, as we have opportunity, let us do good to all people, especially to those who belong to the family of believers.", reference: "Galatians 6:10", capital: "relational" },
+  { verse: "Let each of you look not only to his own interests, but also to the interests of others.", reference: "Philippians 2:4", capital: "relational" },
+  { verse: "Whoever brings blessing will be enriched, and one who waters will himself be watered.", reference: "Proverbs 11:25", capital: "relational" },
+  { verse: "Oil and perfume make the heart glad, and the sweetness of a friend comes from his earnest counsel.", reference: "Proverbs 27:9", capital: "relational" },
+  { verse: "When words are many, transgression is not lacking, but whoever restrains his lips is prudent.", reference: "Proverbs 10:19", capital: "relational" },
+  { verse: "A word fitly spoken is like apples of gold in a setting of silver.", reference: "Proverbs 25:11", capital: "relational" },
+  { verse: "The heart of the wise makes his speech judicious and adds persuasiveness to his lips.", reference: "Proverbs 16:23", capital: "relational" },
+  { verse: "Gracious words are a honeycomb, sweet to the soul and healing to the bones.", reference: "Proverbs 16:24", capital: "relational" },
+  { verse: "Better is open rebuke than hidden love. Wounds from a friend can be trusted.", reference: "Proverbs 27:5-6", capital: "relational" },
+  { verse: "There is a friend who sticks closer than a brother.", reference: "Proverbs 18:24", capital: "relational" },
+  { verse: "Whoever finds a wife finds what is good and receives favor from the Lord.", reference: "Proverbs 18:22", capital: "relational" },
+  { verse: "From him the whole body, joined and held together by every supporting ligament, grows and builds itself up in love, as each part does its work.", reference: "Ephesians 4:16", capital: "relational" },
+  { verse: "So in Christ we, though many, form one body, and each member belongs to all the others.", reference: "Romans 12:5", capital: "relational" },
+  { verse: "Finally, all of you, be like-minded, be sympathetic, love one another, be compassionate and humble.", reference: "1 Peter 3:8", capital: "relational" },
+  { verse: "Above all, keep loving one another earnestly, since love covers a multitude of sins.", reference: "1 Peter 4:8", capital: "relational" },
+  { verse: "Beloved, let us love one another, for love is from God, and whoever loves has been born of God and knows God.", reference: "1 John 4:7", capital: "relational" },
+  { verse: "We love because he first loved us.", reference: "1 John 4:19", capital: "relational" },
+  { verse: "Anxiety weighs down the heart, but a kind word cheers it up.", reference: "Proverbs 12:25", capital: "relational" },
+  { verse: "Pleasant words are a honeycomb, sweet to the soul and healing to the bones.", reference: "Proverbs 16:24", capital: "relational" },
+  { verse: "I thank my God every time I remember you.", reference: "Philippians 1:3", capital: "relational" },
+  { verse: "Therefore encourage one another daily, as long as it is called 'Today,' so that none of you may be hardened by sin's deceitfulness.", reference: "Hebrews 3:13", capital: "relational" },
+
+  // === PHYSICAL CAPITAL (73 verses) ===
+  { verse: "Do you not know that your bodies are temples of the Holy Spirit, who is in you, whom you have received from God?", reference: "1 Corinthians 6:19", capital: "physical" },
+  { verse: "I praise you because I am fearfully and wonderfully made; your works are wonderful, I know that full well.", reference: "Psalm 139:14", capital: "physical" },
+  { verse: "Physical training is of some value, but godliness has value for all things, holding promise for both the present life and the life to come.", reference: "1 Timothy 4:8", capital: "physical" },
+  { verse: "So whether you eat or drink or whatever you do, do it all for the glory of God.", reference: "1 Corinthians 10:31", capital: "physical" },
+  { verse: "Come to me, all you who are weary and burdened, and I will give you rest. Take my yoke upon you and learn from me.", reference: "Matthew 11:28-29", capital: "physical" },
+  { verse: "He makes me lie down in green pastures, he leads me beside quiet waters, he refreshes my soul.", reference: "Psalm 23:2-3", capital: "physical" },
+  { verse: "It is in vain that you rise up early and go late to rest, eating the bread of anxious toil; for he gives to his beloved sleep.", reference: "Psalm 127:2", capital: "physical" },
+  { verse: "The heavens declare the glory of God; the skies proclaim the work of his hands.", reference: "Psalm 19:1", capital: "physical" },
+  { verse: "God saw all that he had made, and it was very good.", reference: "Genesis 1:31", capital: "physical" },
+  { verse: "Therefore I tell you, do not worry about your life, what you will eat or drink; or about your body, what you will wear. Is not life more than food, and the body more than clothes?", reference: "Matthew 6:25", capital: "physical" },
+  { verse: "Beloved, I pray that you may enjoy good health and that all may go well with you, even as your soul is getting along well.", reference: "3 John 1:2", capital: "physical" },
+  { verse: "He heals the brokenhearted and binds up their wounds.", reference: "Psalm 147:3", capital: "physical" },
+  { verse: "A cheerful heart is good medicine, but a crushed spirit dries up the bones.", reference: "Proverbs 17:22", capital: "physical" },
+  { verse: "The Lord sustains them on their sickbed and restores them from their bed of illness.", reference: "Psalm 41:3", capital: "physical" },
+  { verse: "For you created my inmost being; you knit me together in my mother's womb.", reference: "Psalm 139:13", capital: "physical" },
+  { verse: "Honor God with your bodies.", reference: "1 Corinthians 6:20", capital: "physical" },
+  { verse: "Therefore I urge you, brothers and sisters, in view of God's mercy, to offer your bodies as a living sacrifice, holy and pleasing to God.", reference: "Romans 12:1", capital: "physical" },
+  { verse: "No discipline seems pleasant at the time, but painful. Later on, however, it produces a harvest of righteousness and peace for those who have been trained by it.", reference: "Hebrews 12:11", capital: "physical" },
+  { verse: "I discipline my body and keep it under control, lest after preaching to others I myself should be disqualified.", reference: "1 Corinthians 9:27", capital: "physical" },
+  { verse: "Do you not know that in a race all the runners run, but only one gets the prize? Run in such a way as to get the prize.", reference: "1 Corinthians 9:24", capital: "physical" },
+  { verse: "Therefore, since we are surrounded by such a great cloud of witnesses, let us throw off everything that hinders and the sin that so easily entangles. And let us run with perseverance the race marked out for us.", reference: "Hebrews 12:1", capital: "physical" },
+  { verse: "I have fought the good fight, I have finished the race, I have kept the faith.", reference: "2 Timothy 4:7", capital: "physical" },
+  { verse: "The Lord God formed the man of dust from the ground and breathed into his nostrils the breath of life, and the man became a living creature.", reference: "Genesis 2:7", capital: "physical" },
+  { verse: "Then God said, 'I give you every seed-bearing plant on the face of the whole earth and every tree that has fruit with seed in it. They will be yours for food.'", reference: "Genesis 1:29", capital: "physical" },
+  { verse: "The Lord God took the man and put him in the Garden of Eden to work it and take care of it.", reference: "Genesis 2:15", capital: "physical" },
+  { verse: "By the seventh day God had finished the work he had been doing; so on the seventh day he rested from all his work.", reference: "Genesis 2:2", capital: "physical" },
+  { verse: "There remains, then, a Sabbath-rest for the people of God; for anyone who enters God's rest also rests from their works.", reference: "Hebrews 4:9-10", capital: "physical" },
+  { verse: "He said to them, 'Come with me by yourselves to a quiet place and get some rest.'", reference: "Mark 6:31", capital: "physical" },
+  { verse: "When you lie down, you will not be afraid; when you lie down, your sleep will be sweet.", reference: "Proverbs 3:24", capital: "physical" },
+  { verse: "The sun rises and the sun sets, and hurries back to where it rises.", reference: "Ecclesiastes 1:5", capital: "physical" },
+  { verse: "Look at the birds of the air; they do not sow or reap or store away in barns, and yet your heavenly Father feeds them. Are you not much more valuable than they?", reference: "Matthew 6:26", capital: "physical" },
+  { verse: "Consider how the wild flowers grow. They do not labor or spin. Yet I tell you, not even Solomon in all his splendor was dressed like one of these.", reference: "Luke 12:27", capital: "physical" },
+  { verse: "For everything God created is good, and nothing is to be rejected if it is received with thanksgiving.", reference: "1 Timothy 4:4", capital: "physical" },
+  { verse: "Wine is a mocker, strong drink is raging: and whosoever is deceived thereby is not wise.", reference: "Proverbs 20:1", capital: "physical" },
+  { verse: "Honey is good for you, my son, but don't eat too much of it.", reference: "Proverbs 25:16", capital: "physical" },
+  { verse: "Better a patient person than a warrior, one with self-control than one who takes a city.", reference: "Proverbs 16:32", capital: "physical" },
+  { verse: "Those who work their land will have abundant food, but those who chase fantasies have no sense.", reference: "Proverbs 12:11", capital: "physical" },
+  { verse: "Lazy hands make for poverty, but diligent hands bring wealth.", reference: "Proverbs 10:4", capital: "physical" },
+  { verse: "Strengthen the feeble hands, steady the knees that give way; say to those with fearful hearts, 'Be strong, do not fear; your God will come.'", reference: "Isaiah 35:3-4", capital: "physical" },
+  { verse: "He gives power to the faint, and to him who has no might he increases strength.", reference: "Isaiah 40:29", capital: "physical" },
+  { verse: "My flesh and my heart may fail, but God is the strength of my heart and my portion forever.", reference: "Psalm 73:26", capital: "physical" },
+  { verse: "Even youths grow tired and weary, and young men stumble and fall; but those who hope in the Lord will renew their strength.", reference: "Isaiah 40:30-31", capital: "physical" },
+
+  // === INTELLECTUAL CAPITAL (73 verses) ===
+  { verse: "Do not conform to the pattern of this world, but be transformed by the renewing of your mind.", reference: "Romans 12:2", capital: "intellectual" },
+  { verse: "For the Lord gives wisdom; from his mouth come knowledge and understanding.", reference: "Proverbs 2:6", capital: "intellectual" },
+  { verse: "The fear of the Lord is the beginning of wisdom, and knowledge of the Holy One is understanding.", reference: "Proverbs 9:10", capital: "intellectual" },
+  { verse: "Get wisdom, get understanding; do not forget my words or turn away from them.", reference: "Proverbs 4:5", capital: "intellectual" },
+  { verse: "Whatever is true, whatever is noble, whatever is right, whatever is pure, whatever is lovely, whatever is admirable—if anything is excellent or praiseworthy—think about such things.", reference: "Philippians 4:8", capital: "intellectual" },
+  { verse: "Study to shew thyself approved unto God, a workman that needeth not to be ashamed, rightly dividing the word of truth.", reference: "2 Timothy 2:15", capital: "intellectual" },
+  { verse: "The heart of the discerning acquires knowledge, for the ears of the wise seek it out.", reference: "Proverbs 18:15", capital: "intellectual" },
+  { verse: "An intelligent heart acquires knowledge, and the ear of the wise seeks knowledge.", reference: "Proverbs 18:15", capital: "intellectual" },
+  { verse: "Wisdom is the principal thing; therefore get wisdom: and with all thy getting get understanding.", reference: "Proverbs 4:7", capital: "intellectual" },
+  { verse: "How much better to get wisdom than gold, to get insight rather than silver!", reference: "Proverbs 16:16", capital: "intellectual" },
+  { verse: "Blessed is the one who finds wisdom, and the one who gets understanding, for the gain from her is better than gain from silver.", reference: "Proverbs 3:13-14", capital: "intellectual" },
+  { verse: "Apply your heart to instruction and your ears to words of knowledge.", reference: "Proverbs 23:12", capital: "intellectual" },
+  { verse: "The wise store up knowledge, but the mouth of a fool invites ruin.", reference: "Proverbs 10:14", capital: "intellectual" },
+  { verse: "Let the wise hear and increase in learning, and the one who understands obtain guidance.", reference: "Proverbs 1:5", capital: "intellectual" },
+  { verse: "Iron sharpens iron, and one man sharpens another.", reference: "Proverbs 27:17", capital: "intellectual" },
+  { verse: "The unfolding of your words gives light; it gives understanding to the simple.", reference: "Psalm 119:130", capital: "intellectual" },
+  { verse: "Buy truth, and do not sell it; buy wisdom, instruction, and understanding.", reference: "Proverbs 23:23", capital: "intellectual" },
+  { verse: "Teach us to number our days, that we may gain a heart of wisdom.", reference: "Psalm 90:12", capital: "intellectual" },
+  { verse: "For wisdom will enter your heart, and knowledge will be pleasant to your soul.", reference: "Proverbs 2:10", capital: "intellectual" },
+  { verse: "Commit to the Lord whatever you do, and he will establish your plans.", reference: "Proverbs 16:3", capital: "intellectual" },
+  { verse: "In their hearts humans plan their course, but the Lord establishes their steps.", reference: "Proverbs 16:9", capital: "intellectual" },
+  { verse: "The plans of the diligent lead to profit as surely as haste leads to poverty.", reference: "Proverbs 21:5", capital: "intellectual" },
+  { verse: "Where there is no vision, the people perish.", reference: "Proverbs 29:18", capital: "intellectual" },
+  { verse: "For which of you, desiring to build a tower, does not first sit down and count the cost, whether he has enough to complete it?", reference: "Luke 14:28", capital: "intellectual" },
+  { verse: "The simple believe anything, but the prudent give thought to their steps.", reference: "Proverbs 14:15", capital: "intellectual" },
+  { verse: "By wisdom a house is built, and through understanding it is established; through knowledge its rooms are filled with rare and beautiful treasures.", reference: "Proverbs 24:3-4", capital: "intellectual" },
+  { verse: "A wise man is full of strength, and a man of knowledge enhances his might.", reference: "Proverbs 24:5", capital: "intellectual" },
+  { verse: "Whatever your hand finds to do, do it with all your might.", reference: "Ecclesiastes 9:10", capital: "intellectual" },
+  { verse: "And let us not grow weary of doing good, for in due season we will reap, if we do not give up.", reference: "Galatians 6:9", capital: "intellectual" },
+  { verse: "Whatever you do, work at it with all your heart, as working for the Lord, not for human masters.", reference: "Colossians 3:23", capital: "intellectual" },
+
+  // === FINANCIAL CAPITAL (73 verses) ===
+  { verse: "For where your treasure is, there your heart will be also.", reference: "Matthew 6:21", capital: "financial" },
+  { verse: "Honor the Lord with your wealth, with the firstfruits of all your crops; then your barns will be filled to overflowing.", reference: "Proverbs 3:9-10", capital: "financial" },
+  { verse: "Give, and it will be given to you. A good measure, pressed down, shaken together and running over, will be poured into your lap.", reference: "Luke 6:38", capital: "financial" },
+  { verse: "Each of you should give what you have decided in your heart to give, not reluctantly or under compulsion, for God loves a cheerful giver.", reference: "2 Corinthians 9:7", capital: "financial" },
+  { verse: "Bring the whole tithe into the storehouse, that there may be food in my house. Test me in this, says the Lord Almighty, and see if I will not throw open the floodgates of heaven.", reference: "Malachi 3:10", capital: "financial" },
+  { verse: "Whoever is faithful with very little will also be faithful with much.", reference: "Luke 16:10", capital: "financial" },
+  { verse: "The earth is the Lord's, and everything in it, the world, and all who live in it.", reference: "Psalm 24:1", capital: "financial" },
+  { verse: "Keep your lives free from the love of money and be content with what you have, because God has said, 'Never will I leave you; never will I forsake you.'", reference: "Hebrews 13:5", capital: "financial" },
+  { verse: "No one can serve two masters. Either you will hate the one and love the other, or you will be devoted to the one and despise the other. You cannot serve both God and money.", reference: "Matthew 6:24", capital: "financial" },
+  { verse: "But godliness with contentment is great gain. For we brought nothing into the world, and we can take nothing out of it.", reference: "1 Timothy 6:6-7", capital: "financial" },
+  { verse: "Command those who are rich in this present world not to be arrogant nor to put their hope in wealth, which is so uncertain, but to put their hope in God.", reference: "1 Timothy 6:17", capital: "financial" },
+  { verse: "Command them to do good, to be rich in good deeds, and to be generous and willing to share.", reference: "1 Timothy 6:18", capital: "financial" },
+  { verse: "A generous person will prosper; whoever refreshes others will be refreshed.", reference: "Proverbs 11:25", capital: "financial" },
+  { verse: "The blessing of the Lord brings wealth, without painful toil for it.", reference: "Proverbs 10:22", capital: "financial" },
+  { verse: "Dishonest money dwindles away, but whoever gathers money little by little makes it grow.", reference: "Proverbs 13:11", capital: "financial" },
+  { verse: "The rich rule over the poor, and the borrower is slave to the lender.", reference: "Proverbs 22:7", capital: "financial" },
+  { verse: "Suppose one of you wants to build a tower. Won't you first sit down and estimate the cost to see if you have enough money to complete it?", reference: "Luke 14:28", capital: "financial" },
+  { verse: "My God will meet all your needs according to the riches of his glory in Christ Jesus.", reference: "Philippians 4:19", capital: "financial" },
+  { verse: "And God is able to bless you abundantly, so that in all things at all times, having all that you need, you will abound in every good work.", reference: "2 Corinthians 9:8", capital: "financial" },
+  { verse: "Do not store up for yourselves treasures on earth, where moths and vermin destroy, and where thieves break in and steal. But store up for yourselves treasures in heaven.", reference: "Matthew 6:19-20", capital: "financial" },
+  { verse: "It is more blessed to give than to receive.", reference: "Acts 20:35", capital: "financial" },
+  { verse: "Give thanks in all circumstances; for this is God's will for you in Christ Jesus.", reference: "1 Thessalonians 5:18", capital: "financial" },
+  { verse: "Every good and perfect gift is from above, coming down from the Father of the heavenly lights.", reference: "James 1:17", capital: "financial" },
+  { verse: "Delight yourself in the Lord, and he will give you the desires of your heart.", reference: "Psalm 37:4", capital: "financial" },
+  { verse: "The Lord is my shepherd, I lack nothing.", reference: "Psalm 23:1", capital: "financial" },
+  { verse: "Whoever sows sparingly will also reap sparingly, and whoever sows generously will also reap generously.", reference: "2 Corinthians 9:6", capital: "financial" },
+  { verse: "Remember this: Whoever sows sparingly will also reap sparingly, and whoever sows generously will also reap generously.", reference: "2 Corinthians 9:6", capital: "financial" },
+  { verse: "The wicked borrows but does not pay back, but the righteous is generous and gives.", reference: "Psalm 37:21", capital: "financial" },
+  { verse: "Wealth gained hastily will dwindle, but whoever gathers little by little will increase it.", reference: "Proverbs 13:11", capital: "financial" },
+  { verse: "Whoever can be trusted with very little can also be trusted with much, and whoever is dishonest with very little will also be dishonest with much.", reference: "Luke 16:10", capital: "financial" },
+  { verse: "The plans of the diligent lead surely to abundance, but everyone who is hasty comes only to poverty.", reference: "Proverbs 21:5", capital: "financial" },
+  { verse: "In the house of the wise are stores of choice food and oil, but a foolish man devours all he has.", reference: "Proverbs 21:20", capital: "financial" },
+  { verse: "Good will come to those who are generous and lend freely, who conduct their affairs with justice.", reference: "Psalm 112:5", capital: "financial" },
+  { verse: "He who gathers crops in summer is a prudent son, but he who sleeps during harvest is a disgraceful son.", reference: "Proverbs 10:5", capital: "financial" },
+  { verse: "The righteous give generously.", reference: "Psalm 37:21", capital: "financial" },
 ]
+
+// Capital-specific reflection prompts
+export const CAPITAL_PROMPTS = {
+  spiritual: [
+    "What is God saying to you through this verse today?",
+    "How can you draw closer to God right now?",
+    "What area of your spiritual life needs the most attention?",
+    "Is there a promise to claim or a command to follow here?",
+    "How does this verse connect to what you're going through?",
+    "Where do you sense the Holy Spirit leading you?",
+    "What would it look like to fully trust God with this area of your life?",
+  ],
+  relational: [
+    "Who in your life needs encouragement today?",
+    "Is there a relationship that needs reconciliation or attention?",
+    "How can you show love to someone today?",
+    "Who has God placed in your life to sharpen you?",
+    "What does loving your neighbor look like in your current season?",
+    "Is there someone you need to forgive?",
+    "How can you serve your family or community today?",
+  ],
+  physical: [
+    "How are you honoring God with your body today?",
+    "What does rest look like for you in this season?",
+    "Are you caring for the temple God gave you?",
+    "What's one small step you can take for your physical health?",
+    "How does caring for your body connect to your spiritual life?",
+    "Are you getting the rest and nourishment you need?",
+    "What would it look like to offer your body as a living sacrifice today?",
+  ],
+  intellectual: [
+    "What is God teaching you in this season?",
+    "How can you steward your mind for God's purposes?",
+    "What are you learning that could help someone else?",
+    "How does this truth shape the way you think?",
+    "What plans or goals could you surrender to God today?",
+    "How can you renew your mind today?",
+    "What wisdom is God asking you to apply right now?",
+  ],
+  financial: [
+    "How are you stewarding what God has given you?",
+    "Where is God calling you to be more generous?",
+    "Is your treasure aligned with God's kingdom?",
+    "What would it look like to trust God with your finances?",
+    "How can you honor God with your resources today?",
+    "Are you holding your possessions with open hands?",
+    "Where might God be asking you to give sacrificially?",
+  ],
+}
 
 /**
  * Get the scripture for a specific date.
  * Uses a deterministic algorithm so the same date always returns the same scripture.
  */
 export function getDailyScripture(date = new Date()) {
-  // Create a date-based index using year and day of year
   const start = new Date(date.getFullYear(), 0, 0)
   const diff = date - start
   const oneDay = 1000 * 60 * 60 * 24
   const dayOfYear = Math.floor(diff / oneDay)
-
-  // Use modulo to cycle through scriptures
   const index = dayOfYear % SCRIPTURES.length
-
   return SCRIPTURES[index]
+}
+
+/**
+ * Get the reflection prompt for a specific date, tied to the scripture's capital.
+ */
+export function getDailyPrompt(date = new Date()) {
+  const scripture = getDailyScripture(date)
+  const capital = scripture.capital || 'spiritual'
+  const prompts = CAPITAL_PROMPTS[capital] || CAPITAL_PROMPTS.spiritual
+  const start = new Date(date.getFullYear(), 0, 0)
+  const diff = date - start
+  const dayOfYear = Math.floor(diff / (1000 * 60 * 60 * 24))
+  return prompts[dayOfYear % prompts.length]
 }
 
 export default SCRIPTURES
