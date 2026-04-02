@@ -11,6 +11,7 @@ function BibleReader({ navigateTo }) {
   const [loading, setLoading] = useState(true)
   const [highlightedVerse, setHighlightedVerse] = useState(null)
   const [copied, setCopied] = useState(false)
+  const [showAudioPlayer, setShowAudioPlayer] = useState(false)
 
   // Load index and last position on mount
   useEffect(() => {
@@ -40,13 +41,14 @@ function BibleReader({ navigateTo }) {
     }
   }, [navigateTo, index])
 
-  // Open Bible.is audio for current chapter (professional human narration)
-  const handleListenAudio = useCallback(() => {
-    if (!selectedBook) return
-    const bookCode = selectedBook.id.toUpperCase()
-    const url = `https://www.bible.is/bible/ENGWEB/${bookCode}/${selectedChapter}`
-    window.open(url, '_blank')
+  // Close audio player on chapter change
+  useEffect(() => {
+    setShowAudioPlayer(false)
   }, [selectedBook, selectedChapter])
+
+  const audioUrl = selectedBook
+    ? `https://www.bible.is/bible/ENGWEB/${selectedBook.id.toUpperCase()}/${selectedChapter}`
+    : null
 
   // Load chapter when book/chapter changes
   useEffect(() => {
@@ -224,16 +226,40 @@ function BibleReader({ navigateTo }) {
           </h2>
         </button>
         <button
-          onClick={handleListenAudio}
+          onClick={() => setShowAudioPlayer(!showAudioPlayer)}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[13px] font-medium"
-          style={{ background: 'var(--bg-tertiary)', color: 'var(--text-secondary)' }}
+          style={{
+            background: showAudioPlayer ? 'var(--accent)' : 'var(--bg-tertiary)',
+            color: showAudioPlayer ? 'white' : 'var(--text-secondary)',
+          }}
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
           </svg>
-          Listen
+          {showAudioPlayer ? 'Close' : 'Listen'}
         </button>
       </div>
+
+      {/* Audio Player (Bible.is embedded) */}
+      {showAudioPlayer && audioUrl && (
+        <motion.div
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: 'auto' }}
+          className="rounded-2xl overflow-hidden mb-4"
+          style={{ border: '1px solid var(--border)' }}
+        >
+          <iframe
+            src={audioUrl}
+            className="w-full"
+            style={{ height: '350px', border: 'none', borderRadius: '16px' }}
+            allow="autoplay"
+            title="Bible.is Audio"
+          />
+          <p className="text-[11px] text-center py-1.5" style={{ color: 'var(--text-muted)', background: 'var(--bg-tertiary)' }}>
+            Audio by Faith Comes By Hearing
+          </p>
+        </motion.div>
+      )}
 
       {/* Verses */}
       {loading ? (
