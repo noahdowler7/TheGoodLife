@@ -437,7 +437,7 @@ const SIMPLE_CONFIGS = {
     prompt: 'What did you read today? What stood out?',
     placeholder: 'Today I read...',
     storageKey: 'bible_reading',
-    linkTo: '/word',
+    linkTo: '/devotional',
     linkLabel: 'Open Word tab',
   },
   'worship': {
@@ -497,8 +497,8 @@ const SIMPLE_CONFIGS = {
 }
 
 function SimpleReflection({ disciplineId, dateStr, reflections, setReflections, setDisciplines, onClose, color }) {
-  const navigate = useNavigate()
   const config = SIMPLE_CONFIGS[disciplineId]
+  const navigate = useNavigate()
   if (!config) return null
 
   const storageKey = config.storageKey

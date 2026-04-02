@@ -373,6 +373,7 @@ function DisciplineTracker({ disciplines, setDisciplines, reflections, setReflec
 
   const navigateDate = (direction) => {
     setSelectedDate(prev => direction === 'next' ? addDays(prev, 1) : subDays(prev, 1))
+    setShowEnrichment(null)
   }
 
   const isToday = format(selectedDate, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd')
