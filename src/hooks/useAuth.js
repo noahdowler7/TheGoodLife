@@ -23,8 +23,9 @@ export function useAuth() {
   const login = async (email) => {
     setState(prev => ({ ...prev, loading: true, error: null }))
     try {
-      const magicToken = await auth.login(email)
-      return magicToken
+      const result = await auth.login(email)
+      setState(prev => ({ ...prev, loading: false }))
+      return result
     } catch (error) {
       setState(prev => ({ ...prev, loading: false, error: error.message }))
       throw error

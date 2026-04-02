@@ -8,6 +8,9 @@ class Settings(BaseSettings):
     access_token_expire_minutes: int = 60
     magic_link_expire_minutes: int = 15
     frontend_url: str = "http://localhost:5175"
+    app_url: str = "http://localhost:5175"
+    resend_api_key: str = ""
+    from_email: str = "The Good Life <onboarding@resend.dev>"
 
     @field_validator("database_url")
     @classmethod

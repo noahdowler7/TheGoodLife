@@ -2,28 +2,41 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 
 export default function AuthScreen({ onLogin, onVerify, loading, error }) {
-  const [step, setStep] = useState('email') // 'email' | 'verify'
+  const [step, setStep] = useState('email') // 'email' | 'check-email' | 'verify'
   const [email, setEmail] = useState('')
   const [token, setToken] = useState('')
+  const [sending, setSending] = useState(false)
 
   const handleEmailSubmit = async (e) => {
     e.preventDefault()
+    setSending(true)
     try {
-      const magicToken = await onLogin(email)
-      // For now, auto-fill token (in production, this would be sent via email)
-      setToken(magicToken)
-      setStep('verify')
-
-      // Auto-verify the token since we have it
-      setTimeout(async () => {
-        try {
-          await onVerify(magicToken)
-        } catch (err) {
-          console.error('Auto-verification failed:', err)
-        }
-      }, 500)
+      const result = await onLogin(email)
+      if (result?.token) {
+        // Dev mode: token returned directly, auto-verify
+        await onVerify(result.token)
+      } else {
+        // Prod mode: email sent, show check-email screen
+        setStep('check-email')
+      }
     } catch (err) {
       console.error('Login failed:', err)
+    } finally {
+      setSending(false)
+    }
+  }
+
+  const handleResend = async () => {
+    setSending(true)
+    try {
+      const result = await onLogin(email)
+      if (result?.token) {
+        await onVerify(result.token)
+      }
+    } catch (err) {
+      console.error('Resend failed:', err)
+    } finally {
+      setSending(false)
     }
   }
 
@@ -52,7 +65,7 @@ export default function AuthScreen({ onLogin, onVerify, loading, error }) {
           </p>
         </div>
 
-        {step === 'email' ? (
+        {step === 'email' && (
           <form onSubmit={handleEmailSubmit} className="space-y-4">
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-text-secondary mb-2">
@@ -65,11 +78,7 @@ export default function AuthScreen({ onLogin, onVerify, loading, error }) {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="your@email.com"
                 required
-                style={{
-                  color: '#000000',
-                  backgroundColor: '#FFFFFF',
-                  WebkitTextFillColor: '#000000'
-                }}
+                style={{ color: '#000000', backgroundColor: '#FFFFFF', WebkitTextFillColor: '#000000' }}
                 className="w-full px-4 py-3 border-2 border-gray-400 rounded-xl placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gold-400"
               />
             </div>
@@ -82,13 +91,61 @@ export default function AuthScreen({ onLogin, onVerify, loading, error }) {
 
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || sending}
               className="w-full py-3 bg-primary text-white rounded-xl font-medium hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
-              {loading ? 'Sending...' : 'Continue'}
+              {(loading || sending) ? 'Sending...' : 'Continue'}
             </button>
           </form>
-        ) : (
+        )}
+
+        {step === 'check-email' && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center space-y-4"
+          >
+            <div className="text-5xl mb-4">✉️</div>
+            <h2 className="text-xl font-semibold text-text-primary">Check your email</h2>
+            <p className="text-text-secondary">
+              We sent a sign-in link to<br />
+              <span className="text-text-primary font-medium">{email}</span>
+            </p>
+            <p className="text-text-tertiary text-sm">
+              Click the link in the email to sign in. It expires in 15 minutes.
+            </p>
+
+            {error && (
+              <div className="text-sm text-red-500 bg-red-500/10 px-4 py-2 rounded-lg">
+                {error}
+              </div>
+            )}
+
+            <div className="pt-4 space-y-2">
+              <button
+                onClick={handleResend}
+                disabled={sending}
+                className="w-full py-3 bg-surface border border-border text-text-primary rounded-xl font-medium hover:bg-surface/80 disabled:opacity-50 transition-colors"
+              >
+                {sending ? 'Sending...' : 'Resend email'}
+              </button>
+              <button
+                onClick={() => setStep('email')}
+                className="w-full py-2 text-text-secondary text-sm hover:text-text-primary transition-colors"
+              >
+                Use a different email
+              </button>
+              <button
+                onClick={() => setStep('verify')}
+                className="w-full py-2 text-text-tertiary text-xs hover:text-text-secondary transition-colors"
+              >
+                Enter code manually
+              </button>
+            </div>
+          </motion.div>
+        )}
+
+        {step === 'verify' && (
           <form onSubmit={handleVerifySubmit} className="space-y-4">
             <div>
               <label htmlFor="token" className="block text-sm font-medium text-text-secondary mb-2">
@@ -99,7 +156,7 @@ export default function AuthScreen({ onLogin, onVerify, loading, error }) {
                 type="text"
                 value={token}
                 onChange={(e) => setToken(e.target.value)}
-                placeholder="Enter code"
+                placeholder="Paste code from email"
                 required
                 className="w-full px-4 py-3 bg-surface border border-border rounded-xl text-text-primary placeholder:text-text-tertiary focus:outline-none focus:ring-2 focus:ring-primary"
               />
@@ -124,7 +181,7 @@ export default function AuthScreen({ onLogin, onVerify, loading, error }) {
 
             <button
               type="button"
-              onClick={() => setStep('email')}
+              onClick={() => setStep('check-email')}
               className="w-full py-2 text-text-secondary text-sm hover:text-text-primary transition-colors"
             >
               Back

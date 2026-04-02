@@ -6,7 +6,8 @@ const USER_KEY = 'thegoodlife_user'
 export const auth = {
   async login(email) {
     const response = await api.post('/api/v1/auth/magic-link', { email })
-    return response.token
+    // prod: { message } — dev: { token, message }
+    return response
   },
 
   async verify(token) {

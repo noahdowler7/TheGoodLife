@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom'
+import { Routes, Route, Navigate, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { AnimatePresence } from 'framer-motion'
 import Navigation from './components/Navigation'
 import Onboarding from './components/Onboarding'
@@ -13,6 +13,7 @@ import DevotionalGuide from './components/DevotionalGuide'
 import Settings from './components/Settings'
 import PartnerSummary from './components/PartnerSummary'
 import AuthScreen from './components/AuthScreen'
+import InstallPrompt from './components/InstallPrompt'
 import DataMigration from './components/DataMigration'
 import SyncStatus from './components/SyncStatus'
 import {
@@ -26,6 +27,40 @@ import {
   useSettings,
 } from './hooks/useStorage'
 import { useAuth } from './hooks/useAuth'
+
+function AuthVerify({ verify }) {
+  const [searchParams] = useSearchParams()
+  const navigate = useNavigate()
+  const [status, setStatus] = useState('verifying')
+
+  useEffect(() => {
+    const token = searchParams.get('token')
+    if (!token) { navigate('/', { replace: true }); return }
+    verify(token)
+      .then(() => navigate('/', { replace: true }))
+      .catch(() => setStatus('error'))
+  }, [])
+
+  if (status === 'error') {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background p-4 text-center">
+        <div>
+          <p className="text-text-primary text-lg font-semibold mb-2">Link expired or invalid</p>
+          <p className="text-text-secondary text-sm mb-4">Request a new sign-in link from the app.</p>
+          <button onClick={() => navigate('/', { replace: true })} className="py-2 px-6 bg-primary text-white rounded-xl">
+            Go to App
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-background">
+      <p className="text-text-secondary">Signing you in…</p>
+    </div>
+  )
+}
 
 function App() {
   const location = useLocation()
@@ -94,6 +129,15 @@ function App() {
     }
   }, [hasAccess, showAuthScreen, continueAsGuest])
 
+  // Handle magic link verify route before any other auth checks
+  if (location.pathname === '/auth/verify') {
+    return (
+      <Routes>
+        <Route path="/auth/verify" element={<AuthVerify verify={verify} />} />
+      </Routes>
+    )
+  }
+
   // Show auth screen if explicitly requested
   if (showAuthScreen && !isAuthenticated) {
     return <AuthScreen onLogin={login} onVerify={verify} loading={loading} error={error} />
@@ -154,6 +198,7 @@ function App() {
         </Routes>
       </AnimatePresence>
       <Navigation settings={settings} />
+      <InstallPrompt />
     </div>
   )
 }
