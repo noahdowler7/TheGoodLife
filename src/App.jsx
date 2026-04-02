@@ -77,6 +77,20 @@ function App() {
   const [migrationChecked, setMigrationChecked] = useState(false)
   const [showAuthScreen, setShowAuthScreen] = useState(false)
 
+  // Auto-check "fasting" discipline when an active fast exists
+  useEffect(() => {
+    const activeFast = fasting.find(f => !f.completed && f.startTime)
+    if (activeFast) {
+      const todayStr = new Date().toISOString().slice(0, 10)
+      if (!disciplines[todayStr]?.fasting) {
+        setDisciplines(prev => ({
+          ...prev,
+          [todayStr]: { ...(prev[todayStr] || {}), fasting: true },
+        }))
+      }
+    }
+  }, [fasting])
+
   // Apply theme to document
   useEffect(() => {
     const theme = settings?.theme || 'dark'

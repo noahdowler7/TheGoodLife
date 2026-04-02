@@ -4,16 +4,19 @@ import { CAPITALS, getDisciplinesForCapital } from './capitals'
 /**
  * Calculate the current streak for a specific discipline.
  * Walks backwards from today counting consecutive completed days.
+ * Allows 1 grace day per 7-day window — rest is holy too.
  */
 export function calculateStreak(disciplineId, disciplines) {
   let streak = 0
+  let graceDaysUsed = 0
+  const MAX_GRACE_PER_WEEK = 1
   let date = new Date()
 
   // Check today first
   const todayStr = format(date, 'yyyy-MM-dd')
   const todayData = disciplines[todayStr]
   if (!todayData || !todayData[disciplineId]) {
-    // If not done today, check if yesterday was done (streak still counts)
+    // If not done today, start counting from yesterday
     date = subDays(date, 1)
   }
 
@@ -24,6 +27,21 @@ export function calculateStreak(disciplineId, disciplines) {
       streak++
       date = subDays(date, 1)
     } else {
+      // Grace day: allow 1 missed day per 7 consecutive days
+      if (graceDaysUsed < MAX_GRACE_PER_WEEK && streak >= 2) {
+        graceDaysUsed++
+        date = subDays(date, 1)
+        // Check if the day before the grace day was completed
+        const nextDateStr = format(date, 'yyyy-MM-dd')
+        const nextDayData = disciplines[nextDateStr]
+        if (nextDayData && nextDayData[disciplineId]) {
+          streak++ // count the day after the grace
+          date = subDays(date, 1)
+          // Reset grace counter every 7 days of streak
+          if (streak % 7 === 0) graceDaysUsed = 0
+          continue
+        }
+      }
       break
     }
   }

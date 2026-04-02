@@ -37,28 +37,66 @@ function DisciplineCheckItem({ discipline, checked, capitalColor, onToggle }) {
   )
 }
 
+const RATING_LABELS = { 1: 'Struggled', 2: 'Low', 3: 'Steady', 4: 'Strong', 5: 'Thriving' }
+
 function CapitalRating({ value, color, onChange }) {
   return (
-    <div className="flex items-center gap-2 px-4">
-      <span className="text-[12px] font-medium" style={{ color: 'var(--text-muted)' }}>Rate:</span>
-      <div className="flex gap-1.5">
-        {[1, 2, 3, 4, 5].map(i => (
-          <button
-            key={i}
-            onClick={() => onChange(value === i ? 0 : i)}
-            className="w-7 h-7 rounded-full flex items-center justify-center transition-all"
-            style={{
-              background: i <= value ? color : 'var(--bg-tertiary)',
-              border: `2px solid ${i <= value ? color : 'var(--border)'}`,
-            }}
-          >
-            {i <= value && (
-              <span className="text-[10px] font-bold text-white">{i}</span>
-            )}
-          </button>
-        ))}
+    <div className="px-4">
+      <div className="flex items-center gap-2">
+        <span className="text-[12px] font-medium" style={{ color: 'var(--text-muted)' }}>Rate:</span>
+        <div className="flex gap-1.5">
+          {[1, 2, 3, 4, 5].map(i => (
+            <button
+              key={i}
+              onClick={() => onChange(value === i ? 0 : i)}
+              className="w-7 h-7 rounded-full flex items-center justify-center transition-all"
+              style={{
+                background: i <= value ? color : 'var(--bg-tertiary)',
+                border: `2px solid ${i <= value ? color : 'var(--border)'}`,
+              }}
+            >
+              {i <= value && (
+                <span className="text-[10px] font-bold text-white">{i}</span>
+              )}
+            </button>
+          ))}
+        </div>
+        {value > 0 && (
+          <span className="text-[11px] font-medium ml-1" style={{ color }}>{RATING_LABELS[value]}</span>
+        )}
       </div>
     </div>
+  )
+}
+
+const COMPLETION_MESSAGES = [
+  { verse: "Well done, good and faithful servant.", ref: "Matthew 25:21" },
+  { verse: "Let us not become weary in doing good, for at the proper time we will reap a harvest.", ref: "Galatians 6:9" },
+  { verse: "Whatever you do, work at it with all your heart, as working for the Lord.", ref: "Colossians 3:23" },
+  { verse: "Be faithful in small things, because it is in them that your strength lies.", ref: "Mother Teresa" },
+  { verse: "The steadfast love of the Lord never ceases; his mercies never come to an end.", ref: "Lamentations 3:22" },
+]
+
+function CompletionCelebration() {
+  const msg = COMPLETION_MESSAGES[new Date().getDay() % COMPLETION_MESSAGES.length]
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      className="rounded-3xl p-6 text-center mx-5 mb-6"
+      style={{ background: 'var(--accent-light)', border: '2px solid var(--accent)' }}
+    >
+      <div className="text-3xl mb-3">&#10024;</div>
+      <p className="text-[17px] font-semibold mb-2" style={{ color: 'var(--accent)' }}>
+        You invested in all 5 capitals today
+      </p>
+      <p className="text-[15px] italic leading-relaxed mb-2" style={{ color: 'var(--text-primary)' }}>
+        "{msg.verse}"
+      </p>
+      <p className="text-[11px] tracking-widest uppercase" style={{ color: 'var(--text-muted)' }}>
+        {msg.ref}
+      </p>
+    </motion.div>
   )
 }
 
@@ -199,6 +237,11 @@ function DisciplineTracker({ disciplines, setDisciplines, reflections, setReflec
           </div>
         </div>
       </header>
+
+      {/* Completion Celebration */}
+      <AnimatePresence>
+        {completionRate === 1 && isToday && <CompletionCelebration />}
+      </AnimatePresence>
 
       {/* Capital Sections */}
       <div className="px-5 space-y-6">
