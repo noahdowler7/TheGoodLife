@@ -11,8 +11,9 @@ function BibleReader({ navigateTo }) {
   const [loading, setLoading] = useState(true)
   const [highlightedVerse, setHighlightedVerse] = useState(null)
   const [copied, setCopied] = useState(false)
-  const [speaking, setSpeaking] = useState(false)
+  const [ttsState, setTtsState] = useState('idle') // 'idle' | 'playing' | 'paused'
   const [speakingVerse, setSpeakingVerse] = useState(null)
+  const [ttsQueue, setTtsQueue] = useState({ verses: [], index: 0 })
 
   // Load index and last position on mount
   useEffect(() => {
@@ -47,50 +48,118 @@ function BibleReader({ navigateTo }) {
     return () => {
       if (window.speechSynthesis) {
         window.speechSynthesis.cancel()
-        setSpeaking(false)
+        setTtsState('idle')
         setSpeakingVerse(null)
       }
     }
   }, [selectedBook, selectedChapter])
 
-  const handleListen = useCallback(() => {
+  // Pick the best available voice (prefer natural/enhanced voices)
+  const getBestVoice = useCallback(() => {
+    const voices = window.speechSynthesis?.getVoices() || []
+    const english = voices.filter(v => v.lang.startsWith('en'))
+    // Prefer enhanced/premium voices
+    const preferred = english.find(v =>
+      /samantha|karen|daniel|google|enhanced|premium|natural/i.test(v.name)
+    )
+    return preferred || english[0] || null
+  }, [])
+
+  const startSpeaking = useCallback((fromIndex = 0) => {
     const synth = window.speechSynthesis
     if (!synth || !chapterData?.verses?.length) return
 
-    if (speaking) {
-      synth.cancel()
-      setSpeaking(false)
-      setSpeakingVerse(null)
-      return
-    }
-
-    setSpeaking(true)
+    synth.cancel()
+    setTtsState('playing')
     const verses = chapterData.verses
-    let i = 0
+    let i = fromIndex
 
-    const speakNext = () => {
+    // Combine verses into chunks of 3-5 for smoother reading
+    const speakNextChunk = () => {
       if (i >= verses.length) {
-        setSpeaking(false)
+        setTtsState('idle')
         setSpeakingVerse(null)
+        setTtsQueue({ verses: [], index: 0 })
         return
       }
-      const utt = new SpeechSynthesisUtterance(verses[i].text)
-      utt.rate = 0.9
+
+      const chunkSize = 4
+      const chunk = verses.slice(i, i + chunkSize)
+      const text = chunk.map(v => v.text).join(' ')
+      const firstVerse = chunk[0].verse
+      const lastVerse = chunk[chunk.length - 1].verse
+
+      const utt = new SpeechSynthesisUtterance(text)
+      const voice = getBestVoice()
+      if (voice) utt.voice = voice
+      utt.rate = 0.92
       utt.pitch = 1
-      const currentVerse = verses[i].verse
-      setSpeakingVerse(currentVerse)
+
+      setSpeakingVerse(firstVerse)
+      setTtsQueue({ verses, index: i })
+
+      // Update highlighted verse as we progress through chunk
+      let wordCount = 0
+      const verseWordCounts = chunk.map(v => v.text.split(/\s+/).length)
+      utt.onboundary = (e) => {
+        if (e.name === 'word') {
+          wordCount++
+          let cumulative = 0
+          for (let j = 0; j < verseWordCounts.length; j++) {
+            cumulative += verseWordCounts[j]
+            if (wordCount <= cumulative) {
+              setSpeakingVerse(chunk[j].verse)
+              break
+            }
+          }
+        }
+      }
+
       utt.onend = () => {
-        i++
-        speakNext()
+        i += chunkSize
+        if (i < verses.length) {
+          speakNextChunk()
+        } else {
+          setTtsState('idle')
+          setSpeakingVerse(null)
+          setTtsQueue({ verses: [], index: 0 })
+        }
       }
       utt.onerror = () => {
-        setSpeaking(false)
+        setTtsState('idle')
         setSpeakingVerse(null)
       }
       synth.speak(utt)
     }
-    speakNext()
-  }, [chapterData, speaking])
+    speakNextChunk()
+  }, [chapterData, getBestVoice])
+
+  const handleListen = useCallback(() => {
+    const synth = window.speechSynthesis
+    if (!synth) return
+
+    if (ttsState === 'playing') {
+      synth.pause()
+      setTtsState('paused')
+      return
+    }
+
+    if (ttsState === 'paused') {
+      synth.resume()
+      setTtsState('playing')
+      return
+    }
+
+    // Start fresh
+    startSpeaking(0)
+  }, [ttsState, startSpeaking])
+
+  const handleStopTts = useCallback(() => {
+    const synth = window.speechSynthesis
+    if (synth) synth.cancel()
+    setTtsState('idle')
+    setSpeakingVerse(null)
+  }, [])
 
   // Load chapter when book/chapter changes
   useEffect(() => {
@@ -268,31 +337,51 @@ function BibleReader({ navigateTo }) {
           </h2>
         </button>
         {window.speechSynthesis && (
-          <button
-            onClick={handleListen}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[13px] font-medium"
-            style={{
-              background: speaking ? 'var(--accent)' : 'var(--bg-tertiary)',
-              color: speaking ? 'white' : 'var(--text-secondary)',
-            }}
-          >
-            {speaking ? (
-              <>
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                  <rect x="6" y="4" width="4" height="16" rx="1" />
-                  <rect x="14" y="4" width="4" height="16" rx="1" />
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={handleListen}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[13px] font-medium"
+              style={{
+                background: ttsState !== 'idle' ? 'var(--accent)' : 'var(--bg-tertiary)',
+                color: ttsState !== 'idle' ? 'white' : 'var(--text-secondary)',
+              }}
+            >
+              {ttsState === 'playing' ? (
+                <>
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                    <rect x="6" y="4" width="4" height="16" rx="1" />
+                    <rect x="14" y="4" width="4" height="16" rx="1" />
+                  </svg>
+                  Pause
+                </>
+              ) : ttsState === 'paused' ? (
+                <>
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                    <polygon points="5,3 19,12 5,21" />
+                  </svg>
+                  Resume
+                </>
+              ) : (
+                <>
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                  </svg>
+                  Listen
+                </>
+              )}
+            </button>
+            {ttsState !== 'idle' && (
+              <button
+                onClick={handleStopTts}
+                className="w-8 h-8 rounded-full flex items-center justify-center"
+                style={{ background: 'var(--bg-tertiary)' }}
+              >
+                <svg className="w-3.5 h-3.5" style={{ color: 'var(--text-muted)' }} fill="currentColor" viewBox="0 0 24 24">
+                  <rect x="4" y="4" width="16" height="16" rx="2" />
                 </svg>
-                Stop
-              </>
-            ) : (
-              <>
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
-                </svg>
-                Listen
-              </>
+              </button>
             )}
-          </button>
+          </div>
         )}
       </div>
 

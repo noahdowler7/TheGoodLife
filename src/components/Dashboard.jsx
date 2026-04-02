@@ -13,7 +13,7 @@ import ThreePillars from './ThreePillars'
 import { CAPITALS, CAPITAL_ORDER } from '../utils/capitals'
 import { calculateCapitalScore, getActiveStreaks, getDailyCompletionRate } from '../utils/streaks'
 import { ALL_DISCIPLINES } from '../utils/capitals'
-import { getChapter } from '../utils/bible'
+import { getChapter, savePosition } from '../utils/bible'
 
 function Dashboard({ disciplines, ratings, reflections, setReflections, settings, customDisciplines }) {
   const navigate = useNavigate()
@@ -175,7 +175,10 @@ function Dashboard({ disciplines, ratings, reflections, setReflections, settings
           <motion.section variants={itemVariants}>
             <motion.button
               whileTap={{ scale: 0.98 }}
-              onClick={() => navigate('/devotional')}
+              onClick={() => {
+                savePosition('psa', psalmNumber)
+                navigate('/devotional?tab=bible')
+              }}
               className="w-full rounded-2xl p-4 text-left"
               style={{ background: 'rgba(91, 185, 139, 0.08)', border: '1px solid rgba(91, 185, 139, 0.2)' }}
             >

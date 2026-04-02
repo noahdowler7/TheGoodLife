@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { format, subDays } from 'date-fns'
 import { motion, AnimatePresence } from 'framer-motion'
 import PageWrapper from './PageWrapper'
@@ -9,7 +10,9 @@ import { CAPITALS } from '../utils/capitals'
 import { parseScriptureRef } from '../utils/bible'
 
 function DevotionalGuide({ reflections, setReflections }) {
-  const [tab, setTab] = useState('today')
+  const [searchParams] = useSearchParams()
+  const initialTab = searchParams.get('tab') || 'today'
+  const [tab, setTab] = useState(initialTab)
   const [bibleNavTarget, setBibleNavTarget] = useState(null)
 
   const openInBible = (reference) => {
@@ -27,6 +30,10 @@ function DevotionalGuide({ reflections, setReflections }) {
   const [spurgeonExpanded, setSpurgeonExpanded] = useState(false)
   const isEvening = today.getHours() >= 17
 
+  // Andrew Murray's Abide in Christ (31-day cycle)
+  const [murray, setMurray] = useState(null)
+  const [murrayExpanded, setMurrayExpanded] = useState(false)
+
   useEffect(() => {
     fetch('/devotionals/spurgeon-morning-evening.json')
       .then(r => r.json())
@@ -35,6 +42,15 @@ function DevotionalGuide({ reflections, setReflections }) {
         const dateKey = `${months[today.getMonth()]} ${today.getDate()}`
         const entry = data.find(d => d.date === dateKey)
         if (entry) setSpurgeon(entry)
+      })
+      .catch(() => {})
+
+    fetch('/devotionals/murray-abide-in-christ.json')
+      .then(r => r.json())
+      .then(data => {
+        const dayOfMonth = today.getDate()
+        const dayIndex = (dayOfMonth - 1) % data.length
+        setMurray(data[dayIndex])
       })
       .catch(() => {})
   }, [todayStr])
@@ -305,11 +321,62 @@ function DevotionalGuide({ reflections, setReflections }) {
               </motion.div>
             )}
 
+            {/* Andrew Murray — Abide in Christ */}
+            {murray && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="rounded-2xl overflow-hidden"
+                style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
+              >
+                <button
+                  onClick={() => setMurrayExpanded(!murrayExpanded)}
+                  className="w-full p-4 flex items-center gap-3 text-left"
+                >
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(91, 185, 139, 0.15)' }}>
+                    <svg className="w-5 h-5" style={{ color: '#5BB98B' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                    </svg>
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-[11px] uppercase tracking-wider font-semibold" style={{ color: '#5BB98B' }}>
+                      Andrew Murray — Abide in Christ
+                    </p>
+                    <p className="text-[14px] font-medium" style={{ color: 'var(--text-primary)' }}>
+                      {murray.title}
+                    </p>
+                  </div>
+                  <svg
+                    className="w-4 h-4 transition-transform flex-shrink-0"
+                    style={{ color: 'var(--text-muted)', transform: murrayExpanded ? 'rotate(180deg)' : 'rotate(0deg)' }}
+                    fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                {murrayExpanded && (
+                  <div className="px-4 pb-4">
+                    {murray.verse && (
+                      <div className="rounded-xl p-4 mb-3" style={{ background: 'rgba(91, 185, 139, 0.08)' }}>
+                        <p className="text-[13px] italic leading-relaxed" style={{ color: 'var(--text-primary)' }}>
+                          {murray.verse}
+                        </p>
+                      </div>
+                    )}
+                    <p className="text-[14px] leading-[1.75] whitespace-pre-line" style={{ color: 'var(--text-secondary)' }}>
+                      {murray.text}
+                    </p>
+                  </div>
+                )}
+              </motion.div>
+            )}
+
             {/* Journal Entry */}
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
+              transition={{ delay: 0.35 }}
             >
               <h3 className="text-[15px] font-semibold uppercase mb-3" style={{ color: 'var(--text-muted)', fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '0.1em' }}>
                 Your Reflection
