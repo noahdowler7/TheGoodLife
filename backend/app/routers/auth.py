@@ -22,15 +22,10 @@ async def request_magic_link(
     if not user:
         user = User(email=request.email)
         db.add(user)
-        await db.flush()  # Flush to get user.id
-        await db.refresh(user)  # Refresh to ensure user.id is populated
-
-        # Create default settings
+        await db.flush()
         settings = UserSettings(user_id=user.id)
         db.add(settings)
-
         await db.commit()
-        await db.refresh(user)
 
     token = create_magic_token(request.email)
 
@@ -45,13 +40,16 @@ async def request_magic_link(
             <p style="margin: 32px 0 0; color: #555; font-size: 13px;">If you didn't request this, you can safely ignore this email.</p>
         </div>
         """
-        async with httpx.AsyncClient() as client:
-            await client.post(
-                "https://api.resend.com/emails",
-                headers={"Authorization": f"Bearer {app_settings.resend_api_key}"},
-                json={"from": app_settings.from_email, "to": [request.email], "subject": "Sign in to The Good Life", "html": html},
-                timeout=10,
-            )
+        try:
+            async with httpx.AsyncClient() as client:
+                await client.post(
+                    "https://api.resend.com/emails",
+                    headers={"Authorization": f"Bearer {app_settings.resend_api_key}"},
+                    json={"from": app_settings.from_email, "to": [request.email], "subject": "Sign in to The Good Life", "html": html},
+                    timeout=10,
+                )
+        except Exception:
+            raise HTTPException(status_code=503, detail="Could not send email. Please try again.")
         return {"message": "Check your email for a sign-in link"}
     else:
         # Dev fallback: return token directly

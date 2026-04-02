@@ -78,8 +78,9 @@ export default function AuthScreen({ onLogin, onVerify, loading, error }) {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="your@email.com"
                 required
+                disabled={loading || sending}
                 style={{ color: '#000000', backgroundColor: '#FFFFFF', WebkitTextFillColor: '#000000' }}
-                className="w-full px-4 py-3 border-2 border-gray-400 rounded-xl placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gold-400"
+                className="w-full px-4 py-3 border-2 border-gray-400 rounded-xl placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gold-400 disabled:opacity-50"
               />
             </div>
 

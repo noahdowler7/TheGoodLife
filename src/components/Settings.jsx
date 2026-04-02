@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { v4 as uuidv4 } from 'uuid'
 import PageWrapper from './PageWrapper'
@@ -20,6 +20,14 @@ function Settings({ settings, setSettings, partners, setPartners, customDiscipli
   const [isSearching, setIsSearching] = useState(false)
   const [pendingRequests, setPendingRequests] = useState({ incoming: [], outgoing: [] })
   const [acceptedPartners, setAcceptedPartners] = useState([])
+  const [toast, setToast] = useState(null)
+  const [confirmAction, setConfirmAction] = useState(null)
+  const debounceRef = useRef(null)
+
+  const showToast = useCallback((message, type = 'error') => {
+    setToast({ message, type })
+    setTimeout(() => setToast(null), 4000)
+  }, [])
 
   const capitalToggles = settings?.capitals || {}
 
@@ -89,23 +97,25 @@ function Settings({ settings, setSettings, partners, setPartners, customDiscipli
     }
   }
 
-  const handleSearchPartners = async (query) => {
+  const handleSearchPartners = (query) => {
     setSearchQuery(query)
     if (query.length < 3) {
       setSearchResults([])
       return
     }
-
-    setIsSearching(true)
-    try {
-      const results = await dataService.searchUsers(query)
-      setSearchResults(results)
-    } catch (error) {
-      console.error('Search failed:', error)
-      setSearchResults([])
-    } finally {
-      setIsSearching(false)
-    }
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+    debounceRef.current = setTimeout(async () => {
+      setIsSearching(true)
+      try {
+        const results = await dataService.searchUsers(query)
+        setSearchResults(results)
+      } catch (error) {
+        console.error('Search failed:', error)
+        showToast('Search failed. Please try again.')
+      } finally {
+        setIsSearching(false)
+      }
+    }, 300)
   }
 
   const handleSendRequest = async (userId) => {
@@ -116,7 +126,7 @@ function Settings({ settings, setSettings, partners, setPartners, customDiscipli
       await loadPartnerData()
     } catch (error) {
       console.error('Failed to send request:', error)
-      alert(error.message || 'Failed to send partnership request')
+      showToast(error.message || 'Failed to send partnership request')
     }
   }
 
@@ -126,19 +136,24 @@ function Settings({ settings, setSettings, partners, setPartners, customDiscipli
       await loadPartnerData()
     } catch (error) {
       console.error(`Failed to ${action} request:`, error)
-      alert(error.message || `Failed to ${action} partnership request`)
+      showToast(error.message || `Failed to ${action} partnership request`)
     }
   }
 
   const handleRemovePartnership = async (partnershipId) => {
-    if (!confirm('Remove this accountability partnership?')) return
-    try {
-      await dataService.removePartner(partnershipId)
-      await loadPartnerData()
-    } catch (error) {
-      console.error('Failed to remove partner:', error)
-      alert(error.message || 'Failed to remove partnership')
-    }
+    setConfirmAction({
+      message: 'Remove this accountability partnership?',
+      onConfirm: async () => {
+        setConfirmAction(null)
+        try {
+          await dataService.removePartner(partnershipId)
+          await loadPartnerData()
+        } catch (error) {
+          console.error('Failed to remove partner:', error)
+          showToast(error.message || 'Failed to remove partnership')
+        }
+      },
+    })
   }
 
   const handleViewPartnerSummary = (partnerId) => {
@@ -186,17 +201,33 @@ function Settings({ settings, setSettings, partners, setPartners, customDiscipli
         })
         window.location.reload()
       } catch {
-        alert('Invalid backup file')
+        showToast('Invalid backup file')
       }
     }
     reader.readAsText(file)
   }
 
+  const handleImportWithConfirm = (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setConfirmAction({
+      message: 'This will overwrite your current data with the backup. Continue?',
+      onConfirm: () => {
+        setConfirmAction(null)
+        handleImportData({ target: { files: [file] } })
+      },
+    })
+  }
+
   const handleResetData = () => {
-    if (!confirm('This will delete all your data. Are you sure?')) return
-    if (!confirm('Really? This cannot be undone.')) return
-    Object.values(STORAGE_KEYS).forEach(key => localStorage.removeItem(key))
-    window.location.reload()
+    setConfirmAction({
+      message: 'This will delete ALL your data. This cannot be undone.',
+      onConfirm: () => {
+        setConfirmAction(null)
+        Object.values(STORAGE_KEYS).forEach(key => localStorage.removeItem(key))
+        window.location.reload()
+      },
+    })
   }
 
   return (
@@ -544,7 +575,7 @@ function Settings({ settings, setSettings, partners, setPartners, customDiscipli
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
             </svg>
             <span className="body flex-1">Import Data</span>
-            <input type="file" accept=".json" onChange={handleImportData} className="hidden" />
+            <input type="file" accept=".json" onChange={handleImportWithConfirm} className="hidden" />
           </label>
           <button onClick={handleResetData} className="list-row w-full text-left cursor-pointer" style={{ borderTop: '1px solid var(--separator)' }}>
             <svg className="w-5 h-5" style={{ color: 'var(--danger)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -560,6 +591,48 @@ function Settings({ settings, setSettings, partners, setPartners, customDiscipli
           <p className="text-[11px] mt-2" style={{ color: 'var(--text-muted)' }}>Version 1.0.0</p>
         </div>
       </div>
+
+      {/* Toast notification */}
+      {toast && (
+        <div className="fixed top-4 left-4 right-4 z-50 flex justify-center pointer-events-none">
+          <div
+            className="px-4 py-3 rounded-xl text-[13px] font-medium shadow-lg pointer-events-auto"
+            style={{
+              background: toast.type === 'error' ? '#EF4444' : '#22C55E',
+              color: 'white',
+            }}
+          >
+            {toast.message}
+          </div>
+        </div>
+      )}
+
+      {/* Confirmation modal */}
+      {confirmAction && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+          <div className="w-full max-w-sm rounded-2xl p-5" style={{ background: 'var(--bg-secondary)' }}>
+            <p className="text-[15px] font-medium mb-4" style={{ color: 'var(--text-primary)' }}>
+              {confirmAction.message}
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setConfirmAction(null)}
+                className="flex-1 py-2.5 rounded-xl text-[14px] font-medium"
+                style={{ background: 'var(--bg-tertiary)', color: 'var(--text-secondary)' }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmAction.onConfirm}
+                className="flex-1 py-2.5 rounded-xl text-[14px] font-medium"
+                style={{ background: 'var(--danger, #EF4444)', color: 'white' }}
+              >
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </PageWrapper>
   )
 }

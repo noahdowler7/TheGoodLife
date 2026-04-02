@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from contextlib import asynccontextmanager
 from app.config import settings
+from app.database import engine
 from app.routers import (
     auth,
     users,
@@ -15,7 +17,12 @@ from app.routers import (
     partners
 )
 
-app = FastAPI()
+@asynccontextmanager
+async def lifespan(app):
+    yield
+    await engine.dispose()
+
+app = FastAPI(lifespan=lifespan)
 
 _origins = ["http://localhost:5173", "http://localhost:5174", "http://localhost:5175"]
 if settings.frontend_url not in _origins:

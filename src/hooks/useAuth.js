@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { auth } from '../services/auth'
+import { api } from '../services/api'
 
 const GUEST_MODE_KEY = 'thegoodlife_guest_mode'
 
@@ -13,10 +14,20 @@ export function useAuth() {
   })
 
   useEffect(() => {
-    // Check if token is valid on mount
+    // Validate token on mount — only clear on auth failure, not network errors
     if (state.token && !state.user) {
-      auth.logout()
-      setState(prev => ({ ...prev, token: null, user: null }))
+      api.get('/api/v1/users/me')
+        .then(user => {
+          localStorage.setItem('thegoodlife_user', JSON.stringify(user))
+          setState(prev => ({ ...prev, user }))
+        })
+        .catch(err => {
+          if (err.message?.includes('401') || err.message?.includes('403')) {
+            auth.logout()
+            setState(prev => ({ ...prev, token: null, user: null }))
+          }
+          // Network errors: keep token, user will re-sync when online
+        })
     }
   }, [])
 
