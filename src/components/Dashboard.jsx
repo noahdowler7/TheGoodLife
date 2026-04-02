@@ -8,12 +8,13 @@ import StreakIndicator from './StreakIndicator'
 import InsightsCard from './InsightsCard'
 import AlignmentWidget from './AlignmentWidget'
 import { getDailyScripture } from '../utils/scriptures'
+import { getDailyExposition, getDailyReading } from '../utils/devotional'
 import ThreePillars from './ThreePillars'
-import { CAPITALS, CAPITAL_ORDER, getActiveDisciplines } from '../utils/capitals'
+import { CAPITALS, CAPITAL_ORDER } from '../utils/capitals'
 import { calculateCapitalScore, getActiveStreaks, getDailyCompletionRate } from '../utils/streaks'
 import { ALL_DISCIPLINES } from '../utils/capitals'
 
-function Dashboard({ disciplines, ratings, reflections, setReflections, settings, setDisciplines, customDisciplines }) {
+function Dashboard({ disciplines, ratings, reflections, setReflections, settings, customDisciplines }) {
   const navigate = useNavigate()
   const today = new Date()
   const hour = today.getHours()
@@ -39,24 +40,10 @@ function Dashboard({ disciplines, ratings, reflections, setReflections, settings
       }))
   }, [disciplines, ratings, todayStr, capitalToggles, customDisciplines])
 
-  // Uncompleted disciplines to grow in
-  const activeDisciplines = useMemo(() => {
-    return getActiveDisciplines(capitalToggles, customDisciplines)
-  }, [capitalToggles, customDisciplines])
-
-  const todayData = disciplines[todayStr] || {}
-  const uncompletedDisciplines = activeDisciplines.filter(d => !todayData[d.id]).slice(0, 5)
-
-  // Toggle a discipline from the dashboard
-  const handleToggleDiscipline = (discId) => {
-    setDisciplines(prev => ({
-      ...prev,
-      [todayStr]: {
-        ...(prev[todayStr] || {}),
-        [discId]: !(prev[todayStr]?.[discId]),
-      },
-    }))
-  }
+  // Devotional preview for dashboard
+  const capitalId = dailyScripture.capital || 'spiritual'
+  const dailyExposition = useMemo(() => getDailyExposition(today)(capitalId), [todayStr, capitalId])
+  const dailyReading = useMemo(() => getDailyReading(today)(capitalId), [todayStr, capitalId])
 
   // Active streaks
   const streaks = useMemo(() => getActiveStreaks(disciplines).slice(0, 3), [disciplines])
@@ -123,15 +110,60 @@ function Dashboard({ disciplines, ratings, reflections, setReflections, settings
         animate="visible"
         className="px-5 space-y-5"
       >
+        {/* Daily Scripture — Hero Position */}
+        <motion.section variants={itemVariants}>
+          <div className="scripture-card">
+            <p className="text-[11px] tracking-widest uppercase mb-4" style={{ color: 'var(--accent)' }}>
+              Today's Scripture
+            </p>
+            <p className="text-[19px] italic leading-relaxed mb-5" style={{ color: 'var(--text-primary)', fontWeight: 400 }}>
+              "{dailyScripture.verse}"
+            </p>
+            <p className="text-[11px] tracking-widest uppercase" style={{ color: 'var(--text-muted)' }}>
+              {dailyScripture.reference}
+            </p>
+          </div>
+        </motion.section>
+
+        {/* Today's Devotional Preview */}
+        <motion.section variants={itemVariants}>
+          <motion.button
+            whileTap={{ scale: 0.98 }}
+            onClick={() => navigate('/devotional')}
+            className="w-full rounded-3xl p-5 text-left"
+            style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
+          >
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-10 h-10 rounded-2xl flex items-center justify-center" style={{ background: 'rgba(212, 168, 67, 0.15)' }}>
+                <svg className="w-5 h-5" style={{ color: '#D4A843' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+              </div>
+              <div>
+                <p className="text-[11px] uppercase tracking-wider font-semibold" style={{ color: 'var(--text-muted)' }}>Today's Reading</p>
+                <p className="text-[15px] font-semibold" style={{ color: 'var(--text-primary)' }}>{dailyReading?.title || 'Daily Devotional'}</p>
+              </div>
+            </div>
+            <p className="text-[14px] leading-relaxed line-clamp-3" style={{ color: 'var(--text-secondary)' }}>
+              {dailyExposition ? dailyExposition.slice(0, 150) + '...' : 'Open today\'s devotional for scripture, exposition, and reflection.'}
+            </p>
+            <p className="text-[13px] font-medium mt-3" style={{ color: '#D4A843' }}>
+              Continue Reading →
+            </p>
+          </motion.button>
+        </motion.section>
+
         {/* Five Capital Progress Rings */}
         <motion.section variants={itemVariants}>
           <div className="flex items-center justify-between mb-3 px-1">
             <h2 className="text-[15px] font-semibold uppercase" style={{ color: 'var(--text-muted)', fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '0.1em' }}>
               Five Capitals
             </h2>
-            <span className="text-[13px] font-medium" style={{ color: 'var(--accent)' }}>
-              {Math.round(overallCompletion * 100)}% today
-            </span>
+            {overallCompletion > 0 && (
+              <span className="text-[13px] font-medium" style={{ color: 'var(--accent)' }}>
+                {Math.round(overallCompletion * 100)}% today
+              </span>
+            )}
           </div>
           <div className="flex items-center justify-between overflow-x-auto scrollbar-hide gap-2 py-2">
             {capitalScores.map(score => (
@@ -144,61 +176,6 @@ function Dashboard({ disciplines, ratings, reflections, setReflections, settings
               />
             ))}
           </div>
-        </motion.section>
-
-        {/* Today's Disciplines (Quick Access) */}
-        <motion.section variants={itemVariants}>
-          <div className="flex items-center justify-between mb-3 px-1">
-            <h2 className="text-[15px] font-semibold uppercase" style={{ color: 'var(--text-muted)', fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '0.1em' }}>
-              Up Next
-            </h2>
-            <button
-              onClick={() => navigate('/today')}
-              className="text-[13px] font-medium"
-              style={{ color: 'var(--accent)' }}
-            >
-              See all
-            </button>
-          </div>
-
-          {uncompletedDisciplines.length > 0 ? (
-            <div className="space-y-2">
-              {uncompletedDisciplines.map((disc) => {
-                const capital = CAPITALS[disc.capitalId]
-                return (
-                  <motion.div
-                    key={disc.id}
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    className="home-card flex items-center gap-4 cursor-pointer"
-                    onClick={() => navigate('/today')}
-                  >
-                    <div
-                      className="w-6 h-6 rounded-full border-2 flex-shrink-0"
-                      style={{ borderColor: capital?.color || 'var(--text-muted)' }}
-                    />
-                    <p className="flex-1 text-[15px] font-medium" style={{ color: 'var(--text-primary)' }}>
-                      {disc.label}
-                    </p>
-                    <span className="text-[11px] font-medium px-2 py-0.5 rounded-full" style={{ background: `${capital?.color}20`, color: capital?.color }}>
-                      {capital?.name}
-                    </span>
-                  </motion.div>
-                )
-              })}
-            </div>
-          ) : (
-            <div className="home-card text-center py-8">
-              <div className="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-3" style={{ background: 'var(--accent-light)' }}>
-                <svg className="w-6 h-6" style={{ color: 'var(--accent)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 13l4 4L19 7" />
-                </svg>
-              </div>
-              <p className="text-[15px]" style={{ color: 'var(--text-secondary)' }}>
-                A beautiful day of faithfulness!
-              </p>
-            </div>
-          )}
         </motion.section>
 
         {/* Active Streaks */}
@@ -232,18 +209,6 @@ function Dashboard({ disciplines, ratings, reflections, setReflections, settings
         {/* Insights */}
         <motion.section variants={itemVariants}>
           <InsightsCard />
-        </motion.section>
-
-        {/* Daily Scripture */}
-        <motion.section variants={itemVariants}>
-          <div className="scripture-card">
-            <p className="text-[17px] italic leading-relaxed mb-5" style={{ color: 'var(--text-primary)', fontWeight: 400 }}>
-              "{dailyScripture.verse}"
-            </p>
-            <p className="text-[11px] tracking-widest uppercase" style={{ color: 'var(--text-muted)' }}>
-              {dailyScripture.reference}
-            </p>
-          </div>
         </motion.section>
 
         {/* Quick Access Grid */}

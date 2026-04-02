@@ -2,12 +2,23 @@ import { useState, useMemo } from 'react'
 import { format, subDays } from 'date-fns'
 import { motion, AnimatePresence } from 'framer-motion'
 import PageWrapper from './PageWrapper'
+import BibleReader from './BibleReader'
 import { getDailyScripture, getDailyPrompt } from '../utils/scriptures'
 import { getDailyExposition, getDailyCrossRefs, getDailyReading, DISCIPLESHIP_TEACHINGS } from '../utils/devotional'
 import { CAPITALS } from '../utils/capitals'
+import { parseScriptureRef } from '../utils/bible'
 
 function DevotionalGuide({ reflections, setReflections }) {
   const [tab, setTab] = useState('today')
+  const [bibleNavTarget, setBibleNavTarget] = useState(null)
+
+  const openInBible = (reference) => {
+    const parsed = parseScriptureRef(reference)
+    if (parsed) {
+      setBibleNavTarget({ ...parsed, _ts: Date.now() })
+      setTab('bible')
+    }
+  }
   const today = new Date()
   const todayStr = format(today, 'yyyy-MM-dd')
 
@@ -63,15 +74,18 @@ function DevotionalGuide({ reflections, setReflections }) {
       {/* Tabs */}
       <div className="px-5 mb-5">
         <div className="segmented-control">
-          {['today', 'discipleship', 'archive'].map(t => (
+          {['today', 'bible', 'discipleship', 'archive'].map(t => (
             <button key={t} className={`segment ${tab === t ? 'active' : ''}`} onClick={() => setTab(t)}>
-              {t === 'today' ? 'Today' : t === 'discipleship' ? 'Grow' : 'Archive'}
+              {t === 'today' ? 'Today' : t === 'bible' ? 'Bible' : t === 'discipleship' ? 'Grow' : 'Archive'}
             </button>
           ))}
         </div>
       </div>
 
       <div className="px-5 space-y-5">
+        {tab === 'bible' && (
+          <BibleReader navigateTo={bibleNavTarget} />
+        )}
         {tab === 'today' && (
           <>
             {/* Scripture Card */}
@@ -94,9 +108,16 @@ function DevotionalGuide({ reflections, setReflections }) {
               <p className="text-[20px] italic leading-relaxed mb-5" style={{ color: 'var(--text-primary)', fontWeight: 400 }}>
                 "{dailyScripture.verse}"
               </p>
-              <p className="text-[13px] tracking-wider uppercase font-medium" style={{ color: 'var(--text-muted)' }}>
+              <button
+                onClick={() => openInBible(dailyScripture.reference)}
+                className="text-[13px] tracking-wider uppercase font-medium flex items-center gap-1 mx-auto"
+                style={{ color: 'var(--accent)' }}
+              >
                 {dailyScripture.reference}
-              </p>
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
             </motion.div>
 
             {/* Exposition */}
@@ -136,9 +157,16 @@ function DevotionalGuide({ reflections, setReflections }) {
                       <p className="text-[14px] leading-relaxed" style={{ color: 'var(--text-primary)' }}>
                         "{ref.text}"
                       </p>
-                      <p className="text-[11px] mt-1 tracking-wider uppercase" style={{ color: 'var(--text-muted)' }}>
+                      <button
+                        onClick={() => openInBible(ref.ref)}
+                        className="text-[11px] mt-1 tracking-wider uppercase flex items-center gap-1"
+                        style={{ color: capital?.color || 'var(--accent)' }}
+                      >
                         {ref.ref}
-                      </p>
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </button>
                     </div>
                   </div>
                 ))}
@@ -146,11 +174,12 @@ function DevotionalGuide({ reflections, setReflections }) {
             </motion.div>
 
             {/* Daily Reading Suggestion */}
-            <motion.div
+            <motion.button
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.15 }}
-              className="rounded-2xl p-4 flex items-center gap-4"
+              onClick={() => openInBible(dailyReading)}
+              className="w-full rounded-2xl p-4 flex items-center gap-4 text-left"
               style={{ background: `${capital?.color || 'var(--accent)'}10`, border: `1px solid ${capital?.color || 'var(--accent)'}30` }}
             >
               <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: `${capital?.color || 'var(--accent)'}20` }}>
@@ -166,7 +195,10 @@ function DevotionalGuide({ reflections, setReflections }) {
                   {dailyReading}
                 </p>
               </div>
-            </motion.div>
+              <svg className="w-4 h-4 flex-shrink-0" style={{ color: capital?.color || 'var(--accent)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </motion.button>
 
             {/* Reflection Prompt */}
             <motion.div

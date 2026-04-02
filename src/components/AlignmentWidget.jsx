@@ -79,41 +79,30 @@ function AlignmentWidget() {
   }
 
   const color = getColor()
-  const radius = 55
-  const circumference = 2 * Math.PI * radius
-  const offset = circumference - (score / 100) * circumference
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
-      className="rounded-3xl p-6 text-center"
+      className="rounded-2xl p-4 flex items-center gap-4"
       style={{ background: 'var(--bg-card)', boxShadow: 'var(--shadow-card)' }}
     >
-      <h3 className="text-[15px] font-semibold uppercase mb-4" style={{ color: 'var(--text-muted)', fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '0.1em' }}>
-        Alignment Score
-      </h3>
-
-      <div className="relative inline-flex items-center justify-center mb-4">
-        <svg width="160" height="160" className="transform -rotate-90">
-          <circle cx="80" cy="80" r={radius} stroke="var(--bg-tertiary)" strokeWidth="8" fill="none" />
-          <circle
-            cx="80" cy="80" r={radius} stroke={color} strokeWidth="8" fill="none"
-            strokeDasharray={circumference} strokeDashoffset={offset}
-            strokeLinecap="round" style={{ transition: 'stroke-dashoffset 0.6s ease' }}
-          />
-        </svg>
-        <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className="text-[36px] font-bold" style={{ color }}>{Math.round(score)}</span>
-          <span className="text-[12px]" style={{ color: 'var(--text-tertiary)' }}>out of 100</span>
-        </div>
+      <div
+        className="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0"
+        style={{ background: `${color}15` }}
+      >
+        <span className="text-[22px] font-bold" style={{ color }}>{Math.round(score)}</span>
       </div>
-
-      <p className="text-[14px] leading-relaxed mb-2" style={{ color: 'var(--text-secondary)' }}>
-        {interpretation}
-      </p>
-      <p className="text-[12px]" style={{ color: 'var(--text-tertiary)' }}>Last {period} days</p>
+      <div className="flex-1 min-w-0">
+        <p className="text-[13px] font-semibold" style={{ color: 'var(--text-primary)' }}>
+          Alignment Score
+        </p>
+        <p className="text-[12px] leading-relaxed" style={{ color: 'var(--text-muted)' }}>
+          {interpretation}
+        </p>
+      </div>
+      <span className="text-[11px] flex-shrink-0" style={{ color: 'var(--text-tertiary)' }}>{period}d</span>
     </motion.div>
   )
 }
