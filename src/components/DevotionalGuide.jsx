@@ -27,12 +27,12 @@ function DevotionalGuide({ reflections, setReflections }) {
 
   // Spurgeon's Morning and Evening
   const [spurgeon, setSpurgeon] = useState(null)
-  const [spurgeonExpanded, setSpurgeonExpanded] = useState(false)
   const isEvening = today.getHours() >= 17
 
   // Andrew Murray's Abide in Christ (31-day cycle)
   const [murray, setMurray] = useState(null)
-  const [murrayExpanded, setMurrayExpanded] = useState(false)
+  const [classicAuthor, setClassicAuthor] = useState('spurgeon') // 'spurgeon' | 'murray'
+  const [classicExpanded, setClassicExpanded] = useState(false)
 
   useEffect(() => {
     fetch('/devotionals/spurgeon-morning-evening.json')
@@ -233,11 +233,133 @@ function DevotionalGuide({ reflections, setReflections }) {
               </svg>
             </motion.button>
 
+            {/* Classic Devotional — Spurgeon or Murray */}
+            {(spurgeon || murray) && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="rounded-2xl overflow-hidden"
+                style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
+              >
+                {/* Author selector */}
+                <div className="flex gap-2 p-3 pb-0">
+                  {spurgeon && (
+                    <button
+                      onClick={() => { setClassicAuthor('spurgeon'); setClassicExpanded(true) }}
+                      className="flex-1 py-2 rounded-xl text-[12px] font-medium"
+                      style={{
+                        background: classicAuthor === 'spurgeon' ? 'var(--accent-light)' : 'var(--bg-tertiary)',
+                        color: classicAuthor === 'spurgeon' ? 'var(--accent)' : 'var(--text-muted)',
+                      }}
+                    >
+                      Spurgeon
+                    </button>
+                  )}
+                  {murray && (
+                    <button
+                      onClick={() => { setClassicAuthor('murray'); setClassicExpanded(true) }}
+                      className="flex-1 py-2 rounded-xl text-[12px] font-medium"
+                      style={{
+                        background: classicAuthor === 'murray' ? 'var(--accent-light)' : 'var(--bg-tertiary)',
+                        color: classicAuthor === 'murray' ? 'var(--accent)' : 'var(--text-muted)',
+                      }}
+                    >
+                      Andrew Murray
+                    </button>
+                  )}
+                </div>
+
+                {/* Header */}
+                <button
+                  onClick={() => setClassicExpanded(!classicExpanded)}
+                  className="w-full p-4 flex items-center gap-3 text-left"
+                >
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(212, 168, 67, 0.15)' }}>
+                    <svg className="w-5 h-5" style={{ color: '#D4A843' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                    </svg>
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-[11px] uppercase tracking-wider font-semibold" style={{ color: '#D4A843' }}>
+                      {classicAuthor === 'spurgeon'
+                        ? `Spurgeon — ${isEvening ? 'Evening' : 'Morning'}`
+                        : 'Andrew Murray — Abide in Christ'}
+                    </p>
+                    <p className="text-[14px] font-medium" style={{ color: 'var(--text-primary)' }}>
+                      {classicAuthor === 'spurgeon'
+                        ? (isEvening ? spurgeon?.evening?.verse?.slice(0, 60) : spurgeon?.morning?.verse?.slice(0, 60)) + '...'
+                        : murray?.title}
+                    </p>
+                  </div>
+                  <svg
+                    className="w-4 h-4 transition-transform flex-shrink-0"
+                    style={{ color: 'var(--text-muted)', transform: classicExpanded ? 'rotate(180deg)' : 'rotate(0deg)' }}
+                    fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+
+                {/* Expanded content */}
+                {classicExpanded && (
+                  <div className="px-4 pb-4">
+                    {classicAuthor === 'spurgeon' && spurgeon && (
+                      <>
+                        <div className="rounded-xl p-4 mb-3" style={{ background: 'rgba(212, 168, 67, 0.08)' }}>
+                          <p className="text-[13px] italic leading-relaxed" style={{ color: 'var(--text-primary)' }}>
+                            {isEvening ? spurgeon.evening.verse : spurgeon.morning.verse}
+                          </p>
+                        </div>
+                        <p className="text-[14px] leading-[1.75] whitespace-pre-line" style={{ color: 'var(--text-secondary)' }}>
+                          {isEvening ? spurgeon.evening.text : spurgeon.morning.text}
+                        </p>
+                        <button
+                          onClick={() => {
+                            const el = document.getElementById('spurgeon-other')
+                            if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none'
+                          }}
+                          className="mt-4 text-[12px] font-medium"
+                          style={{ color: '#D4A843' }}
+                        >
+                          Read {isEvening ? 'Morning' : 'Evening'} Devotional
+                        </button>
+                        <div id="spurgeon-other" style={{ display: 'none' }} className="mt-3">
+                          <div className="rounded-xl p-4 mb-3" style={{ background: 'rgba(212, 168, 67, 0.08)' }}>
+                            <p className="text-[13px] italic leading-relaxed" style={{ color: 'var(--text-primary)' }}>
+                              {isEvening ? spurgeon.morning.verse : spurgeon.evening.verse}
+                            </p>
+                          </div>
+                          <p className="text-[14px] leading-[1.75] whitespace-pre-line" style={{ color: 'var(--text-secondary)' }}>
+                            {isEvening ? spurgeon.morning.text : spurgeon.evening.text}
+                          </p>
+                        </div>
+                      </>
+                    )}
+                    {classicAuthor === 'murray' && murray && (
+                      <>
+                        {murray.verse && (
+                          <div className="rounded-xl p-4 mb-3" style={{ background: 'rgba(212, 168, 67, 0.08)' }}>
+                            <p className="text-[13px] italic leading-relaxed" style={{ color: 'var(--text-primary)' }}>
+                              {murray.verse}
+                            </p>
+                          </div>
+                        )}
+                        <p className="text-[14px] leading-[1.75] whitespace-pre-line" style={{ color: 'var(--text-secondary)' }}>
+                          {murray.text}
+                        </p>
+                      </>
+                    )}
+                  </div>
+                )}
+              </motion.div>
+            )}
+
             {/* Reflection Prompt */}
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
+              transition={{ delay: 0.25 }}
               className="rounded-2xl p-4"
               style={{ background: 'var(--accent-light)', border: '1px solid var(--accent)30' }}
             >
@@ -249,134 +371,11 @@ function DevotionalGuide({ reflections, setReflections }) {
               </p>
             </motion.div>
 
-            {/* Spurgeon's Morning and Evening */}
-            {spurgeon && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.25 }}
-                className="rounded-2xl overflow-hidden"
-                style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
-              >
-                <button
-                  onClick={() => setSpurgeonExpanded(!spurgeonExpanded)}
-                  className="w-full p-4 flex items-center gap-3 text-left"
-                >
-                  <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(176, 126, 224, 0.15)' }}>
-                    <svg className="w-5 h-5" style={{ color: '#B07EE0' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                    </svg>
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-[11px] uppercase tracking-wider font-semibold" style={{ color: '#B07EE0' }}>
-                      Spurgeon's {isEvening ? 'Evening' : 'Morning'} Devotional
-                    </p>
-                    <p className="text-[14px] font-medium" style={{ color: 'var(--text-primary)' }}>
-                      {isEvening ? spurgeon.evening.verse?.slice(0, 60) : spurgeon.morning.verse?.slice(0, 60)}...
-                    </p>
-                  </div>
-                  <svg
-                    className="w-4 h-4 transition-transform flex-shrink-0"
-                    style={{ color: 'var(--text-muted)', transform: spurgeonExpanded ? 'rotate(180deg)' : 'rotate(0deg)' }}
-                    fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </button>
-                {spurgeonExpanded && (
-                  <div className="px-4 pb-4">
-                    <div className="rounded-xl p-4 mb-3" style={{ background: 'rgba(176, 126, 224, 0.08)' }}>
-                      <p className="text-[13px] italic leading-relaxed" style={{ color: 'var(--text-primary)' }}>
-                        {isEvening ? spurgeon.evening.verse : spurgeon.morning.verse}
-                      </p>
-                    </div>
-                    <p className="text-[14px] leading-[1.75] whitespace-pre-line" style={{ color: 'var(--text-secondary)' }}>
-                      {isEvening ? spurgeon.evening.text : spurgeon.morning.text}
-                    </p>
-                    {/* Toggle to see the other reading */}
-                    <button
-                      onClick={(e) => { e.stopPropagation() }}
-                      className="mt-4 text-[12px] font-medium"
-                      style={{ color: '#B07EE0' }}
-                      onClickCapture={() => {
-                        // Simple trick: show the other one
-                        const el = document.getElementById('spurgeon-other')
-                        if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none'
-                      }}
-                    >
-                      Read {isEvening ? 'Morning' : 'Evening'} Devotional
-                    </button>
-                    <div id="spurgeon-other" style={{ display: 'none' }} className="mt-3">
-                      <div className="rounded-xl p-4 mb-3" style={{ background: 'rgba(176, 126, 224, 0.08)' }}>
-                        <p className="text-[13px] italic leading-relaxed" style={{ color: 'var(--text-primary)' }}>
-                          {isEvening ? spurgeon.morning.verse : spurgeon.evening.verse}
-                        </p>
-                      </div>
-                      <p className="text-[14px] leading-[1.75] whitespace-pre-line" style={{ color: 'var(--text-secondary)' }}>
-                        {isEvening ? spurgeon.morning.text : spurgeon.evening.text}
-                      </p>
-                    </div>
-                  </div>
-                )}
-              </motion.div>
-            )}
-
-            {/* Andrew Murray — Abide in Christ */}
-            {murray && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
-                className="rounded-2xl overflow-hidden"
-                style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
-              >
-                <button
-                  onClick={() => setMurrayExpanded(!murrayExpanded)}
-                  className="w-full p-4 flex items-center gap-3 text-left"
-                >
-                  <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(91, 185, 139, 0.15)' }}>
-                    <svg className="w-5 h-5" style={{ color: '#5BB98B' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                    </svg>
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-[11px] uppercase tracking-wider font-semibold" style={{ color: '#5BB98B' }}>
-                      Andrew Murray — Abide in Christ
-                    </p>
-                    <p className="text-[14px] font-medium" style={{ color: 'var(--text-primary)' }}>
-                      {murray.title}
-                    </p>
-                  </div>
-                  <svg
-                    className="w-4 h-4 transition-transform flex-shrink-0"
-                    style={{ color: 'var(--text-muted)', transform: murrayExpanded ? 'rotate(180deg)' : 'rotate(0deg)' }}
-                    fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </button>
-                {murrayExpanded && (
-                  <div className="px-4 pb-4">
-                    {murray.verse && (
-                      <div className="rounded-xl p-4 mb-3" style={{ background: 'rgba(91, 185, 139, 0.08)' }}>
-                        <p className="text-[13px] italic leading-relaxed" style={{ color: 'var(--text-primary)' }}>
-                          {murray.verse}
-                        </p>
-                      </div>
-                    )}
-                    <p className="text-[14px] leading-[1.75] whitespace-pre-line" style={{ color: 'var(--text-secondary)' }}>
-                      {murray.text}
-                    </p>
-                  </div>
-                )}
-              </motion.div>
-            )}
-
             {/* Journal Entry */}
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.35 }}
+              transition={{ delay: 0.3 }}
             >
               <h3 className="text-[15px] font-semibold uppercase mb-3" style={{ color: 'var(--text-muted)', fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '0.1em' }}>
                 Your Reflection
