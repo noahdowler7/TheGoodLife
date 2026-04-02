@@ -12,6 +12,7 @@ function BibleReader({ navigateTo }) {
   const [highlightedVerse, setHighlightedVerse] = useState(null)
   const [copied, setCopied] = useState(false)
   const [ttsState, setTtsState] = useState('idle') // 'idle' | 'playing' | 'paused'
+  const [speakingVerse, setSpeakingVerse] = useState(null)
 
   // Load index and last position on mount
   useEffect(() => {
@@ -46,6 +47,7 @@ function BibleReader({ navigateTo }) {
     return () => {
       window.speechSynthesis?.cancel()
       setTtsState('idle')
+      setSpeakingVerse(null)
     }
   }, [selectedBook, selectedChapter])
 
@@ -76,24 +78,46 @@ function BibleReader({ navigateTo }) {
       return
     }
 
-    // Build full chapter text as one utterance for natural flow
+    // Build full chapter text as one utterance with character-to-verse mapping
     synth.cancel()
-    const fullText = chapterData.verses.map(v => v.text).join(' ')
+    let fullText = ''
+    const verseMap = []
+    chapterData.verses.forEach(v => {
+      const start = fullText.length
+      fullText += v.text + ' '
+      verseMap.push({ start, end: fullText.length, verse: v.verse })
+    })
+
     const utt = new SpeechSynthesisUtterance(fullText)
 
     // Pick the best voice available
     const voices = synth.getVoices()
     const english = voices.filter(v => v.lang.startsWith('en'))
-    // Prefer high-quality voices (sorted by preference)
     const preferred = english.find(v => /samantha|karen|moira|tessa|google uk|google us|rishi|daniel|fiona|enhanced|premium|natural|neural/i.test(v.name))
-      || english.find(v => !v.localService) // prefer network voices
+      || english.find(v => !v.localService)
       || english[0]
     if (preferred) utt.voice = preferred
 
     utt.rate = 0.9
     utt.pitch = 1
-    utt.onend = () => setTtsState('idle')
-    utt.onerror = () => setTtsState('idle')
+
+    // Track which verse is being spoken
+    utt.onboundary = (e) => {
+      if (e.name === 'word' || e.name === 'sentence') {
+        const idx = e.charIndex
+        const current = verseMap.find(v => idx >= v.start && idx < v.end)
+        if (current) setSpeakingVerse(current.verse)
+      }
+    }
+
+    utt.onend = () => {
+      setTtsState('idle')
+      setSpeakingVerse(null)
+    }
+    utt.onerror = () => {
+      setTtsState('idle')
+      setSpeakingVerse(null)
+    }
 
     synth.speak(utt)
     setTtsState('playing')
@@ -102,6 +126,7 @@ function BibleReader({ navigateTo }) {
   const handleStopTts = useCallback(() => {
     window.speechSynthesis?.cancel()
     setTtsState('idle')
+    setSpeakingVerse(null)
   }, [])
 
   // Load chapter when book/chapter changes
@@ -346,9 +371,10 @@ function BibleReader({ navigateTo }) {
               onClick={() => setHighlightedVerse(highlightedVerse === v.verse ? null : v.verse)}
               className="cursor-pointer transition-colors"
               style={{
-                background: highlightedVerse === v.verse ? 'rgba(212, 168, 67, 0.2)' : 'transparent',
-                borderRadius: highlightedVerse === v.verse ? '4px' : '0',
-                padding: highlightedVerse === v.verse ? '2px 0' : '0',
+                background: speakingVerse === v.verse ? 'rgba(212, 168, 67, 0.25)' : highlightedVerse === v.verse ? 'rgba(212, 168, 67, 0.15)' : 'transparent',
+                borderRadius: (speakingVerse === v.verse || highlightedVerse === v.verse) ? '4px' : '0',
+                padding: (speakingVerse === v.verse || highlightedVerse === v.verse) ? '2px 1px' : '0',
+                transition: 'background 0.3s ease',
               }}
             >
               <sup
