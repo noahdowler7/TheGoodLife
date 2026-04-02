@@ -11,6 +11,7 @@ import Calendar from './components/Calendar'
 import FastingTracker from './components/FastingTracker'
 import DevotionalGuide from './components/DevotionalGuide'
 import Settings from './components/Settings'
+import PartnerSummary from './components/PartnerSummary'
 import AuthScreen from './components/AuthScreen'
 import DataMigration from './components/DataMigration'
 import SyncStatus from './components/SyncStatus'
@@ -148,6 +149,7 @@ function App() {
               />
             }
           />
+          <Route path="/partners/:id" element={<PartnerSummary />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </AnimatePresence>

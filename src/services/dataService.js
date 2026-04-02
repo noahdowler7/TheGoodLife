@@ -287,12 +287,73 @@ class DataService {
     return 'offline'
   }
 
-  // Partners
+  // Partners - Real API Implementation
+  async searchUsers(query) {
+    if (!this.shouldUseAPI()) {
+      throw new Error('Partner search requires authentication')
+    }
+    return await api.get(`/api/v1/partners/search?q=${encodeURIComponent(query)}`)
+  }
+
+  async sendPartnerRequest(partnerUserId, message = null) {
+    if (!this.shouldUseAPI()) {
+      throw new Error('Partner requests require authentication')
+    }
+    return await api.post('/api/v1/partners/request', {
+      partner_user_id: partnerUserId,
+      message
+    })
+  }
+
+  async getPendingRequests() {
+    if (!this.shouldUseAPI()) {
+      return { incoming: [], outgoing: [] }
+    }
+    try {
+      const [incoming, outgoing] = await Promise.all([
+        api.get('/api/v1/partners/requests/incoming'),
+        api.get('/api/v1/partners/requests/outgoing')
+      ])
+      return { incoming, outgoing }
+    } catch (error) {
+      console.error('Failed to fetch pending requests:', error)
+      return { incoming: [], outgoing: [] }
+    }
+  }
+
+  async respondToRequest(requestId, action) {
+    if (!this.shouldUseAPI()) {
+      throw new Error('Responding to requests requires authentication')
+    }
+    return await api.put(`/api/v1/partners/requests/${requestId}/respond?action=${action}`)
+  }
+
   async getPartners() {
-    // TODO: Phase 4 will implement dedicated partners API
-    // For now, use localStorage only
+    if (this.shouldUseAPI()) {
+      try {
+        return await api.get('/api/v1/partners/')
+      } catch (error) {
+        console.error('API failed, falling back to localStorage:', error)
+      }
+    }
+
+    // Fallback to localStorage for guest mode
     const data = localStorage.getItem(STORAGE_KEYS.partners)
     return data ? JSON.parse(data) : []
+  }
+
+  async getPartnerSummary(partnerId) {
+    if (!this.shouldUseAPI()) {
+      throw new Error('Partner summaries require authentication')
+    }
+    return await api.get(`/api/v1/partners/${partnerId}/summary`)
+  }
+
+  async removePartner(partnershipId) {
+    if (!this.shouldUseAPI()) {
+      throw new Error('Removing partners requires authentication')
+    }
+    return await api.delete(`/api/v1/partners/${partnershipId}`)
   }
 
   // Custom Disciplines

@@ -1,15 +1,25 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { v4 as uuidv4 } from 'uuid'
 import PageWrapper from './PageWrapper'
 import { CAPITALS, CAPITAL_ORDER } from '../utils/capitals'
 import { compressImage } from '../utils/imageUtils'
 import { STORAGE_KEYS } from '../hooks/useStorage'
 import MovementLogo from './MovementLogo'
+import { dataService } from '../services/dataService'
 
 function Settings({ settings, setSettings, partners, setPartners, customDisciplines, setCustomDisciplines, isGuest, onSignIn }) {
+  const navigate = useNavigate()
   const fileInputRef = useRef(null)
   const [newPartnerName, setNewPartnerName] = useState('')
   const [newDiscipline, setNewDiscipline] = useState({ label: '', capitalId: 'spiritual' })
+
+  // Partner search & requests state
+  const [searchQuery, setSearchQuery] = useState('')
+  const [searchResults, setSearchResults] = useState([])
+  const [isSearching, setIsSearching] = useState(false)
+  const [pendingRequests, setPendingRequests] = useState({ incoming: [], outgoing: [] })
+  const [acceptedPartners, setAcceptedPartners] = useState([])
 
   const capitalToggles = settings?.capitals || {}
 
@@ -57,6 +67,82 @@ function Settings({ settings, setSettings, partners, setPartners, customDiscipli
 
   const handleRemovePartner = (id) => {
     setPartners(prev => prev.filter(p => p.id !== id))
+  }
+
+  // Partner API handlers
+  useEffect(() => {
+    if (!isGuest) {
+      loadPartnerData()
+    }
+  }, [isGuest])
+
+  const loadPartnerData = async () => {
+    try {
+      const [requests, acceptedList] = await Promise.all([
+        dataService.getPendingRequests(),
+        dataService.getPartners()
+      ])
+      setPendingRequests(requests)
+      setAcceptedPartners(acceptedList)
+    } catch (error) {
+      console.error('Failed to load partner data:', error)
+    }
+  }
+
+  const handleSearchPartners = async (query) => {
+    setSearchQuery(query)
+    if (query.length < 3) {
+      setSearchResults([])
+      return
+    }
+
+    setIsSearching(true)
+    try {
+      const results = await dataService.searchUsers(query)
+      setSearchResults(results)
+    } catch (error) {
+      console.error('Search failed:', error)
+      setSearchResults([])
+    } finally {
+      setIsSearching(false)
+    }
+  }
+
+  const handleSendRequest = async (userId) => {
+    try {
+      await dataService.sendPartnerRequest(userId)
+      setSearchQuery('')
+      setSearchResults([])
+      await loadPartnerData()
+    } catch (error) {
+      console.error('Failed to send request:', error)
+      alert(error.message || 'Failed to send partnership request')
+    }
+  }
+
+  const handleRespondToRequest = async (requestId, action) => {
+    try {
+      await dataService.respondToRequest(requestId, action)
+      await loadPartnerData()
+    } catch (error) {
+      console.error(`Failed to ${action} request:`, error)
+      alert(error.message || `Failed to ${action} partnership request`)
+    }
+  }
+
+  const handleRemovePartnership = async (partnershipId) => {
+    if (!confirm('Remove this accountability partnership?')) return
+    try {
+      await dataService.removePartner(partnershipId)
+      await loadPartnerData()
+    } catch (error) {
+      console.error('Failed to remove partner:', error)
+      alert(error.message || 'Failed to remove partnership')
+    }
+  }
+
+  const handleViewPartnerSummary = (partnerId) => {
+    navigate(`/partners/${partnerId}`)
   }
 
   const handleAddCustomDiscipline = () => {
@@ -267,40 +353,182 @@ function Settings({ settings, setSettings, partners, setPartners, customDiscipli
 
         {/* Accountability Partners */}
         <p className="list-header">ACCOUNTABILITY PARTNERS</p>
-        <div className="card-inset">
-          {partners.map((partner, i) => (
-            <div key={partner.id} className="list-row" style={{ borderTop: i > 0 ? '1px solid var(--separator)' : 'none' }}>
-              <div className="w-8 h-8 rounded-full flex items-center justify-center text-white text-[13px] font-semibold" style={{ background: partner.color }}>
-                {partner.name.charAt(0)}
+
+        {isGuest ? (
+          /* Guest mode - simple list */
+          <div className="card-inset">
+            {partners.map((partner, i) => (
+              <div key={partner.id} className="list-row" style={{ borderTop: i > 0 ? '1px solid var(--separator)' : 'none' }}>
+                <div className="w-8 h-8 rounded-full flex items-center justify-center text-white text-[13px] font-semibold" style={{ background: partner.color }}>
+                  {partner.name.charAt(0)}
+                </div>
+                <span className="body flex-1">{partner.name}</span>
+                <button onClick={() => handleRemovePartner(partner.id)} style={{ color: 'var(--danger)' }}>
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
               </div>
-              <span className="body flex-1">{partner.name}</span>
-              <button onClick={() => handleRemovePartner(partner.id)} style={{ color: 'var(--danger)' }}>
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" />
-                </svg>
+            ))}
+            <div className="px-4 py-3 flex gap-2">
+              <input
+                type="text"
+                value={newPartnerName}
+                onChange={(e) => setNewPartnerName(e.target.value)}
+                placeholder="Partner name"
+                className="flex-1 px-3 py-2 rounded-xl text-[14px] outline-none"
+                style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)' }}
+                onKeyDown={(e) => e.key === 'Enter' && handleAddPartner()}
+              />
+              <button
+                onClick={handleAddPartner}
+                disabled={!newPartnerName.trim()}
+                className="px-3 py-2 rounded-xl text-[14px] font-medium"
+                style={{ background: 'var(--accent)', color: '#0A0A0A', opacity: newPartnerName.trim() ? 1 : 0.5 }}
+              >
+                Add
               </button>
             </div>
-          ))}
-          <div className="px-4 py-3 flex gap-2">
-            <input
-              type="text"
-              value={newPartnerName}
-              onChange={(e) => setNewPartnerName(e.target.value)}
-              placeholder="Partner name"
-              className="flex-1 px-3 py-2 rounded-xl text-[14px] outline-none"
-              style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)' }}
-              onKeyDown={(e) => e.key === 'Enter' && handleAddPartner()}
-            />
-            <button
-              onClick={handleAddPartner}
-              disabled={!newPartnerName.trim()}
-              className="px-3 py-2 rounded-xl text-[14px] font-medium"
-              style={{ background: 'var(--accent)', color: '#0A0A0A', opacity: newPartnerName.trim() ? 1 : 0.5 }}
-            >
-              Add
-            </button>
           </div>
-        </div>
+        ) : (
+          /* Authenticated mode - real partner system */
+          <>
+            {/* Search & Request */}
+            <div className="card-inset">
+              <div className="px-4 py-3">
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => handleSearchPartners(e.target.value)}
+                  placeholder="Search by email or name (min 3 chars)"
+                  className="w-full px-3 py-2 rounded-xl text-[14px] outline-none"
+                  style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)' }}
+                />
+                {isSearching && (
+                  <p className="text-[12px] mt-2" style={{ color: 'var(--text-tertiary)' }}>Searching...</p>
+                )}
+                {searchResults.length > 0 && (
+                  <div className="mt-2 space-y-1">
+                    {searchResults.map(user => (
+                      <div key={user.id} className="flex items-center gap-3 p-2 rounded-lg" style={{ background: 'var(--bg-tertiary)' }}>
+                        {user.profile_photo_url ? (
+                          <img src={user.profile_photo_url} alt="" className="w-8 h-8 rounded-full" />
+                        ) : (
+                          <div className="w-8 h-8 rounded-full flex items-center justify-center text-white text-[13px] font-semibold" style={{ background: '#6B8DE3' }}>
+                            {(user.display_name || user.email).charAt(0).toUpperCase()}
+                          </div>
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[13px] font-medium truncate" style={{ color: 'var(--text-primary)' }}>
+                            {user.display_name || user.email}
+                          </p>
+                          <p className="text-[11px] truncate" style={{ color: 'var(--text-tertiary)' }}>
+                            {user.email}
+                          </p>
+                        </div>
+                        <button
+                          onClick={() => handleSendRequest(user.id)}
+                          className="px-3 py-1 rounded-lg text-[12px] font-medium"
+                          style={{ background: 'var(--accent)', color: '#0A0A0A' }}
+                        >
+                          Request
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Pending Requests (incoming) */}
+            {pendingRequests.incoming.length > 0 && (
+              <>
+                <p className="list-header mt-4">PENDING REQUESTS</p>
+                <div className="card-inset">
+                  {pendingRequests.incoming.map((request, i) => (
+                    <div key={request.id} className="px-4 py-3" style={{ borderTop: i > 0 ? '1px solid var(--separator)' : 'none' }}>
+                      <div className="flex items-center gap-3 mb-2">
+                        {request.partner_photo ? (
+                          <img src={request.partner_photo} alt="" className="w-10 h-10 rounded-full" />
+                        ) : (
+                          <div className="w-10 h-10 rounded-full flex items-center justify-center text-white text-[14px] font-semibold" style={{ background: '#E07B6A' }}>
+                            {(request.partner_display_name || request.partner_email).charAt(0).toUpperCase()}
+                          </div>
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[14px] font-medium" style={{ color: 'var(--text-primary)' }}>
+                            {request.partner_display_name || request.partner_email}
+                          </p>
+                          <p className="text-[12px]" style={{ color: 'var(--text-tertiary)' }}>
+                            {request.partner_email}
+                          </p>
+                        </div>
+                      </div>
+                      {request.message && (
+                        <p className="text-[13px] mb-3 px-3 py-2 rounded-lg" style={{ background: 'var(--bg-tertiary)', color: 'var(--text-secondary)' }}>
+                          "{request.message}"
+                        </p>
+                      )}
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => handleRespondToRequest(request.id, 'accept')}
+                          className="flex-1 py-2 rounded-xl text-[13px] font-medium"
+                          style={{ background: 'var(--accent)', color: '#0A0A0A' }}
+                        >
+                          Accept
+                        </button>
+                        <button
+                          onClick={() => handleRespondToRequest(request.id, 'decline')}
+                          className="flex-1 py-2 rounded-xl text-[13px] font-medium"
+                          style={{ background: 'var(--bg-tertiary)', color: 'var(--text-secondary)' }}
+                        >
+                          Decline
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+
+            {/* Accepted Partners */}
+            {acceptedPartners.length > 0 && (
+              <>
+                <p className="list-header mt-4">ACCEPTED PARTNERS</p>
+                <div className="card-inset">
+                  {acceptedPartners.map((partner, i) => (
+                    <button
+                      key={partner.id}
+                      onClick={() => handleViewPartnerSummary(partner.partner_user_id)}
+                      className="list-row w-full text-left cursor-pointer"
+                      style={{ borderTop: i > 0 ? '1px solid var(--separator)' : 'none' }}
+                    >
+                      {partner.partner_photo ? (
+                        <img src={partner.partner_photo} alt="" className="w-8 h-8 rounded-full" />
+                      ) : (
+                        <div className="w-8 h-8 rounded-full flex items-center justify-center text-white text-[13px] font-semibold" style={{ background: partner.color || '#5BB98B' }}>
+                          {(partner.partner_display_name || partner.name).charAt(0).toUpperCase()}
+                        </div>
+                      )}
+                      <span className="body flex-1">{partner.partner_display_name || partner.name}</span>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handleRemovePartnership(partner.id)
+                        }}
+                        style={{ color: 'var(--danger)' }}
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+          </>
+        )}
 
         {/* Data */}
         <p className="list-header">DATA</p>
