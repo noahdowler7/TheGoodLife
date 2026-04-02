@@ -91,11 +91,6 @@ function App() {
     }
   }, [fasting])
 
-  // Scroll to top on every route change
-  useEffect(() => {
-    window.scrollTo(0, 0)
-  }, [location.pathname])
-
   // Apply theme to document
   useEffect(() => {
     const theme = settings?.theme || 'dark'

@@ -552,7 +552,6 @@ function SimpleReflection({ disciplineId, dateStr, reflections, setReflections, 
         rows={3}
         className="w-full px-3 py-2 rounded-xl text-[14px] outline-none resize-none leading-relaxed"
         style={{ background: 'var(--bg-tertiary)', color: 'var(--text-primary)', border: `1px solid ${color}30` }}
-        autoFocus
       />
     </div>
   )

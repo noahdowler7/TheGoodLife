@@ -171,7 +171,7 @@ function Dashboard({ disciplines, ratings, reflections, setReflections, settings
                     initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
                     className="home-card flex items-center gap-4 cursor-pointer"
-                    onClick={() => handleToggleDiscipline(disc.id)}
+                    onClick={() => navigate('/today')}
                   >
                     <div
                       className="w-6 h-6 rounded-full border-2 flex-shrink-0"

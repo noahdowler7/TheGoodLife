@@ -453,12 +453,28 @@ function DisciplineTracker({ disciplines, setDisciplines, reflections, setReflec
 
               {/* Spiritual Practices */}
               {capitalId === 'financial' ? (
-                <FinancialStewardship
-                  dateStr={dateStr}
-                  reflections={reflections}
-                  setReflections={setReflections}
-                  setDisciplines={setDisciplines}
-                />
+                <>
+                  <FinancialStewardship
+                    dateStr={dateStr}
+                    reflections={reflections}
+                    setReflections={setReflections}
+                    setDisciplines={setDisciplines}
+                  />
+                  {/* Render any custom disciplines added to Financial */}
+                  {capitalDiscs.filter(d => d.id !== 'stewardship').length > 0 && (
+                    <div className="py-1" style={{ borderTop: '1px solid var(--separator)' }}>
+                      {capitalDiscs.filter(d => d.id !== 'stewardship').map(disc => (
+                        <DisciplineCheckItem
+                          key={disc.id}
+                          discipline={disc}
+                          checked={!!dayData[disc.id]}
+                          capitalColor={capital.color}
+                          onToggle={() => handleToggleDiscipline(disc.id)}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </>
               ) : (
                 <div className="py-1">
                   {capitalDiscs.map(disc => {
@@ -494,10 +510,16 @@ function DisciplineTracker({ disciplines, setDisciplines, reflections, setReflec
                         discipline={disc}
                         checked={!!dayData[disc.id]}
                         capitalColor={capital.color}
-                        onToggle={() => ENRICHED_DISCIPLINES.has(disc.id)
-                          ? setShowEnrichment(disc.id)
-                          : handleToggleDiscipline(disc.id)
-                        }
+                        onToggle={() => {
+                          const isEnriched = ENRICHED_DISCIPLINES.has(disc.id) || disc.id === 'prayer'
+                          if (!isEnriched) {
+                            handleToggleDiscipline(disc.id)
+                          } else if (dayData[disc.id]) {
+                            handleToggleDiscipline(disc.id)
+                          } else {
+                            setShowEnrichment(disc.id)
+                          }
+                        }}
                       />
                     )
                   })}
