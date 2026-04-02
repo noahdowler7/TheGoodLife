@@ -5,6 +5,7 @@ import PageWrapper from './PageWrapper'
 import { ProgressRing } from './CapitalCard'
 import { CAPITALS, CAPITAL_ORDER, getDisciplinesForCapital } from '../utils/capitals'
 import { getDailyCompletionRate } from '../utils/streaks'
+import { DisciplineEnrichment, ENRICHED_DISCIPLINES } from './DisciplineEnrichments'
 
 function DisciplineCheckItem({ discipline, checked, capitalColor, onToggle }) {
   return (
@@ -328,7 +329,7 @@ function FinancialStewardship({ dateStr, reflections, setReflections, setDiscipl
 
 function DisciplineTracker({ disciplines, setDisciplines, reflections, setReflections, ratings, setRatings, settings, customDisciplines }) {
   const [selectedDate, setSelectedDate] = useState(new Date())
-  const [showPrayerFlow, setShowPrayerFlow] = useState(false)
+  const [showEnrichment, setShowEnrichment] = useState(null)
   const dateStr = format(selectedDate, 'yyyy-MM-dd')
   const capitalToggles = settings?.capitals || {}
 
@@ -460,8 +461,8 @@ function DisciplineTracker({ disciplines, setDisciplines, reflections, setReflec
               ) : (
                 <div className="py-1">
                   {capitalDiscs.map(disc => {
-                    if (capitalId === 'spiritual' && disc.id === 'prayer') {
-                      if (showPrayerFlow) {
+                    if (showEnrichment === disc.id) {
+                      if (disc.id === 'prayer') {
                         return (
                           <PrayerACTS
                             key="prayer-acts"
@@ -469,17 +470,20 @@ function DisciplineTracker({ disciplines, setDisciplines, reflections, setReflec
                             reflections={reflections}
                             setReflections={setReflections}
                             setDisciplines={setDisciplines}
-                            onClose={() => setShowPrayerFlow(false)}
+                            onClose={() => setShowEnrichment(null)}
                           />
                         )
                       }
                       return (
-                        <DisciplineCheckItem
-                          key={disc.id}
-                          discipline={disc}
-                          checked={!!dayData[disc.id]}
-                          capitalColor={capital.color}
-                          onToggle={() => setShowPrayerFlow(true)}
+                        <DisciplineEnrichment
+                          key={`enrichment-${disc.id}`}
+                          disciplineId={disc.id}
+                          dateStr={dateStr}
+                          reflections={reflections}
+                          setReflections={setReflections}
+                          setDisciplines={setDisciplines}
+                          onClose={() => setShowEnrichment(null)}
+                          color={capital.color}
                         />
                       )
                     }
@@ -489,7 +493,10 @@ function DisciplineTracker({ disciplines, setDisciplines, reflections, setReflec
                         discipline={disc}
                         checked={!!dayData[disc.id]}
                         capitalColor={capital.color}
-                        onToggle={() => handleToggleDiscipline(disc.id)}
+                        onToggle={() => ENRICHED_DISCIPLINES.has(disc.id)
+                          ? setShowEnrichment(disc.id)
+                          : handleToggleDiscipline(disc.id)
+                        }
                       />
                     )
                   })}
