@@ -21,7 +21,7 @@ router = APIRouter(prefix="/partners", tags=["partners"])
 @router.get("/search", response_model=list[UserSearchResult])
 async def search_users(
     q: str = Query(..., min_length=3),
-    source: str = Query("app", regex="^(app|pco)$"),
+    source: str = Query("app", pattern="^(app|pco)$"),
     user_id: uuid.UUID = Depends(get_current_user_id),
     db: AsyncSession = Depends(get_db)
 ):
@@ -197,7 +197,7 @@ async def get_outgoing_requests(
 @router.put("/requests/{request_id}/respond", response_model=PartnerResponse)
 async def respond_to_request(
     request_id: uuid.UUID,
-    action: str = Query(..., regex="^(accept|decline)$"),
+    action: str = Query(..., pattern="^(accept|decline)$"),
     user_id: uuid.UUID = Depends(get_current_user_id),
     db: AsyncSession = Depends(get_db)
 ):
