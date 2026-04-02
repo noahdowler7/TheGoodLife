@@ -149,8 +149,186 @@ function ReflectionJournal({ value, color, onChange }) {
   )
 }
 
+const ACTS_STEPS = [
+  {
+    id: 'adoration',
+    letter: 'A',
+    title: 'Adoration',
+    prompt: 'Praise God for who he is. His character, his nature, his faithfulness.',
+    placeholder: 'God, I praise you for...',
+    color: '#D4A843',
+  },
+  {
+    id: 'confession',
+    letter: 'C',
+    title: 'Confession',
+    prompt: 'Bring your failures and struggles into the light. He already knows — and his response is mercy.',
+    placeholder: 'Lord, I confess...',
+    color: '#E07B6A',
+  },
+  {
+    id: 'thanksgiving',
+    letter: 'T',
+    title: 'Thanksgiving',
+    prompt: 'Thank God for what he has done. Specific blessings, answered prayers, daily gifts.',
+    placeholder: 'Thank you for...',
+    color: '#5BB98B',
+  },
+  {
+    id: 'supplication',
+    letter: 'S',
+    title: 'Supplication',
+    prompt: 'Ask God for what you need. For yourself, your family, your community, the world.',
+    placeholder: 'I ask you for...',
+    color: '#6B8DE3',
+  },
+]
+
+function PrayerACTS({ dateStr, reflections, setReflections, setDisciplines, onClose }) {
+  const prayerActs = reflections[dateStr]?.prayer_acts || {}
+
+  const handleChange = (stepId, text) => {
+    const newActs = { ...prayerActs, [stepId]: text }
+    setReflections(prev => ({
+      ...prev,
+      [dateStr]: { ...(prev[dateStr] || {}), prayer_acts: newActs },
+    }))
+    const hasAny = Object.values(newActs).some(v => v?.trim())
+    setDisciplines(prev => ({
+      ...prev,
+      [dateStr]: { ...(prev[dateStr] || {}), prayer: hasAny },
+    }))
+  }
+
+  return (
+    <div className="px-4 py-3">
+      <div className="flex items-center justify-between mb-3">
+        <p className="text-[12px] font-semibold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
+          Prayer — ACTS
+        </p>
+        <button
+          onClick={onClose}
+          className="text-[12px] font-medium px-3 py-1 rounded-full"
+          style={{ background: 'var(--bg-tertiary)', color: 'var(--text-secondary)' }}
+        >
+          Close
+        </button>
+      </div>
+      <div className="space-y-3">
+        {ACTS_STEPS.map(step => (
+          <div
+            key={step.id}
+            className="rounded-2xl p-3"
+            style={{ background: 'var(--bg-tertiary)', border: `1px solid ${step.color}30` }}
+          >
+            <div className="flex items-start gap-3 mb-2">
+              <div
+                className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 font-bold text-white text-[15px]"
+                style={{ background: step.color }}
+              >
+                {step.letter}
+              </div>
+              <div>
+                <p className="text-[14px] font-semibold" style={{ color: step.color }}>{step.title}</p>
+                <p className="text-[12px] leading-relaxed" style={{ color: 'var(--text-muted)' }}>{step.prompt}</p>
+              </div>
+            </div>
+            <textarea
+              value={prayerActs[step.id] || ''}
+              onChange={(e) => handleChange(step.id, e.target.value)}
+              placeholder={step.placeholder}
+              rows={2}
+              className="w-full px-3 py-2 rounded-xl text-[14px] outline-none resize-none leading-relaxed"
+              style={{
+                background: 'var(--bg-primary)',
+                color: 'var(--text-primary)',
+                border: `1px solid ${step.color}20`,
+              }}
+            />
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+const STEWARDSHIP_OPTIONS = [
+  { id: 'gave', label: 'Gave generously', icon: '♥' },
+  { id: 'spent_wisely', label: 'Spent wisely', icon: '✓' },
+  { id: 'saved', label: 'Saved intentionally', icon: '↑' },
+  { id: 'reviewed', label: 'Reviewed finances', icon: '◈' },
+]
+
+function FinancialStewardship({ dateStr, reflections, setReflections, setDisciplines }) {
+  const stewardshipData = reflections[dateStr]?.financial_stewardship || {}
+
+  const handleToggleOption = (optionId) => {
+    const newData = { ...stewardshipData, [optionId]: !stewardshipData[optionId] }
+    setReflections(prev => ({
+      ...prev,
+      [dateStr]: { ...(prev[dateStr] || {}), financial_stewardship: newData },
+    }))
+    const hasAny = STEWARDSHIP_OPTIONS.some(o => newData[o.id])
+    setDisciplines(prev => ({
+      ...prev,
+      [dateStr]: { ...(prev[dateStr] || {}), stewardship: hasAny },
+    }))
+  }
+
+  const handleNotesChange = (text) => {
+    setReflections(prev => ({
+      ...prev,
+      [dateStr]: {
+        ...(prev[dateStr] || {}),
+        financial_stewardship: { ...stewardshipData, notes: text },
+      },
+    }))
+  }
+
+  return (
+    <div className="px-4 py-3">
+      <p className="text-[13px] font-medium mb-3" style={{ color: 'var(--text-secondary)' }}>
+        How did you steward your resources today?
+      </p>
+      <div className="flex flex-wrap gap-2 mb-3">
+        {STEWARDSHIP_OPTIONS.map(option => {
+          const selected = !!stewardshipData[option.id]
+          return (
+            <button
+              key={option.id}
+              onClick={() => handleToggleOption(option.id)}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-full text-[13px] font-medium transition-all"
+              style={{
+                background: selected ? '#B07EE020' : 'var(--bg-tertiary)',
+                border: `2px solid ${selected ? '#B07EE0' : 'var(--border)'}`,
+                color: selected ? '#B07EE0' : 'var(--text-secondary)',
+              }}
+            >
+              <span>{option.icon}</span>
+              {option.label}
+            </button>
+          )
+        })}
+      </div>
+      <textarea
+        value={stewardshipData.notes || ''}
+        onChange={(e) => handleNotesChange(e.target.value)}
+        placeholder="Notes (optional)"
+        rows={2}
+        className="w-full px-3 py-2 rounded-xl text-[13px] outline-none resize-none"
+        style={{
+          background: 'var(--bg-tertiary)',
+          color: 'var(--text-primary)',
+          border: '1px solid var(--border)',
+        }}
+      />
+    </div>
+  )
+}
+
 function DisciplineTracker({ disciplines, setDisciplines, reflections, setReflections, ratings, setRatings, settings, customDisciplines }) {
   const [selectedDate, setSelectedDate] = useState(new Date())
+  const [showPrayerFlow, setShowPrayerFlow] = useState(false)
   const dateStr = format(selectedDate, 'yyyy-MM-dd')
   const capitalToggles = settings?.capitals || {}
 
@@ -272,17 +450,51 @@ function DisciplineTracker({ disciplines, setDisciplines, reflections, setReflec
               </div>
 
               {/* Spiritual Practices */}
-              <div className="py-1">
-                {capitalDiscs.map(disc => (
-                  <DisciplineCheckItem
-                    key={disc.id}
-                    discipline={disc}
-                    checked={!!dayData[disc.id]}
-                    capitalColor={capital.color}
-                    onToggle={() => handleToggleDiscipline(disc.id)}
-                  />
-                ))}
-              </div>
+              {capitalId === 'financial' ? (
+                <FinancialStewardship
+                  dateStr={dateStr}
+                  reflections={reflections}
+                  setReflections={setReflections}
+                  setDisciplines={setDisciplines}
+                />
+              ) : (
+                <div className="py-1">
+                  {capitalDiscs.map(disc => {
+                    if (capitalId === 'spiritual' && disc.id === 'prayer') {
+                      if (showPrayerFlow) {
+                        return (
+                          <PrayerACTS
+                            key="prayer-acts"
+                            dateStr={dateStr}
+                            reflections={reflections}
+                            setReflections={setReflections}
+                            setDisciplines={setDisciplines}
+                            onClose={() => setShowPrayerFlow(false)}
+                          />
+                        )
+                      }
+                      return (
+                        <DisciplineCheckItem
+                          key={disc.id}
+                          discipline={disc}
+                          checked={!!dayData[disc.id]}
+                          capitalColor={capital.color}
+                          onToggle={() => setShowPrayerFlow(true)}
+                        />
+                      )
+                    }
+                    return (
+                      <DisciplineCheckItem
+                        key={disc.id}
+                        discipline={disc}
+                        checked={!!dayData[disc.id]}
+                        capitalColor={capital.color}
+                        onToggle={() => handleToggleDiscipline(disc.id)}
+                      />
+                    )
+                  })}
+                </div>
+              )}
 
               {/* Rating */}
               <div className="py-2" style={{ borderTop: '1px solid var(--separator)' }}>

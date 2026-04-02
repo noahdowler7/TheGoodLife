@@ -77,10 +77,7 @@ export const CAPITALS = {
     whyItMatters: 'Money is a tool, not a goal. When you manage your finances with wisdom and generosity, you create margin for what matters most. Align your resources with your values.',
     verse: '"For where your treasure is, there your heart will be also." — Matthew 6:21',
     disciplines: [
-      { id: 'giving-tithing', label: 'Giving / Tithing' },
-      { id: 'budgeting', label: 'Budgeting' },
-      { id: 'generosity', label: 'Generosity' },
-      { id: 'saving', label: 'Saving' },
+      { id: 'stewardship', label: 'Financial Stewardship' },
     ],
   },
 }
