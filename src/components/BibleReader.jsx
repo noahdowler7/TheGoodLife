@@ -11,6 +11,8 @@ function BibleReader({ navigateTo }) {
   const [loading, setLoading] = useState(true)
   const [highlightedVerse, setHighlightedVerse] = useState(null)
   const [copied, setCopied] = useState(false)
+  const [speaking, setSpeaking] = useState(false)
+  const [speakingVerse, setSpeakingVerse] = useState(null)
 
   // Load index and last position on mount
   useEffect(() => {
@@ -39,6 +41,56 @@ function BibleReader({ navigateTo }) {
       setView('reading')
     }
   }, [navigateTo, index])
+
+  // Stop TTS on chapter change or unmount
+  useEffect(() => {
+    return () => {
+      if (window.speechSynthesis) {
+        window.speechSynthesis.cancel()
+        setSpeaking(false)
+        setSpeakingVerse(null)
+      }
+    }
+  }, [selectedBook, selectedChapter])
+
+  const handleListen = useCallback(() => {
+    const synth = window.speechSynthesis
+    if (!synth || !chapterData?.verses?.length) return
+
+    if (speaking) {
+      synth.cancel()
+      setSpeaking(false)
+      setSpeakingVerse(null)
+      return
+    }
+
+    setSpeaking(true)
+    const verses = chapterData.verses
+    let i = 0
+
+    const speakNext = () => {
+      if (i >= verses.length) {
+        setSpeaking(false)
+        setSpeakingVerse(null)
+        return
+      }
+      const utt = new SpeechSynthesisUtterance(verses[i].text)
+      utt.rate = 0.9
+      utt.pitch = 1
+      const currentVerse = verses[i].verse
+      setSpeakingVerse(currentVerse)
+      utt.onend = () => {
+        i++
+        speakNext()
+      }
+      utt.onerror = () => {
+        setSpeaking(false)
+        setSpeakingVerse(null)
+      }
+      synth.speak(utt)
+    }
+    speakNext()
+  }, [chapterData, speaking])
 
   // Load chapter when book/chapter changes
   useEffect(() => {
@@ -203,17 +255,46 @@ function BibleReader({ navigateTo }) {
   return (
     <div>
       {/* Chapter Header */}
-      <button
-        onClick={() => setView('books')}
-        className="flex items-center gap-2 mb-5"
-      >
-        <svg className="w-4 h-4" style={{ color: 'var(--accent)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-        </svg>
-        <h2 className="text-[22px] font-semibold" style={{ color: 'var(--text-primary)', fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '0.04em' }}>
-          {selectedBook?.name} {selectedChapter}
-        </h2>
-      </button>
+      <div className="flex items-center justify-between mb-5">
+        <button
+          onClick={() => setView('books')}
+          className="flex items-center gap-2"
+        >
+          <svg className="w-4 h-4" style={{ color: 'var(--accent)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+          <h2 className="text-[22px] font-semibold" style={{ color: 'var(--text-primary)', fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '0.04em' }}>
+            {selectedBook?.name} {selectedChapter}
+          </h2>
+        </button>
+        {window.speechSynthesis && (
+          <button
+            onClick={handleListen}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[13px] font-medium"
+            style={{
+              background: speaking ? 'var(--accent)' : 'var(--bg-tertiary)',
+              color: speaking ? 'white' : 'var(--text-secondary)',
+            }}
+          >
+            {speaking ? (
+              <>
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                  <rect x="6" y="4" width="4" height="16" rx="1" />
+                  <rect x="14" y="4" width="4" height="16" rx="1" />
+                </svg>
+                Stop
+              </>
+            ) : (
+              <>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                </svg>
+                Listen
+              </>
+            )}
+          </button>
+        )}
+      </div>
 
       {/* Verses */}
       {loading ? (
@@ -233,9 +314,9 @@ function BibleReader({ navigateTo }) {
               onClick={() => setHighlightedVerse(highlightedVerse === v.verse ? null : v.verse)}
               className="cursor-pointer transition-colors"
               style={{
-                background: highlightedVerse === v.verse ? 'rgba(212, 168, 67, 0.2)' : 'transparent',
-                borderRadius: highlightedVerse === v.verse ? '4px' : '0',
-                padding: highlightedVerse === v.verse ? '2px 0' : '0',
+                background: speakingVerse === v.verse ? 'rgba(107, 141, 227, 0.2)' : highlightedVerse === v.verse ? 'rgba(212, 168, 67, 0.2)' : 'transparent',
+                borderRadius: (speakingVerse === v.verse || highlightedVerse === v.verse) ? '4px' : '0',
+                padding: (speakingVerse === v.verse || highlightedVerse === v.verse) ? '2px 0' : '0',
               }}
             >
               <sup

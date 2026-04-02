@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { format, subDays } from 'date-fns'
 import { motion, AnimatePresence } from 'framer-motion'
 import PageWrapper from './PageWrapper'
@@ -21,6 +21,23 @@ function DevotionalGuide({ reflections, setReflections }) {
   }
   const today = new Date()
   const todayStr = format(today, 'yyyy-MM-dd')
+
+  // Spurgeon's Morning and Evening
+  const [spurgeon, setSpurgeon] = useState(null)
+  const [spurgeonExpanded, setSpurgeonExpanded] = useState(false)
+  const isEvening = today.getHours() >= 17
+
+  useEffect(() => {
+    fetch('/devotionals/spurgeon-morning-evening.json')
+      .then(r => r.json())
+      .then(data => {
+        const months = ['January','February','March','April','May','June','July','August','September','October','November','December']
+        const dateKey = `${months[today.getMonth()]} ${today.getDate()}`
+        const entry = data.find(d => d.date === dateKey)
+        if (entry) setSpurgeon(entry)
+      })
+      .catch(() => {})
+  }, [todayStr])
 
   const dailyScripture = useMemo(() => getDailyScripture(today), [todayStr])
   const todayPrompt = useMemo(() => getDailyPrompt(today), [todayStr])
@@ -216,11 +233,83 @@ function DevotionalGuide({ reflections, setReflections }) {
               </p>
             </motion.div>
 
+            {/* Spurgeon's Morning and Evening */}
+            {spurgeon && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.25 }}
+                className="rounded-2xl overflow-hidden"
+                style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
+              >
+                <button
+                  onClick={() => setSpurgeonExpanded(!spurgeonExpanded)}
+                  className="w-full p-4 flex items-center gap-3 text-left"
+                >
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(176, 126, 224, 0.15)' }}>
+                    <svg className="w-5 h-5" style={{ color: '#B07EE0' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                    </svg>
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-[11px] uppercase tracking-wider font-semibold" style={{ color: '#B07EE0' }}>
+                      Spurgeon's {isEvening ? 'Evening' : 'Morning'} Devotional
+                    </p>
+                    <p className="text-[14px] font-medium" style={{ color: 'var(--text-primary)' }}>
+                      {isEvening ? spurgeon.evening.verse?.slice(0, 60) : spurgeon.morning.verse?.slice(0, 60)}...
+                    </p>
+                  </div>
+                  <svg
+                    className="w-4 h-4 transition-transform flex-shrink-0"
+                    style={{ color: 'var(--text-muted)', transform: spurgeonExpanded ? 'rotate(180deg)' : 'rotate(0deg)' }}
+                    fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                {spurgeonExpanded && (
+                  <div className="px-4 pb-4">
+                    <div className="rounded-xl p-4 mb-3" style={{ background: 'rgba(176, 126, 224, 0.08)' }}>
+                      <p className="text-[13px] italic leading-relaxed" style={{ color: 'var(--text-primary)' }}>
+                        {isEvening ? spurgeon.evening.verse : spurgeon.morning.verse}
+                      </p>
+                    </div>
+                    <p className="text-[14px] leading-[1.75] whitespace-pre-line" style={{ color: 'var(--text-secondary)' }}>
+                      {isEvening ? spurgeon.evening.text : spurgeon.morning.text}
+                    </p>
+                    {/* Toggle to see the other reading */}
+                    <button
+                      onClick={(e) => { e.stopPropagation() }}
+                      className="mt-4 text-[12px] font-medium"
+                      style={{ color: '#B07EE0' }}
+                      onClickCapture={() => {
+                        // Simple trick: show the other one
+                        const el = document.getElementById('spurgeon-other')
+                        if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none'
+                      }}
+                    >
+                      Read {isEvening ? 'Morning' : 'Evening'} Devotional
+                    </button>
+                    <div id="spurgeon-other" style={{ display: 'none' }} className="mt-3">
+                      <div className="rounded-xl p-4 mb-3" style={{ background: 'rgba(176, 126, 224, 0.08)' }}>
+                        <p className="text-[13px] italic leading-relaxed" style={{ color: 'var(--text-primary)' }}>
+                          {isEvening ? spurgeon.morning.verse : spurgeon.evening.verse}
+                        </p>
+                      </div>
+                      <p className="text-[14px] leading-[1.75] whitespace-pre-line" style={{ color: 'var(--text-secondary)' }}>
+                        {isEvening ? spurgeon.morning.text : spurgeon.evening.text}
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </motion.div>
+            )}
+
             {/* Journal Entry */}
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.25 }}
+              transition={{ delay: 0.3 }}
             >
               <h3 className="text-[15px] font-semibold uppercase mb-3" style={{ color: 'var(--text-muted)', fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '0.1em' }}>
                 Your Reflection

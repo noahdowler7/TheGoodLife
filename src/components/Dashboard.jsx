@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { format } from 'date-fns'
 import { motion } from 'framer-motion'
@@ -13,6 +13,7 @@ import ThreePillars from './ThreePillars'
 import { CAPITALS, CAPITAL_ORDER } from '../utils/capitals'
 import { calculateCapitalScore, getActiveStreaks, getDailyCompletionRate } from '../utils/streaks'
 import { ALL_DISCIPLINES } from '../utils/capitals'
+import { getChapter } from '../utils/bible'
 
 function Dashboard({ disciplines, ratings, reflections, setReflections, settings, customDisciplines }) {
   const navigate = useNavigate()
@@ -44,6 +45,22 @@ function Dashboard({ disciplines, ratings, reflections, setReflections, settings
   const capitalId = dailyScripture.capital || 'spiritual'
   const dailyExposition = useMemo(() => getDailyExposition(today)(capitalId), [todayStr, capitalId])
   const dailyReading = useMemo(() => getDailyReading(today)(capitalId), [todayStr, capitalId])
+
+  // Daily Psalm (150 psalms, rotate by day of year)
+  const [dailyPsalm, setDailyPsalm] = useState(null)
+  const psalmNumber = useMemo(() => {
+    const dayOfYear = Math.floor((today - new Date(today.getFullYear(), 0, 0)) / 86400000)
+    return (dayOfYear % 150) + 1
+  }, [todayStr])
+
+  useEffect(() => {
+    getChapter('psa', psalmNumber)
+      .then(data => {
+        const preview = data.verses.slice(0, 3).map(v => v.text).join(' ')
+        setDailyPsalm({ number: psalmNumber, preview })
+      })
+      .catch(() => {})
+  }, [psalmNumber])
 
   // Active streaks
   const streaks = useMemo(() => getActiveStreaks(disciplines).slice(0, 3), [disciplines])
@@ -152,6 +169,31 @@ function Dashboard({ disciplines, ratings, reflections, setReflections, settings
             </p>
           </motion.button>
         </motion.section>
+
+        {/* Daily Psalm */}
+        {dailyPsalm && (
+          <motion.section variants={itemVariants}>
+            <motion.button
+              whileTap={{ scale: 0.98 }}
+              onClick={() => navigate('/devotional')}
+              className="w-full rounded-2xl p-4 text-left"
+              style={{ background: 'rgba(91, 185, 139, 0.08)', border: '1px solid rgba(91, 185, 139, 0.2)' }}
+            >
+              <p className="text-[11px] uppercase tracking-wider font-semibold mb-2" style={{ color: '#5BB98B' }}>
+                Daily Psalm
+              </p>
+              <p className="text-[15px] font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>
+                Psalm {dailyPsalm.number}
+              </p>
+              <p className="text-[13px] italic leading-relaxed line-clamp-2" style={{ color: 'var(--text-secondary)' }}>
+                {dailyPsalm.preview}
+              </p>
+              <p className="text-[12px] font-medium mt-2" style={{ color: '#5BB98B' }}>
+                Read full psalm →
+              </p>
+            </motion.button>
+          </motion.section>
+        )}
 
         {/* Five Capital Progress Rings */}
         <motion.section variants={itemVariants}>
