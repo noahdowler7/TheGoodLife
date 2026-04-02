@@ -144,20 +144,19 @@ function Onboarding({ onComplete }) {
                 A framework for life aligned with God's priorities
               </p>
             </div>
-            <div className="flex-1 flex flex-col justify-center space-y-6">
-              {/* Priority Pyramid */}
-              <div className="space-y-2">
+            <div className="flex-1 flex flex-col justify-center overflow-y-auto space-y-6 mb-6">
+              {/* Priority Pyramid - Centered */}
+              <div className="space-y-2 flex flex-col items-center">
                 {CAPITAL_ORDER.map((id, index) => {
                   const capital = CAPITALS[id]
                   const width = 100 - (index * 15)
                   return (
                     <motion.div
                       key={id}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
                       transition={{ delay: 0.1 * index }}
-                      className="flex items-center gap-3"
-                      style={{ marginLeft: `${index * 7.5}%` }}
+                      className="w-full flex justify-center"
                     >
                       <div
                         className="h-12 rounded-xl flex items-center justify-center font-medium text-[15px] text-white shadow-lg"
@@ -188,7 +187,7 @@ function Onboarding({ onComplete }) {
                 </p>
               </motion.div>
             </div>
-            <div className="space-y-3">
+            <div className="space-y-3 mt-auto">
               <motion.button whileTap={{ scale: 0.98 }} onClick={() => setStep(3)} className="btn-primary w-full">
                 Continue
               </motion.button>
@@ -207,7 +206,7 @@ function Onboarding({ onComplete }) {
             initial="hidden" animate="visible" exit="exit"
             className="flex-1 flex flex-col px-6 pt-16 pb-8"
           >
-            <div className="text-center mb-8">
+            <div className="text-center mb-6">
               <h1 className="text-[28px] font-semibold mb-2" style={{ color: 'var(--text-primary)', fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '0.03em' }}>
                 Your Five Capitals
               </h1>
@@ -215,7 +214,7 @@ function Onboarding({ onComplete }) {
                 Choose where God is calling you to grow
               </p>
             </div>
-            <div className="flex-1 space-y-3">
+            <div className="flex-1 overflow-y-auto space-y-3 mb-6">
               {CAPITAL_ORDER.map(id => {
                 const capital = CAPITALS[id]
                 const enabled = capitals[id]
@@ -254,7 +253,7 @@ function Onboarding({ onComplete }) {
                 )
               })}
             </div>
-            <div className="space-y-3 mt-6">
+            <div className="space-y-3 mt-auto">
               <motion.button whileTap={{ scale: 0.98 }} onClick={() => setStep(4)} className="btn-primary w-full">
                 Continue
               </motion.button>
@@ -281,7 +280,7 @@ function Onboarding({ onComplete }) {
                 Pick a theme that fits your style
               </p>
             </div>
-            <div className="flex-1 flex flex-col justify-center space-y-4">
+            <div className="flex-1 flex flex-col justify-center overflow-y-auto space-y-4 mb-6">
               {/* Dark Theme */}
               <motion.button
                 whileTap={{ scale: 0.97 }}
@@ -356,7 +355,7 @@ function Onboarding({ onComplete }) {
                 </div>
               </motion.button>
             </div>
-            <div className="space-y-3">
+            <div className="space-y-3 mt-auto">
               <motion.button whileTap={{ scale: 0.98 }} onClick={() => setStep(5)} className="btn-primary w-full">
                 Continue
               </motion.button>
