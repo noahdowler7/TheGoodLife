@@ -12,7 +12,7 @@ function isInStandaloneMode() {
 }
 
 export default function InstallPrompt() {
-  const [prompt, setPrompt] = useState(null) // Android deferred prompt
+  const [prompt, setPrompt] = useState(null)
   const [showIOS, setShowIOS] = useState(false)
   const [visible, setVisible] = useState(false)
 
@@ -21,15 +21,14 @@ export default function InstallPrompt() {
     if (localStorage.getItem(DISMISSED_KEY)) return
 
     if (isIOS()) {
-      // Delay slightly so it doesn't appear on first load
-      const t = setTimeout(() => setShowIOS(true), 3000)
+      const t = setTimeout(() => setShowIOS(true), 5000)
       return () => clearTimeout(t)
     }
 
     const handler = (e) => {
       e.preventDefault()
       setPrompt(e)
-      setTimeout(() => setVisible(true), 3000)
+      setTimeout(() => setVisible(true), 5000)
     }
     window.addEventListener('beforeinstallprompt', handler)
     return () => window.removeEventListener('beforeinstallprompt', handler)
@@ -44,9 +43,8 @@ export default function InstallPrompt() {
   const install = async () => {
     if (!prompt) return
     prompt.prompt()
-    const { outcome } = await prompt.userChoice
-    if (outcome === 'accepted') dismiss()
-    else dismiss()
+    await prompt.userChoice
+    dismiss()
   }
 
   const showAndroid = visible && prompt && !isIOS()
@@ -59,28 +57,37 @@ export default function InstallPrompt() {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 80 }}
           transition={{ type: 'spring', damping: 20 }}
-          className="fixed bottom-20 left-4 right-4 z-50 bg-surface border border-border rounded-2xl p-4 shadow-xl"
+          className="fixed bottom-20 left-4 right-4 z-50 rounded-2xl p-4"
+          style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', boxShadow: '0 -4px 30px rgba(0,0,0,0.4)' }}
         >
           <div className="flex items-start gap-3">
-            <img src="/icons/icon-192.svg" alt="" className="w-10 h-10 rounded-xl flex-shrink-0" />
+            <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(212, 168, 67, 0.15)' }}>
+              <svg className="w-6 h-6" style={{ color: '#D4A843' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+            </div>
             <div className="flex-1 min-w-0">
-              <p className="text-text-primary font-semibold text-sm">Add to Home Screen</p>
+              <p className="text-[15px] font-semibold" style={{ color: 'var(--text-primary)' }}>
+                Install The Good Life
+              </p>
               {showIOS ? (
-                <p className="text-text-secondary text-xs mt-0.5">
-                  Tap <span className="inline-block">⎙</span> Share, then "Add to Home Screen" for the full app experience.
+                <p className="text-[13px] mt-0.5 leading-relaxed" style={{ color: 'var(--text-tertiary)' }}>
+                  Tap the <strong>Share</strong> button below, then <strong>"Add to Home Screen"</strong> for the full app experience.
                 </p>
               ) : (
-                <p className="text-text-secondary text-xs mt-0.5">
-                  Install The Good Life for the full app experience — works offline too.
+                <p className="text-[13px] mt-0.5" style={{ color: 'var(--text-tertiary)' }}>
+                  Get the full app experience — works offline, launches from your home screen.
                 </p>
               )}
             </div>
             <button
               onClick={dismiss}
-              className="text-text-tertiary hover:text-text-secondary text-lg leading-none flex-shrink-0 mt-0.5"
-              aria-label="Dismiss"
+              className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center"
+              style={{ background: 'var(--bg-tertiary)' }}
             >
-              ×
+              <svg className="w-4 h-4" style={{ color: 'var(--text-muted)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
             </button>
           </div>
 
@@ -88,13 +95,15 @@ export default function InstallPrompt() {
             <div className="mt-3 flex gap-2">
               <button
                 onClick={install}
-                className="flex-1 py-2 bg-primary text-white rounded-xl text-sm font-medium"
+                className="flex-1 py-2.5 rounded-xl text-[14px] font-semibold"
+                style={{ background: '#D4A843', color: '#0A0A0A' }}
               >
-                Install
+                Install App
               </button>
               <button
                 onClick={dismiss}
-                className="flex-1 py-2 bg-surface border border-border text-text-secondary rounded-xl text-sm"
+                className="flex-1 py-2.5 rounded-xl text-[14px] font-medium"
+                style={{ background: 'var(--bg-tertiary)', color: 'var(--text-secondary)' }}
               >
                 Not now
               </button>
