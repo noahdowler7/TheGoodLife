@@ -179,7 +179,9 @@ export default function ThreePillars({ reflections, setReflections }) {
                                 color: 'var(--text-primary)',
                                 border: `1px solid ${pillar.color}30`,
                               }}
-                              autoFocus
+                              ref={(el) => {
+                                if (el) setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300)
+                              }}
                             />
                           </div>
                         </motion.div>
