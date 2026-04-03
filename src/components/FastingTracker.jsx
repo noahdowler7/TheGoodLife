@@ -1,8 +1,10 @@
 import { useState, useMemo, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { format } from 'date-fns'
 import { motion, AnimatePresence } from 'framer-motion'
 import { v4 as uuidv4 } from 'uuid'
 import PageWrapper from './PageWrapper'
+import { parseScriptureRef, savePosition } from '../utils/bible'
 
 const FAST_TYPES = [
   { id: 'full', label: 'Full Fast', description: 'No food, water only' },
@@ -20,6 +22,14 @@ const BIBLICAL_REFS = [
 ]
 
 function FastingTracker({ fasting, setFasting }) {
+  const navigate = useNavigate()
+  const openScripture = (reference) => {
+    const parsed = parseScriptureRef(reference)
+    if (parsed) {
+      savePosition(parsed.bookId, parsed.chapter)
+      navigate('/devotional?tab=bible')
+    }
+  }
   const [tab, setTab] = useState('active')
   const [showNewFast, setShowNewFast] = useState(false)
   const [activeFastElapsed, setActiveFastElapsed] = useState(0)
@@ -207,9 +217,16 @@ function FastingTracker({ fasting, setFasting }) {
                 <p className="text-[15px] italic leading-relaxed mb-3" style={{ color: 'var(--text-primary)' }}>
                   "{ref.text}"
                 </p>
-                <p className="text-[11px] tracking-widest uppercase" style={{ color: 'var(--text-muted)' }}>
+                <button
+                  onClick={() => openScripture(ref.ref)}
+                  className="text-[11px] tracking-widest uppercase flex items-center gap-1"
+                  style={{ color: 'var(--accent)' }}
+                >
                   {ref.ref}
-                </p>
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
               </div>
             ))}
           </div>

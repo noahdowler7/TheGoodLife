@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { format, addDays, subDays } from 'date-fns'
 import { motion, AnimatePresence } from 'framer-motion'
 import PageWrapper from './PageWrapper'
@@ -6,6 +7,7 @@ import { ProgressRing } from './CapitalCard'
 import { CAPITALS, CAPITAL_ORDER, getDisciplinesForCapital } from '../utils/capitals'
 import { getDailyCompletionRate } from '../utils/streaks'
 import { DisciplineEnrichment, ENRICHED_DISCIPLINES } from './DisciplineEnrichments'
+import { parseScriptureRef, savePosition } from '../utils/bible'
 
 function DisciplineCheckItem({ discipline, checked, capitalColor, onToggle }) {
   return (
@@ -79,7 +81,12 @@ const COMPLETION_MESSAGES = [
 ]
 
 function CompletionCelebration() {
+  const navigate = useNavigate()
   const msg = COMPLETION_MESSAGES[new Date().getDay() % COMPLETION_MESSAGES.length]
+  const openRef = () => {
+    const parsed = parseScriptureRef(msg.ref)
+    if (parsed) { savePosition(parsed.bookId, parsed.chapter); navigate('/devotional?tab=bible') }
+  }
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.9 }}
@@ -94,9 +101,10 @@ function CompletionCelebration() {
       <p className="text-[15px] italic leading-relaxed mb-2" style={{ color: 'var(--text-primary)' }}>
         "{msg.verse}"
       </p>
-      <p className="text-[11px] tracking-widest uppercase" style={{ color: 'var(--text-muted)' }}>
+      <button onClick={openRef} className="text-[11px] tracking-widest uppercase flex items-center gap-1 mx-auto" style={{ color: 'var(--accent)' }}>
         {msg.ref}
-      </p>
+        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+      </button>
     </motion.div>
   )
 }

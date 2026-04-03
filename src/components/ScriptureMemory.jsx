@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { getChapter } from '../utils/bible'
+import { getChapter, savePosition } from '../utils/bible'
 
 const MEMORY_VERSES = [
   { ref: 'John 15:5', book: 'jhn', chapter: 15, start: 5, end: 5 },
@@ -79,6 +80,12 @@ export default function ScriptureMemory() {
       .catch(() => setVerseText(''))
   }, [verse.book, verse.chapter, verse.start, verse.end])
 
+  const navigate = useNavigate()
+  const openInBible = () => {
+    savePosition(verse.book, verse.chapter)
+    navigate('/devotional?tab=bible')
+  }
+
   if (!verseText) return null
 
   return (
@@ -99,9 +106,12 @@ export default function ScriptureMemory() {
         </button>
       </div>
 
-      <p className="text-[15px] font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>
+      <button onClick={openInBible} className="text-[15px] font-semibold mb-1 flex items-center gap-1" style={{ color: '#6B8DE3' }}>
         {verse.ref}
-      </p>
+        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+        </svg>
+      </button>
 
       {practicing ? (
         <div>

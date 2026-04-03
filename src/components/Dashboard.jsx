@@ -10,14 +10,12 @@ import AlignmentWidget from './AlignmentWidget'
 import { getDailyScripture } from '../utils/scriptures'
 import { getDailyExposition, getDailyReading } from '../utils/devotional'
 import ThreePillars from './ThreePillars'
-import DailyExamen from './DailyExamen'
 import ScriptureMemory from './ScriptureMemory'
 import GratitudeJournal from './GratitudeJournal'
-import SabbathCheckin from './SabbathCheckin'
 import { CAPITALS, CAPITAL_ORDER } from '../utils/capitals'
 import { calculateCapitalScore, getActiveStreaks, getDailyCompletionRate } from '../utils/streaks'
 import { ALL_DISCIPLINES } from '../utils/capitals'
-import { getChapter, savePosition } from '../utils/bible'
+import { getChapter, savePosition, parseScriptureRef } from '../utils/bible'
 import SilenceTimer from './SilenceTimer'
 
 function Dashboard({ disciplines, setDisciplines, ratings, reflections, setReflections, settings, customDisciplines }) {
@@ -26,6 +24,14 @@ function Dashboard({ disciplines, setDisciplines, ratings, reflections, setRefle
   const hour = today.getHours()
   const todayStr = format(today, 'yyyy-MM-dd')
   const capitalToggles = settings?.capitals || {}
+
+  const openScripture = (reference) => {
+    const parsed = parseScriptureRef(reference)
+    if (parsed) {
+      savePosition(parsed.bookId, parsed.chapter)
+      navigate('/devotional?tab=bible')
+    }
+  }
 
   const greeting = useMemo(() => {
     if (hour < 12) return { text: 'Good Morning', subtext: 'Walk boldly into your day' }
@@ -141,9 +147,16 @@ function Dashboard({ disciplines, setDisciplines, ratings, reflections, setRefle
             <p className="text-[19px] italic leading-relaxed mb-5" style={{ color: 'var(--text-primary)', fontWeight: 400 }}>
               "{dailyScripture.verse}"
             </p>
-            <p className="text-[11px] tracking-widest uppercase" style={{ color: 'var(--text-muted)' }}>
+            <button
+              onClick={() => openScripture(dailyScripture.reference)}
+              className="text-[11px] tracking-widest uppercase flex items-center gap-1 mx-auto"
+              style={{ color: 'var(--accent)' }}
+            >
               {dailyScripture.reference}
-            </p>
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
           </div>
         </motion.section>
 
@@ -264,16 +277,6 @@ function Dashboard({ disciplines, setDisciplines, ratings, reflections, setRefle
         {/* Silence & Solitude */}
         <motion.section variants={itemVariants}>
           <SilenceTimer reflections={reflections} setReflections={setReflections} setDisciplines={setDisciplines} />
-        </motion.section>
-
-        {/* Evening Examen */}
-        <motion.section variants={itemVariants}>
-          <DailyExamen reflections={reflections} setReflections={setReflections} />
-        </motion.section>
-
-        {/* Sabbath Check-in */}
-        <motion.section variants={itemVariants}>
-          <SabbathCheckin reflections={reflections} setReflections={setReflections} settings={settings} />
         </motion.section>
 
         {/* Alignment Score */}
