@@ -107,11 +107,10 @@ export default function ThreePillars({ reflections, setReflections }) {
       <AnimatePresence>
         {expanded && (
           <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="overflow-hidden"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
           >
             <div className="px-5 pb-5 space-y-3">
               <p className="text-[13px] italic leading-relaxed" style={{ color: 'var(--text-tertiary)' }}>
@@ -143,8 +142,8 @@ export default function ThreePillars({ reflections, setReflections }) {
                         <p className="text-[14px] font-semibold" style={{ color: pillar.color }}>
                           {pillar.label}
                         </p>
-                        <p className="text-[12px] truncate" style={{ color: 'var(--text-muted)' }}>
-                          {hasContent ? value : pillar.description}
+                        <p className="text-[12px]" style={{ color: 'var(--text-muted)' }}>
+                          {hasContent ? value.slice(0, 80) + (value.length > 80 ? '...' : '') : pillar.description}
                         </p>
                       </div>
                       {hasContent && (
@@ -159,10 +158,10 @@ export default function ThreePillars({ reflections, setReflections }) {
                     <AnimatePresence>
                       {isActive && (
                         <motion.div
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: 'auto', opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          className="overflow-hidden"
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          exit={{ opacity: 0 }}
+                          transition={{ duration: 0.15 }}
                         >
                           <div className="pt-2">
                             <p className="text-[13px] font-medium mb-2 px-1" style={{ color: pillar.color }}>
