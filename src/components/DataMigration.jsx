@@ -37,17 +37,8 @@ export default function DataMigration({ onComplete, onSkip }) {
       setCounts(response.counts)
       setStatus('success')
 
-      // Clear localStorage data (keep token and user)
-      localStorage.removeItem('thegoodlife_disciplines')
-      localStorage.removeItem('thegoodlife_ratings')
-      localStorage.removeItem('thegoodlife_reflections')
-      localStorage.removeItem('thegoodlife_events')
-      localStorage.removeItem('thegoodlife_fasting')
-      localStorage.removeItem('thegoodlife_partners')
-      localStorage.removeItem('thegoodlife_custom_disc')
-      localStorage.removeItem('thegoodlife_settings')
-
-      // Mark migration complete
+      // Mark migration complete — keep localStorage intact so
+      // the app still works (server is now the backup, not replacement)
       localStorage.setItem('thegoodlife_migrated', 'true')
 
       setTimeout(() => {
