@@ -65,7 +65,7 @@ function AuthVerify({ verify }) {
 function App() {
   const location = useLocation()
   const navigate = useNavigate()
-  const { isAuthenticated, isGuest, hasAccess, continueAsGuest, login, verify, loading, error } = useAuth()
+  const { isAuthenticated, isGuest, hasAccess, continueAsGuest, login, verify, logout, loading, error } = useAuth()
   const [disciplines, setDisciplines] = useDisciplines()
   const [reflections, setReflections] = useReflections()
   const [ratings, setRatings] = useRatings()
@@ -203,7 +203,9 @@ function App() {
               <Settings
                 {...appState}
                 isGuest={isGuest}
+                isAuthenticated={isAuthenticated}
                 onSignIn={() => setShowAuthScreen(true)}
+                onSignOut={() => { logout(); navigate('/') }}
               />
             }
           />

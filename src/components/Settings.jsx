@@ -8,7 +8,7 @@ import { STORAGE_KEYS } from '../hooks/useStorage'
 import MovementLogo from './MovementLogo'
 import { dataService } from '../services/dataService'
 
-function Settings({ settings, setSettings, partners, setPartners, customDisciplines, setCustomDisciplines, isGuest, onSignIn }) {
+function Settings({ settings, setSettings, partners, setPartners, customDisciplines, setCustomDisciplines, isGuest, isAuthenticated, onSignIn, onSignOut }) {
   const navigate = useNavigate()
   const fileInputRef = useRef(null)
   const [newPartnerName, setNewPartnerName] = useState('')
@@ -264,6 +264,28 @@ function Settings({ settings, setSettings, partners, setPartners, customDiscipli
                   style={{ background: 'var(--accent)', color: '#0A0A0A' }}
                 >
                   Sign In Now
+                </button>
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* Sign Out (Authenticated Users) */}
+        {isAuthenticated && (
+          <>
+            <p className="list-header">ACCOUNT</p>
+            <div className="card-inset">
+              <div className="px-4 py-3 flex items-center justify-between">
+                <div>
+                  <p className="text-[15px] font-medium" style={{ color: 'var(--text-primary)' }}>Signed In</p>
+                  <p className="text-[13px]" style={{ color: 'var(--text-tertiary)' }}>Data syncing to cloud</p>
+                </div>
+                <button
+                  onClick={onSignOut}
+                  className="px-4 py-2 rounded-xl text-[13px] font-medium"
+                  style={{ background: 'var(--bg-tertiary)', color: 'var(--text-secondary)' }}
+                >
+                  Sign Out
                 </button>
               </div>
             </div>
