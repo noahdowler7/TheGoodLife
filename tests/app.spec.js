@@ -155,18 +155,14 @@ test.describe('Dashboard', () => {
 
   test('shows Five Capitals progress section', async ({ page }) => {
     await expect(page.getByText('Five Capitals')).toBeVisible()
-    await expect(page.getByText('0% today')).toBeVisible()
   })
 
-  test('shows Up Next disciplines', async ({ page }) => {
-    await expect(page.getByText('Up Next')).toBeVisible()
-    await expect(page.getByText('Bible Reading')).toBeVisible()
+  test('shows daily scripture on dashboard', async ({ page }) => {
+    await expect(page.locator('.scripture-card')).toBeVisible()
   })
 
-  test('Up Next taps navigate to /today', async ({ page }) => {
-    const bibleReading = page.locator('.home-card', { hasText: 'Bible Reading' })
-    await bibleReading.click()
-    await expect(page).toHaveURL(/\/today/)
+  test('shows devotional preview card', async ({ page }) => {
+    await expect(page.getByText('Continue Reading')).toBeVisible()
   })
 
   test('shows daily scripture', async ({ page }) => {

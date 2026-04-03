@@ -33,6 +33,7 @@ function DevotionalGuide({ reflections, setReflections }) {
   const [murray, setMurray] = useState(null)
   const [classicAuthor, setClassicAuthor] = useState('spurgeon') // 'spurgeon' | 'murray'
   const [classicExpanded, setClassicExpanded] = useState(false)
+  const [showOtherReading, setShowOtherReading] = useState(false)
 
   useEffect(() => {
     fetch('/devotionals/spurgeon-morning-evening.json')
@@ -315,16 +316,13 @@ function DevotionalGuide({ reflections, setReflections }) {
                           {isEvening ? spurgeon.evening.text : spurgeon.morning.text}
                         </p>
                         <button
-                          onClick={() => {
-                            const el = document.getElementById('spurgeon-other')
-                            if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none'
-                          }}
+                          onClick={() => setShowOtherReading(!showOtherReading)}
                           className="mt-4 text-[12px] font-medium"
                           style={{ color: '#D4A843' }}
                         >
-                          Read {isEvening ? 'Morning' : 'Evening'} Devotional
+                          {showOtherReading ? 'Hide' : 'Read'} {isEvening ? 'Morning' : 'Evening'} Devotional
                         </button>
-                        <div id="spurgeon-other" style={{ display: 'none' }} className="mt-3">
+                        {showOtherReading && <div className="mt-3">
                           <div className="rounded-xl p-4 mb-3" style={{ background: 'rgba(212, 168, 67, 0.08)' }}>
                             <p className="text-[13px] italic leading-relaxed" style={{ color: 'var(--text-primary)' }}>
                               {isEvening ? spurgeon.morning.verse : spurgeon.evening.verse}
@@ -333,7 +331,7 @@ function DevotionalGuide({ reflections, setReflections }) {
                           <p className="text-[14px] leading-[1.75] whitespace-pre-line" style={{ color: 'var(--text-secondary)' }}>
                             {isEvening ? spurgeon.morning.text : spurgeon.evening.text}
                           </p>
-                        </div>
+                        </div>}
                       </>
                     )}
                     {classicAuthor === 'murray' && murray && (

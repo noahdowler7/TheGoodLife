@@ -52,15 +52,11 @@ function BibleReader({ navigateTo }) {
   }, [selectedBook, selectedChapter])
 
   // Ensure voices are loaded
-  const [voicesReady, setVoicesReady] = useState(false)
   useEffect(() => {
     const synth = window.speechSynthesis
     if (!synth) return
-    const loadVoices = () => {
-      if (synth.getVoices().length > 0) setVoicesReady(true)
-    }
-    loadVoices()
-    synth.onvoiceschanged = loadVoices
+    synth.getVoices() // trigger voice loading
+    synth.onvoiceschanged = () => synth.getVoices()
   }, [])
 
   const handleTts = useCallback(() => {
@@ -121,7 +117,7 @@ function BibleReader({ navigateTo }) {
 
     synth.speak(utt)
     setTtsState('playing')
-  }, [ttsState, chapterData, voicesReady])
+  }, [ttsState, chapterData])
 
   const handleStopTts = useCallback(() => {
     window.speechSynthesis?.cancel()

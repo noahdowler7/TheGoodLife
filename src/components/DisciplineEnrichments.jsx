@@ -497,13 +497,12 @@ const SIMPLE_CONFIGS = {
 }
 
 function SimpleReflection({ disciplineId, dateStr, reflections, setReflections, setDisciplines, onClose, color }) {
-  const config = SIMPLE_CONFIGS[disciplineId]
   const navigate = useNavigate()
-  if (!config) return null
+  const config = SIMPLE_CONFIGS[disciplineId]
 
-  const storageKey = config.storageKey
-  const value = reflections[dateStr]?.[storageKey] || ''
-  const servePrompt = config.rotating
+  const storageKey = config?.storageKey || disciplineId.replace(/-/g, '_')
+  const value = config ? (reflections[dateStr]?.[storageKey] || '') : ''
+  const servePrompt = config?.rotating
     ? SERVING_PROMPTS[new Date().getDate() % SERVING_PROMPTS.length]
     : null
 
@@ -517,6 +516,8 @@ function SimpleReflection({ disciplineId, dateStr, reflections, setReflections, 
       [dateStr]: { ...(prev[dateStr] || {}), [disciplineId]: text.trim().length > 0 },
     }))
   }
+
+  if (!config) return null
 
   return (
     <div className="px-4 py-3">
