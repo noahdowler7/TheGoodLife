@@ -10,12 +10,17 @@ import AlignmentWidget from './AlignmentWidget'
 import { getDailyScripture } from '../utils/scriptures'
 import { getDailyExposition, getDailyReading } from '../utils/devotional'
 import ThreePillars from './ThreePillars'
+import DailyExamen from './DailyExamen'
+import ScriptureMemory from './ScriptureMemory'
+import GratitudeJournal from './GratitudeJournal'
+import SabbathCheckin from './SabbathCheckin'
 import { CAPITALS, CAPITAL_ORDER } from '../utils/capitals'
 import { calculateCapitalScore, getActiveStreaks, getDailyCompletionRate } from '../utils/streaks'
 import { ALL_DISCIPLINES } from '../utils/capitals'
 import { getChapter, savePosition } from '../utils/bible'
+import SilenceTimer from './SilenceTimer'
 
-function Dashboard({ disciplines, ratings, reflections, setReflections, settings, customDisciplines }) {
+function Dashboard({ disciplines, setDisciplines, ratings, reflections, setReflections, settings, customDisciplines }) {
   const navigate = useNavigate()
   const today = new Date()
   const hour = today.getHours()
@@ -198,6 +203,16 @@ function Dashboard({ disciplines, ratings, reflections, setReflections, settings
           </motion.section>
         )}
 
+        {/* Scripture Memory */}
+        <motion.section variants={itemVariants}>
+          <ScriptureMemory />
+        </motion.section>
+
+        {/* Gratitude Journal */}
+        <motion.section variants={itemVariants}>
+          <GratitudeJournal reflections={reflections} setReflections={setReflections} />
+        </motion.section>
+
         {/* Five Capital Progress Rings */}
         <motion.section variants={itemVariants}>
           <div className="flex items-center justify-between mb-3 px-1">
@@ -244,6 +259,21 @@ function Dashboard({ disciplines, ratings, reflections, setReflections, settings
         {/* Three Pillars Check-in */}
         <motion.section variants={itemVariants}>
           <ThreePillars reflections={reflections} setReflections={setReflections} />
+        </motion.section>
+
+        {/* Silence & Solitude */}
+        <motion.section variants={itemVariants}>
+          <SilenceTimer reflections={reflections} setReflections={setReflections} setDisciplines={setDisciplines} />
+        </motion.section>
+
+        {/* Evening Examen */}
+        <motion.section variants={itemVariants}>
+          <DailyExamen reflections={reflections} setReflections={setReflections} />
+        </motion.section>
+
+        {/* Sabbath Check-in */}
+        <motion.section variants={itemVariants}>
+          <SabbathCheckin reflections={reflections} setReflections={setReflections} settings={settings} />
         </motion.section>
 
         {/* Alignment Score */}
