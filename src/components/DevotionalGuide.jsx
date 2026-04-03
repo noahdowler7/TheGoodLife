@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { format, subDays } from 'date-fns'
+import { format } from 'date-fns'
 import { motion, AnimatePresence } from 'framer-motion'
 import PageWrapper from './PageWrapper'
 import BibleReader from './BibleReader'
@@ -77,21 +77,6 @@ function DevotionalGuide({ reflections, setReflections }) {
     }))
   }
 
-  // Past 7 days
-  const pastScriptures = useMemo(() => {
-    return Array.from({ length: 7 }, (_, i) => {
-      const date = subDays(today, i + 1)
-      const scripture = getDailyScripture(date)
-      return {
-        date: format(date, 'yyyy-MM-dd'),
-        dateLabel: format(date, 'EEEE, MMM d'),
-        scripture,
-        capital: scripture.capital ? CAPITALS[scripture.capital] : null,
-        reflection: reflections[format(date, 'yyyy-MM-dd')]?.devotional || null,
-      }
-    })
-  }, [todayStr, reflections])
-
   // Current discipleship teaching (rotates weekly)
   const weeklyTeaching = useMemo(() => {
     const weekOfYear = Math.floor((today - new Date(today.getFullYear(), 0, 1)) / (7 * 24 * 60 * 60 * 1000))
@@ -108,9 +93,9 @@ function DevotionalGuide({ reflections, setReflections }) {
       {/* Tabs */}
       <div className="px-5 mb-5">
         <div className="segmented-control">
-          {['today', 'bible', 'discipleship', 'archive'].map(t => (
+          {['today', 'bible', 'discipleship'].map(t => (
             <button key={t} className={`segment ${tab === t ? 'active' : ''}`} onClick={() => setTab(t)}>
-              {t === 'today' ? 'Today' : t === 'bible' ? 'Bible' : t === 'discipleship' ? 'Grow' : 'Archive'}
+              {t === 'today' ? 'Today' : t === 'bible' ? 'Bible' : 'Grow'}
             </button>
           ))}
         </div>
@@ -453,45 +438,6 @@ function DevotionalGuide({ reflections, setReflections }) {
               )
             })}
           </>
-        )}
-
-        {tab === 'archive' && (
-          <div className="space-y-4">
-            {pastScriptures.map((entry) => (
-              <motion.div
-                key={entry.date}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="rounded-2xl p-4"
-                style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
-              >
-                <div className="flex items-center gap-2 mb-2">
-                  <p className="text-[12px] font-medium" style={{ color: 'var(--text-muted)' }}>
-                    {entry.dateLabel}
-                  </p>
-                  {entry.capital && (
-                    <span className="text-[9px] font-medium px-1.5 py-0.5 rounded-full" style={{ background: `${entry.capital.color}20`, color: entry.capital.color }}>
-                      {entry.capital.name}
-                    </span>
-                  )}
-                </div>
-                <p className="text-[15px] italic leading-relaxed mb-2" style={{ color: 'var(--text-primary)' }}>
-                  "{entry.scripture.verse}"
-                </p>
-                <p className="text-[11px] tracking-widest uppercase mb-3" style={{ color: 'var(--text-tertiary)' }}>
-                  {entry.scripture.reference}
-                </p>
-                {entry.reflection && (
-                  <div className="pt-3" style={{ borderTop: '1px solid var(--separator)' }}>
-                    <p className="text-[11px] font-medium uppercase mb-1" style={{ color: 'var(--accent)' }}>Your reflection</p>
-                    <p className="text-[14px] leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-                      {entry.reflection}
-                    </p>
-                  </div>
-                )}
-              </motion.div>
-            ))}
-          </div>
         )}
 
         <div className="h-4" />
