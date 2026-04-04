@@ -15,6 +15,11 @@ function DevotionalGuide({ reflections, setReflections }) {
   const [tab, setTab] = useState(initialTab)
   const [bibleNavTarget, setBibleNavTarget] = useState(null)
 
+  // Scroll to top on tab change
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [tab])
+
   const openInBible = (reference) => {
     const parsed = parseScriptureRef(reference)
     if (parsed) {

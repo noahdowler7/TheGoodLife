@@ -31,6 +31,12 @@ function FastingTracker({ fasting, setFasting }) {
     }
   }
   const [tab, setTab] = useState('active')
+
+  // Scroll to top on tab change
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [tab])
+
   const [showNewFast, setShowNewFast] = useState(false)
   const [activeFastElapsed, setActiveFastElapsed] = useState(0)
 

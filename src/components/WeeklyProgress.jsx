@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { format, startOfWeek, addDays } from 'date-fns'
 import { motion } from 'framer-motion'
 import PageWrapper from './PageWrapper'
@@ -7,6 +7,12 @@ import { calculateCapitalScore, getWeeklyCompletionRate } from '../utils/streaks
 
 function WeeklyProgress({ disciplines, ratings, settings, customDisciplines }) {
   const [tab, setTab] = useState('overview')
+
+  // Scroll to top on tab change
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [tab])
+
   const capitalToggles = settings?.capitals || {}
   const activeCapitals = CAPITAL_ORDER.filter(id => capitalToggles[id] !== false)
 

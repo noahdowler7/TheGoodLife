@@ -135,6 +135,7 @@ function BibleReader({ navigateTo }) {
         setChapterData(data)
         savePosition(selectedBook.id, selectedChapter)
         setLoading(false)
+        window.scrollTo(0, 0)
       })
       .catch(() => setLoading(false))
   }, [selectedBook, selectedChapter])
@@ -142,6 +143,7 @@ function BibleReader({ navigateTo }) {
   const handleSelectBook = (book) => {
     setSelectedBook(book)
     setView('chapters')
+    window.scrollTo(0, 0)
   }
 
   const handleSelectChapter = (ch) => {

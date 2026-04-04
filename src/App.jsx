@@ -62,6 +62,16 @@ function AuthVerify({ verify }) {
   )
 }
 
+// Scroll to top on every route change — lives outside AnimatePresence
+// so it fires reliably regardless of exit animations
+function ScrollToTop() {
+  const { pathname } = useLocation()
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [pathname])
+  return null
+}
+
 function App() {
   const location = useLocation()
   const navigate = useNavigate()
@@ -188,6 +198,7 @@ function App() {
 
   return (
     <div className="min-h-screen">
+      <ScrollToTop />
       {isAuthenticated && <SyncStatus />}
       <AnimatePresence mode="wait">
         <Routes location={location} key={location.pathname}>
