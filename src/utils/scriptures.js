@@ -1,6 +1,10 @@
 // Daily scriptures for the devotional section
 // 365 verses organized by Five Capitals themes
 // Each verse tagged with a capital for deeper integration
+// Liturgical calendar overrides special days (Easter, Christmas, etc.)
+
+import { getLiturgicalDay } from './liturgicalCalendar'
+import { getLiturgicalContent } from '../data/liturgicalContent'
 
 const SCRIPTURES = [
   // === SPIRITUAL CAPITAL (73 verses) ===
@@ -321,6 +325,13 @@ export const CAPITAL_PROMPTS = {
  * Uses a deterministic algorithm so the same date always returns the same scripture.
  */
 export function getDailyScripture(date = new Date()) {
+  // Liturgical calendar override for special days
+  const liturgicalDay = getLiturgicalDay(date)
+  const liturgicalContent = liturgicalDay ? getLiturgicalContent(date) : null
+  if (liturgicalContent?.scripture) {
+    return { ...liturgicalContent.scripture, liturgicalDay }
+  }
+
   const start = new Date(date.getFullYear(), 0, 0)
   const diff = date - start
   const oneDay = 1000 * 60 * 60 * 24
@@ -333,6 +344,12 @@ export function getDailyScripture(date = new Date()) {
  * Get the reflection prompt for a specific date, tied to the scripture's capital.
  */
 export function getDailyPrompt(date = new Date()) {
+  // Liturgical calendar override for special days
+  const liturgicalContent = getLiturgicalDay(date) ? getLiturgicalContent(date) : null
+  if (liturgicalContent?.prompt) {
+    return liturgicalContent.prompt
+  }
+
   const scripture = getDailyScripture(date)
   const capital = scripture.capital || 'spiritual'
   const prompts = CAPITAL_PROMPTS[capital] || CAPITAL_PROMPTS.spiritual

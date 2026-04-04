@@ -13,6 +13,7 @@ import ThreePillars from './ThreePillars'
 import ScriptureMemory from './ScriptureMemory'
 import GratitudeJournal from './GratitudeJournal'
 import { CAPITALS, CAPITAL_ORDER } from '../utils/capitals'
+import { getLiturgicalSeason } from '../utils/liturgicalCalendar'
 import { calculateCapitalScore, getActiveStreaks, getDailyCompletionRate } from '../utils/streaks'
 import { ALL_DISCIPLINES } from '../utils/capitals'
 import { getChapter, savePosition, parseScriptureRef } from '../utils/bible'
@@ -138,11 +139,28 @@ function Dashboard({ disciplines, setDisciplines, ratings, reflections, setRefle
         animate="visible"
         className="px-5 space-y-5"
       >
+        {/* Liturgical Season Banner */}
+        {dailyScripture.liturgicalDay && (
+          <motion.section variants={itemVariants}>
+            <div className="rounded-2xl px-4 py-3" style={{
+              background: `${dailyScripture.liturgicalDay.color}15`,
+              borderLeft: `3px solid ${dailyScripture.liturgicalDay.color}`,
+            }}>
+              <p className="text-[11px] tracking-widest uppercase font-semibold" style={{ color: dailyScripture.liturgicalDay.color }}>
+                {getLiturgicalSeason(today).name}
+              </p>
+              <p className="text-[16px] font-semibold mt-0.5" style={{ color: 'var(--text-primary)' }}>
+                {dailyScripture.liturgicalDay.name}
+              </p>
+            </div>
+          </motion.section>
+        )}
+
         {/* Daily Scripture — Hero Position */}
         <motion.section variants={itemVariants}>
           <div className="scripture-card">
-            <p className="text-[11px] tracking-widest uppercase mb-4" style={{ color: 'var(--accent)' }}>
-              Today's Scripture
+            <p className="text-[11px] tracking-widest uppercase mb-4" style={{ color: dailyScripture.liturgicalDay?.color || 'var(--accent)' }}>
+              {dailyScripture.liturgicalDay ? `${dailyScripture.liturgicalDay.name} Scripture` : "Today's Scripture"}
             </p>
             <p className="text-[19px] italic leading-relaxed mb-5" style={{ color: 'var(--text-primary)', fontWeight: 400 }}>
               "{dailyScripture.verse}"

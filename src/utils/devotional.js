@@ -1,6 +1,10 @@
 // Rich devotional content system for The Good Life
 // Provides exposition, cross-references, application, and daily reading plans
 // organized by Five Capitals
+// Liturgical calendar overrides special days (Easter, Christmas, etc.)
+
+import { getLiturgicalDay } from './liturgicalCalendar'
+import { getLiturgicalContent } from '../data/liturgicalContent'
 
 // Exposition templates per capital — rotate daily
 export const EXPOSITIONS = {
@@ -184,6 +188,12 @@ export const DISCIPLESHIP_TEACHINGS = [
  * Get today's exposition based on the scripture's capital.
  */
 export function getDailyExposition(date = new Date()) {
+  // Liturgical calendar override
+  const liturgicalContent = getLiturgicalDay(date) ? getLiturgicalContent(date) : null
+  if (liturgicalContent?.exposition) {
+    return function getForCapital() { return liturgicalContent.exposition }
+  }
+
   const start = new Date(date.getFullYear(), 0, 0)
   const diff = date - start
   const dayOfYear = Math.floor(diff / (1000 * 60 * 60 * 24))
@@ -197,6 +207,12 @@ export function getDailyExposition(date = new Date()) {
  * Get cross-references for today based on capital.
  */
 export function getDailyCrossRefs(date = new Date()) {
+  // Liturgical calendar override
+  const liturgicalContent = getLiturgicalDay(date) ? getLiturgicalContent(date) : null
+  if (liturgicalContent?.crossRefs) {
+    return function getForCapital() { return liturgicalContent.crossRefs }
+  }
+
   const start = new Date(date.getFullYear(), 0, 0)
   const diff = date - start
   const dayOfYear = Math.floor(diff / (1000 * 60 * 60 * 24))
@@ -210,6 +226,12 @@ export function getDailyCrossRefs(date = new Date()) {
  * Get today's suggested Bible reading based on capital.
  */
 export function getDailyReading(date = new Date()) {
+  // Liturgical calendar override
+  const liturgicalContent = getLiturgicalDay(date) ? getLiturgicalContent(date) : null
+  if (liturgicalContent?.reading) {
+    return function getForCapital() { return liturgicalContent.reading }
+  }
+
   const start = new Date(date.getFullYear(), 0, 0)
   const diff = date - start
   const dayOfYear = Math.floor(diff / (1000 * 60 * 60 * 24))

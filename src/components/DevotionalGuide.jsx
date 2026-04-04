@@ -60,6 +60,8 @@ function DevotionalGuide({ reflections, setReflections }) {
   const todayPrompt = useMemo(() => getDailyPrompt(today), [todayStr])
   const capital = dailyScripture.capital ? CAPITALS[dailyScripture.capital] : null
   const capitalId = dailyScripture.capital || 'spiritual'
+  const liturgicalDay = dailyScripture.liturgicalDay || null
+  const accentColor = liturgicalDay?.color || capital?.color || 'var(--accent)'
 
   const exposition = useMemo(() => getDailyExposition(today)(capitalId), [todayStr, capitalId])
   const crossRefs = useMemo(() => getDailyCrossRefs(today)(capitalId), [todayStr, capitalId])
@@ -115,10 +117,14 @@ function DevotionalGuide({ reflections, setReflections }) {
               style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
             >
               <div className="flex items-center justify-center gap-2 mb-5">
-                <p className="text-[11px] tracking-widest uppercase" style={{ color: 'var(--accent)' }}>
-                  Today's Scripture
+                <p className="text-[11px] tracking-widest uppercase" style={{ color: accentColor }}>
+                  {liturgicalDay ? `${liturgicalDay.name} Scripture` : "Today's Scripture"}
                 </p>
-                {capital && (
+                {liturgicalDay ? (
+                  <span className="text-[10px] font-medium px-2 py-0.5 rounded-full" style={{ background: `${liturgicalDay.color}20`, color: liturgicalDay.color }}>
+                    {liturgicalDay.season.charAt(0).toUpperCase() + liturgicalDay.season.slice(1)}
+                  </span>
+                ) : capital && (
                   <span className="text-[10px] font-medium px-2 py-0.5 rounded-full" style={{ background: `${capital.color}20`, color: capital.color }}>
                     {capital.name}
                   </span>
@@ -130,7 +136,7 @@ function DevotionalGuide({ reflections, setReflections }) {
               <button
                 onClick={() => openInBible(dailyScripture.reference)}
                 className="text-[13px] tracking-wider uppercase font-medium flex items-center gap-1 mx-auto"
-                style={{ color: 'var(--accent)' }}
+                style={{ color: accentColor }}
               >
                 {dailyScripture.reference}
                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -147,7 +153,7 @@ function DevotionalGuide({ reflections, setReflections }) {
               className="rounded-2xl p-5"
               style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
             >
-              <p className="text-[11px] font-semibold uppercase tracking-wider mb-3" style={{ color: capital?.color || 'var(--accent)' }}>
+              <p className="text-[11px] font-semibold uppercase tracking-wider mb-3" style={{ color: accentColor }}>
                 Devotional Thought
               </p>
               <p className="text-[15px] leading-[1.7]" style={{ color: 'var(--text-secondary)' }}>
@@ -169,8 +175,8 @@ function DevotionalGuide({ reflections, setReflections }) {
               <div className="space-y-3">
                 {crossRefs.map((ref, i) => (
                   <div key={i} className="flex items-start gap-3">
-                    <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5" style={{ background: `${capital?.color || 'var(--accent)'}15` }}>
-                      <span className="text-[10px] font-bold" style={{ color: capital?.color || 'var(--accent)' }}>{i + 1}</span>
+                    <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5" style={{ background: `${accentColor}15` }}>
+                      <span className="text-[10px] font-bold" style={{ color: accentColor }}>{i + 1}</span>
                     </div>
                     <div>
                       <p className="text-[14px] leading-relaxed" style={{ color: 'var(--text-primary)' }}>
@@ -179,7 +185,7 @@ function DevotionalGuide({ reflections, setReflections }) {
                       <button
                         onClick={() => openInBible(ref.ref)}
                         className="text-[11px] mt-1 tracking-wider uppercase flex items-center gap-1"
-                        style={{ color: capital?.color || 'var(--accent)' }}
+                        style={{ color: accentColor }}
                       >
                         {ref.ref}
                         <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -199,22 +205,22 @@ function DevotionalGuide({ reflections, setReflections }) {
               transition={{ delay: 0.15 }}
               onClick={() => openInBible(dailyReading)}
               className="w-full rounded-2xl p-4 flex items-center gap-4 text-left"
-              style={{ background: `${capital?.color || 'var(--accent)'}10`, border: `1px solid ${capital?.color || 'var(--accent)'}30` }}
+              style={{ background: `${accentColor}10`, border: `1px solid ${accentColor}30` }}
             >
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: `${capital?.color || 'var(--accent)'}20` }}>
-                <svg className="w-5 h-5" style={{ color: capital?.color || 'var(--accent)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: `${accentColor}20` }}>
+                <svg className="w-5 h-5" style={{ color: accentColor }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                 </svg>
               </div>
               <div className="flex-1">
-                <p className="text-[11px] font-semibold uppercase tracking-wider mb-0.5" style={{ color: capital?.color || 'var(--accent)' }}>
+                <p className="text-[11px] font-semibold uppercase tracking-wider mb-0.5" style={{ color: accentColor }}>
                   Today's Reading
                 </p>
                 <p className="text-[15px] font-medium" style={{ color: 'var(--text-primary)' }}>
                   {dailyReading}
                 </p>
               </div>
-              <svg className="w-4 h-4 flex-shrink-0" style={{ color: capital?.color || 'var(--accent)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 flex-shrink-0" style={{ color: accentColor }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
             </motion.button>
