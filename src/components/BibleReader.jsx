@@ -135,10 +135,16 @@ function BibleReader({ navigateTo }) {
         setChapterData(data)
         savePosition(selectedBook.id, selectedChapter)
         setLoading(false)
-        window.scrollTo(0, 0)
       })
       .catch(() => setLoading(false))
   }, [selectedBook, selectedChapter])
+
+  // Scroll to top after React renders new chapter content
+  useEffect(() => {
+    if (chapterData) {
+      window.scrollTo(0, 0)
+    }
+  }, [chapterData])
 
   const handleSelectBook = (book) => {
     setSelectedBook(book)
