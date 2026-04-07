@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { format } from 'date-fns'
 import { generateDailyQuests, updateQuestProgress, XP_REWARDS } from '../utils/gamification'
@@ -68,28 +68,29 @@ const QUEST_ICONS = {
 
 function DailyQuests({ gamification, setGamification, disciplines, ratings, reflections, compact = false }) {
   const todayStr = format(new Date(), 'yyyy-MM-dd')
+  const gam = gamification || {}
 
   // Generate or retrieve today's quests
   const quests = useMemo(() => {
-    const stored = gamification.dailyQuests
+    const stored = gam.dailyQuests
     if (stored?.date === todayStr) {
       return stored.quests
     }
     return generateDailyQuests(todayStr)
-  }, [gamification.dailyQuests, todayStr])
+  }, [gam.dailyQuests, todayStr])
 
   // Update progress
-  const todayXP = gamification.todayXPDate === todayStr ? (gamification.todayXP || 0) : 0
+  const todayXP = gam.todayXPDate === todayStr ? (gam.todayXP || 0) : 0
   const updatedQuests = useMemo(
-    () => updateQuestProgress(quests, disciplines, ratings, reflections, todayStr, todayXP),
+    () => updateQuestProgress(quests, disciplines || {}, ratings || {}, reflections || {}, todayStr, todayXP),
     [quests, disciplines, ratings, reflections, todayStr, todayXP]
   )
 
   const allComplete = updatedQuests.every(q => q.completed)
-  const chestClaimed = gamification.dailyQuests?.chestClaimed && gamification.dailyQuests?.date === todayStr
+  const chestClaimed = gam.dailyQuests?.chestClaimed && gam.dailyQuests?.date === todayStr
 
   const claimChest = () => {
-    if (!allComplete || chestClaimed) return
+    if (!allComplete || chestClaimed || !setGamification) return
     setGamification(prev => ({
       ...prev,
       xp: (prev.xp || 0) + XP_REWARDS.allQuestsComplete,
@@ -100,11 +101,13 @@ function DailyQuests({ gamification, setGamification, disciplines, ratings, refl
     }))
   }
 
-  // Persist updated quests
-  const storedDate = gamification.dailyQuests?.date
-  if (storedDate !== todayStr || JSON.stringify(gamification.dailyQuests?.quests) !== JSON.stringify(updatedQuests)) {
-    // Use setTimeout to avoid setState during render
-    setTimeout(() => {
+  // Persist updated quests via effect (not during render)
+  useEffect(() => {
+    if (!setGamification) return
+    const storedDate = gam.dailyQuests?.date
+    const storedQuests = JSON.stringify(gam.dailyQuests?.quests)
+    const newQuests = JSON.stringify(updatedQuests)
+    if (storedDate !== todayStr || storedQuests !== newQuests) {
       setGamification(prev => ({
         ...prev,
         dailyQuests: {
@@ -113,8 +116,8 @@ function DailyQuests({ gamification, setGamification, disciplines, ratings, refl
           chestClaimed: prev.dailyQuests?.date === todayStr ? prev.dailyQuests?.chestClaimed : false,
         },
       }))
-    }, 0)
-  }
+    }
+  }, [todayStr, updatedQuests, setGamification])
 
   if (compact) {
     const completedCount = updatedQuests.filter(q => q.completed).length
