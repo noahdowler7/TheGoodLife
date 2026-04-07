@@ -92,7 +92,11 @@ export function updateQuestProgress(quests, disciplines, ratings, reflections, t
   const dayReflections = reflections[todayStr] || {}
   const completedDiscs = Object.keys(dayData).filter(k => dayData[k])
   const ratedCapitals = Object.keys(dayRatings).filter(k => dayRatings[k] > 0)
-  const hasReflection = Object.values(dayReflections).some(v => v && v.trim())
+  const hasReflection = Object.values(dayReflections).some(v => {
+    if (typeof v === 'string') return v.trim().length > 0
+    if (Array.isArray(v)) return v.some(item => typeof item === 'string' && item.trim().length > 0)
+    return !!v
+  })
 
   return quests.map(q => {
     let progress = 0
