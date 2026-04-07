@@ -1,4 +1,4 @@
-import { useMemo, useEffect } from 'react'
+import { useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { format } from 'date-fns'
 import { generateDailyQuests, updateQuestProgress, XP_REWARDS } from '../utils/gamification'
@@ -85,16 +85,6 @@ function DailyQuests({ gamification, setGamification, disciplines, ratings, refl
 
   const allComplete = displayQuests.every(q => q.completed)
   const chestClaimed = gam.dailyQuests?.chestClaimed && gam.dailyQuests?.date === todayStr
-
-  // Initialize today's quests once if not stored yet
-  useEffect(() => {
-    if (!setGamification) return
-    if (gam.dailyQuests?.date === todayStr) return
-    setGamification(prev => ({
-      ...prev,
-      dailyQuests: { date: todayStr, quests: baseQuests, chestClaimed: false },
-    }))
-  }, [todayStr, setGamification])
 
   const claimChest = () => {
     if (!allComplete || chestClaimed || !setGamification) return
