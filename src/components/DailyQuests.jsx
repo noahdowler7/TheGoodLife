@@ -8,15 +8,15 @@ import { generateDailyQuests, updateQuestProgress, XP_REWARDS } from '../utils/g
 const QUEST_ROUTES = {
   complete_disciplines: '/today',
   bible_reading: '/devotional?tab=bible',
-  prayer: '/today',
+  prayer: '/today?capital=spiritual',
   earn_xp: null, // no specific route
   rate_capitals: '/today',
   complete_capital: '/today',
   reflection: '/devotional',
   streak_maintain: '/today',
-  serve_others: '/today',
-  exercise: '/today',
-  fellowship: '/today',
+  serve_others: '/today?capital=relational',
+  exercise: '/today?capital=physical',
+  fellowship: '/today?capital=relational',
   play_game: '__game__', // special: opens scripture game
 }
 

@@ -1,5 +1,5 @@
-import { useState, useMemo } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useState, useMemo, useEffect, useRef } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { format, addDays, subDays } from 'date-fns'
 import { motion, AnimatePresence } from 'framer-motion'
 import PageWrapper from './PageWrapper'
@@ -338,6 +338,18 @@ function FinancialStewardship({ dateStr, reflections, setReflections, setDiscipl
 function DisciplineTracker({ disciplines, setDisciplines, reflections, setReflections, ratings, setRatings, settings, customDisciplines }) {
   const [selectedDate, setSelectedDate] = useState(new Date())
   const [showEnrichment, setShowEnrichment] = useState(null)
+  const [searchParams] = useSearchParams()
+  const capitalRefs = useRef({})
+
+  // Auto-scroll to a specific capital if ?capital=relational etc
+  useEffect(() => {
+    const target = searchParams.get('capital')
+    if (target && capitalRefs.current[target]) {
+      setTimeout(() => {
+        capitalRefs.current[target].scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }, 300)
+    }
+  }, [searchParams])
   const dateStr = format(selectedDate, 'yyyy-MM-dd')
   const capitalToggles = settings?.capitals || {}
 
@@ -441,6 +453,7 @@ function DisciplineTracker({ disciplines, setDisciplines, reflections, setReflec
           return (
             <motion.section
               key={capitalId}
+              ref={el => { capitalRefs.current[capitalId] = el }}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               className="rounded-3xl overflow-hidden"
