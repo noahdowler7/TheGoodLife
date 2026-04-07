@@ -113,6 +113,7 @@ function Community({ disciplines, ratings, reflections, partners, settings, gami
                   disciplines={disciplines || {}}
                   ratings={ratings || {}}
                   reflections={reflections || {}}
+                  onPlayGame={() => setShowGame(true)}
                 />
               )}
 

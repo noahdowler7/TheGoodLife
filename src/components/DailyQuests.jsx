@@ -1,7 +1,24 @@
 import { useMemo } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { format } from 'date-fns'
 import { generateDailyQuests, updateQuestProgress, XP_REWARDS } from '../utils/gamification'
+
+// Map quest types to where the user can complete them
+const QUEST_ROUTES = {
+  complete_disciplines: '/today',
+  bible_reading: '/devotional?tab=bible',
+  prayer: '/today',
+  earn_xp: null, // no specific route
+  rate_capitals: '/today',
+  complete_capital: '/today',
+  reflection: '/devotional',
+  streak_maintain: '/today',
+  serve_others: '/today',
+  exercise: '/today',
+  fellowship: '/today',
+  play_game: '__game__', // special: opens scripture game
+}
 
 const QUEST_ICONS = {
   check: (
@@ -66,7 +83,8 @@ const QUEST_ICONS = {
   ),
 }
 
-function DailyQuests({ gamification, setGamification, disciplines, ratings, reflections, compact = false }) {
+function DailyQuests({ gamification, setGamification, disciplines, ratings, reflections, compact = false, onPlayGame }) {
+  const navigate = useNavigate()
   const todayStr = format(new Date(), 'yyyy-MM-dd')
   const gam = gamification || {}
 
@@ -155,56 +173,80 @@ function DailyQuests({ gamification, setGamification, disciplines, ratings, refl
         )}
       </div>
 
-      {displayQuests.map((quest) => (
-        <motion.div
-          key={quest.id}
-          className="rounded-2xl p-4 flex items-center gap-3"
-          style={{
-            background: quest.completed ? 'rgba(91, 185, 139, 0.08)' : 'var(--bg-card)',
-            border: `1px solid ${quest.completed ? 'rgba(91, 185, 139, 0.3)' : 'var(--border)'}`,
-          }}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
-          <div
-            className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+      {displayQuests.map((quest) => {
+        const route = QUEST_ROUTES[quest.type]
+        const isTappable = !quest.completed && route
+
+        const handleTap = () => {
+          if (!isTappable) return
+          if (route === '__game__') {
+            if (onPlayGame) onPlayGame()
+          } else {
+            navigate(route)
+          }
+        }
+
+        return (
+          <motion.button
+            key={quest.id}
+            onClick={handleTap}
+            className="w-full rounded-2xl p-4 flex items-center gap-3 text-left"
             style={{
-              background: quest.completed ? 'rgba(91, 185, 139, 0.15)' : 'rgba(212, 168, 67, 0.15)',
-              color: quest.completed ? '#5BB98B' : '#D4A843',
+              background: quest.completed ? 'rgba(91, 185, 139, 0.08)' : 'var(--bg-card)',
+              border: `1px solid ${quest.completed ? 'rgba(91, 185, 139, 0.3)' : 'var(--border)'}`,
+              cursor: isTappable ? 'pointer' : 'default',
             }}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            whileTap={isTappable ? { scale: 0.98 } : {}}
           >
-            {quest.completed ? (
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
-              </svg>
-            ) : (
-              QUEST_ICONS[quest.icon] || QUEST_ICONS.star
-            )}
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-[14px] font-medium" style={{ color: 'var(--text-primary)' }}>
-              {quest.label}
-            </p>
-            <div className="flex items-center gap-2 mt-1.5">
-              <div className="flex-1 h-2 rounded-full overflow-hidden" style={{ background: 'var(--bg-tertiary)' }}>
-                <motion.div
-                  className="h-full rounded-full"
-                  style={{ background: quest.completed ? '#5BB98B' : '#D4A843' }}
-                  initial={{ width: 0 }}
-                  animate={{ width: `${Math.min((quest.progress / quest.target) * 100, 100)}%` }}
-                  transition={{ duration: 0.5 }}
-                />
-              </div>
-              <span className="text-[11px] font-medium flex-shrink-0" style={{ color: 'var(--text-muted)' }}>
-                {Math.min(quest.progress, quest.target)}/{quest.target}
-              </span>
+            <div
+              className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+              style={{
+                background: quest.completed ? 'rgba(91, 185, 139, 0.15)' : 'rgba(212, 168, 67, 0.15)',
+                color: quest.completed ? '#5BB98B' : '#D4A843',
+              }}
+            >
+              {quest.completed ? (
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                </svg>
+              ) : (
+                QUEST_ICONS[quest.icon] || QUEST_ICONS.star
+              )}
             </div>
-          </div>
-          <span className="text-[11px] font-semibold flex-shrink-0" style={{ color: '#D4A843' }}>
-            +{quest.xpReward}
-          </span>
-        </motion.div>
-      ))}
+            <div className="flex-1 min-w-0">
+              <p className="text-[14px] font-medium" style={{ color: 'var(--text-primary)' }}>
+                {quest.label}
+              </p>
+              <div className="flex items-center gap-2 mt-1.5">
+                <div className="flex-1 h-2 rounded-full overflow-hidden" style={{ background: 'var(--bg-tertiary)' }}>
+                  <motion.div
+                    className="h-full rounded-full"
+                    style={{ background: quest.completed ? '#5BB98B' : '#D4A843' }}
+                    initial={{ width: 0 }}
+                    animate={{ width: `${Math.min((quest.progress / quest.target) * 100, 100)}%` }}
+                    transition={{ duration: 0.5 }}
+                  />
+                </div>
+                <span className="text-[11px] font-medium flex-shrink-0" style={{ color: 'var(--text-muted)' }}>
+                  {Math.min(quest.progress, quest.target)}/{quest.target}
+                </span>
+              </div>
+            </div>
+            <div className="flex items-center gap-1 flex-shrink-0">
+              <span className="text-[11px] font-semibold" style={{ color: '#D4A843' }}>
+                +{quest.xpReward}
+              </span>
+              {isTappable && (
+                <svg className="w-4 h-4" style={{ color: 'var(--text-muted)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              )}
+            </div>
+          </motion.button>
+        )
+      })}
     </div>
   )
 }
