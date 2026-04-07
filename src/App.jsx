@@ -16,6 +16,7 @@ import AuthScreen from './components/AuthScreen'
 import InstallPrompt from './components/InstallPrompt'
 import DataMigration from './components/DataMigration'
 import SyncStatus from './components/SyncStatus'
+import Community from './components/Community'
 import {
   useDisciplines,
   useReflections,
@@ -25,6 +26,7 @@ import {
   usePartners,
   useCustomDisciplines,
   useSettings,
+  useGamification,
 } from './hooks/useStorage'
 import { useAuth } from './hooks/useAuth'
 
@@ -84,6 +86,7 @@ function App() {
   const [partners, setPartners] = usePartners()
   const [customDisciplines, setCustomDisciplines] = useCustomDisciplines()
   const [settings, setSettings] = useSettings()
+  const [gamification, setGamification] = useGamification()
   const [migrationChecked, setMigrationChecked] = useState(false)
   const [showAuthScreen, setShowAuthScreen] = useState(false)
 
@@ -120,6 +123,7 @@ function App() {
     partners, setPartners,
     customDisciplines, setCustomDisciplines,
     settings, setSettings,
+    gamification, setGamification,
   }
 
   const handleOnboardingComplete = (profile) => {
@@ -208,6 +212,7 @@ function App() {
           <Route path="/calendar" element={<Calendar {...appState} />} />
           <Route path="/fasting" element={<FastingTracker {...appState} />} />
           <Route path="/devotional" element={<DevotionalGuide {...appState} />} />
+          <Route path="/community" element={<Community {...appState} />} />
           <Route
             path="/settings"
             element={

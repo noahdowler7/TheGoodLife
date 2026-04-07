@@ -12,6 +12,7 @@ const STORAGE_KEYS = {
   PARTNERS: 'thegoodlife_partners',
   CUSTOM_DISCIPLINES: 'thegoodlife_custom_disc',
   SETTINGS: 'thegoodlife_settings',
+  GAMIFICATION: 'thegoodlife_gamification',
 }
 
 function getStorageItem(key, defaultValue) {
@@ -138,6 +139,25 @@ const DEFAULT_SETTINGS = {
 
 export function useSettings() {
   return useStorage(STORAGE_KEYS.SETTINGS, DEFAULT_SETTINGS)
+}
+
+// Gamification: { xp, streakFreezes, dailyQuests, achievements, friendStreaks, league, ... }
+export function useGamification() {
+  // Import default inline to avoid circular deps
+  const DEFAULT_GAMIFICATION = {
+    xp: 0,
+    streakFreezes: 1,
+    dailyQuests: null,
+    achievements: [],
+    friendStreaks: {},
+    league: { tier: 'bronze', weekStart: null, weeklyXP: 0 },
+    friendQuests: [],
+    gamesPlayed: 0,
+    questsAllCompleted: 0,
+    todayXP: 0,
+    todayXPDate: null,
+  }
+  return useStorage(STORAGE_KEYS.GAMIFICATION, DEFAULT_GAMIFICATION)
 }
 
 export { STORAGE_KEYS }
