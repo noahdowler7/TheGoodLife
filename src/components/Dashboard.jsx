@@ -18,10 +18,8 @@ import { calculateCapitalScore, getActiveStreaks, getDailyCompletionRate } from 
 import { ALL_DISCIPLINES } from '../utils/capitals'
 import { getChapter, savePosition, parseScriptureRef } from '../utils/bible'
 import SilenceTimer from './SilenceTimer'
-import XPBar from './XPBar'
-import DailyQuests from './DailyQuests'
 
-function Dashboard({ disciplines, setDisciplines, ratings, reflections, setReflections, settings, customDisciplines, gamification, setGamification }) {
+function Dashboard({ disciplines, setDisciplines, ratings, reflections, setReflections, settings, customDisciplines }) {
   const navigate = useNavigate()
   const today = new Date()
   const hour = today.getHours()
@@ -141,27 +139,6 @@ function Dashboard({ disciplines, setDisciplines, ratings, reflections, setRefle
         animate="visible"
         className="px-5 space-y-5"
       >
-        {/* XP Progress */}
-        {gamification && (
-          <motion.section variants={itemVariants}>
-            <XPBar gamification={gamification} compact />
-          </motion.section>
-        )}
-
-        {/* Daily Quests Preview */}
-        {gamification && setGamification && (
-          <motion.section variants={itemVariants}>
-            <DailyQuests
-              gamification={gamification}
-              setGamification={setGamification}
-              disciplines={disciplines}
-              ratings={ratings}
-              reflections={reflections}
-              compact
-            />
-          </motion.section>
-        )}
-
         {/* Liturgical Season Banner */}
         {dailyScripture.liturgicalDay && (
           <motion.section variants={itemVariants}>

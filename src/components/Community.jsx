@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { format } from 'date-fns'
 import PageWrapper from './PageWrapper'
@@ -8,7 +8,7 @@ import LeagueBoard from './LeagueBoard'
 import FriendStreaks from './FriendStreaks'
 import Achievements from './Achievements'
 import ScriptureMatchGame from './ScriptureMatchGame'
-import { checkAchievements, XP_REWARDS } from '../utils/gamification'
+import { XP_REWARDS } from '../utils/gamification'
 
 const TABS = [
   { id: 'quests', label: 'Quests' },
@@ -21,47 +21,63 @@ const TABS = [
 function Community({ disciplines, ratings, reflections, partners, settings, gamification, setGamification }) {
   const [activeTab, setActiveTab] = useState('quests')
   const [showGame, setShowGame] = useState(false)
-  const todayStr = format(new Date(), 'yyyy-MM-dd')
+  const [error, setError] = useState(null)
   const gam = gamification || {}
 
-  // XP earning on discipline completion — only depends on disciplines, not gamification
-  const completedCount = Object.values(disciplines?.[todayStr] || {}).filter(Boolean).length
+  // Simple XP sync: award XP for today's disciplines (runs once on mount + when disciplines change)
+  const todayStr = format(new Date(), 'yyyy-MM-dd')
+  const dayData = disciplines?.[todayStr] || {}
+  const completedCount = Object.values(dayData).filter(Boolean).length
+
   useEffect(() => {
     if (!setGamification || completedCount === 0) return
-    setGamification(prev => {
-      const prevTracked = prev.todayXPDate === todayStr ? (prev.todayXP || 0) : 0
-      const target = completedCount * XP_REWARDS.completeDiscipline
-      if (target <= prevTracked) return prev
-      const diff = target - prevTracked
-      return {
-        ...prev,
-        xp: (prev.xp || 0) + diff,
-        todayXP: target,
-        todayXPDate: todayStr,
-        league: { ...(prev.league || {}), weeklyXP: (prev.league?.weeklyXP || 0) + diff },
-      }
-    })
-  }, [completedCount, todayStr, setGamification])
+    try {
+      setGamification(prev => {
+        const p = prev || {}
+        const prevTracked = p.todayXPDate === todayStr ? (p.todayXP || 0) : 0
+        const target = completedCount * XP_REWARDS.completeDiscipline
+        if (target <= prevTracked) return prev
+        const diff = target - prevTracked
+        return {
+          ...p,
+          xp: (p.xp || 0) + diff,
+          todayXP: target,
+          todayXPDate: todayStr,
+          league: { ...(p.league || {}), weeklyXP: (p.league?.weeklyXP || 0) + diff },
+        }
+      })
+    } catch (e) {
+      console.error('XP sync error:', e)
+    }
+  }, [completedCount, todayStr])
 
-  // Check for new achievements — only when XP or disciplines change
-  useEffect(() => {
-    if (!setGamification) return
-    setGamification(prev => {
-      const g = prev || {}
-      const newAchievements = checkAchievements(g, disciplines, partners)
-      if (newAchievements.length === 0) return prev
-      return { ...prev, achievements: [...(prev.achievements || []), ...newAchievements] }
-    })
-  }, [completedCount, todayStr, setGamification])
+  if (error) {
+    return (
+      <PageWrapper className="min-h-screen pb-24">
+        <div className="px-5 pt-12 text-center">
+          <p className="text-[16px] font-semibold" style={{ color: 'var(--text-primary)' }}>Something went wrong</p>
+          <p className="text-[13px] mt-2 mb-4" style={{ color: 'var(--text-secondary)' }}>{error}</p>
+          <button onClick={() => setError(null)} className="px-4 py-2 rounded-xl text-[14px] font-medium"
+            style={{ background: 'var(--bg-tertiary)', color: 'var(--text-primary)' }}>
+            Try Again
+          </button>
+        </div>
+      </PageWrapper>
+    )
+  }
 
   if (showGame) {
-    return (
-      <ScriptureMatchGame
-        gamification={gam}
-        setGamification={setGamification}
-        onClose={() => setShowGame(false)}
-      />
-    )
+    try {
+      return (
+        <ScriptureMatchGame
+          gamification={gam}
+          setGamification={setGamification}
+          onClose={() => setShowGame(false)}
+        />
+      )
+    } catch (e) {
+      setShowGame(false)
+    }
   }
 
   return (
@@ -164,7 +180,6 @@ function Community({ disciplines, ratings, reflections, partners, settings, gami
                   </motion.button>
                 </div>
 
-                {/* More games coming soon */}
                 <div className="rounded-2xl p-5 text-center" style={{ background: 'var(--bg-card)', border: '1px dashed var(--border)' }}>
                   <p className="text-[14px] font-medium" style={{ color: 'var(--text-muted)' }}>
                     More games coming soon!
