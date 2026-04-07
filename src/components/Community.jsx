@@ -24,40 +24,35 @@ function Community({ disciplines, ratings, reflections, partners, settings, gami
   const todayStr = format(new Date(), 'yyyy-MM-dd')
   const gam = gamification || {}
 
-  // XP earning on discipline completion
+  // XP earning on discipline completion — only depends on disciplines, not gamification
+  const completedCount = Object.values(disciplines?.[todayStr] || {}).filter(Boolean).length
   useEffect(() => {
-    if (!gamification || !setGamification) return
-    const dayData = disciplines?.[todayStr] || {}
-    const completedCount = Object.values(dayData).filter(Boolean).length
-    const trackedXP = gam.todayXPDate === todayStr ? (gam.todayXP || 0) : 0
-    const baseXPFromDisciplines = completedCount * XP_REWARDS.completeDiscipline
-
-    if (baseXPFromDisciplines > trackedXP) {
-      const diff = baseXPFromDisciplines - trackedXP
-      setGamification(prev => ({
+    if (!setGamification || completedCount === 0) return
+    setGamification(prev => {
+      const prevTracked = prev.todayXPDate === todayStr ? (prev.todayXP || 0) : 0
+      const target = completedCount * XP_REWARDS.completeDiscipline
+      if (target <= prevTracked) return prev
+      const diff = target - prevTracked
+      return {
         ...prev,
         xp: (prev.xp || 0) + diff,
-        todayXP: baseXPFromDisciplines,
+        todayXP: target,
         todayXPDate: todayStr,
-        league: {
-          ...(prev.league || {}),
-          weeklyXP: (prev.league?.weeklyXP || 0) + diff,
-        },
-      }))
-    }
-  }, [disciplines, todayStr, gamification, setGamification])
+        league: { ...(prev.league || {}), weeklyXP: (prev.league?.weeklyXP || 0) + diff },
+      }
+    })
+  }, [completedCount, todayStr, setGamification])
 
-  // Check for new achievements
+  // Check for new achievements — only when XP or disciplines change
   useEffect(() => {
-    if (!gamification || !setGamification) return
-    const newAchievements = checkAchievements(gam, disciplines, partners)
-    if (newAchievements.length > 0) {
-      setGamification(prev => ({
-        ...prev,
-        achievements: [...(prev.achievements || []), ...newAchievements],
-      }))
-    }
-  }, [gam.xp, disciplines, partners, gamification, setGamification])
+    if (!setGamification) return
+    setGamification(prev => {
+      const g = prev || {}
+      const newAchievements = checkAchievements(g, disciplines, partners)
+      if (newAchievements.length === 0) return prev
+      return { ...prev, achievements: [...(prev.achievements || []), ...newAchievements] }
+    })
+  }, [completedCount, todayStr, setGamification])
 
   if (showGame) {
     return (

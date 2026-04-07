@@ -70,24 +70,31 @@ function DailyQuests({ gamification, setGamification, disciplines, ratings, refl
   const todayStr = format(new Date(), 'yyyy-MM-dd')
   const gam = gamification || {}
 
-  // Generate or retrieve today's quests
-  const quests = useMemo(() => {
-    const stored = gam.dailyQuests
-    if (stored?.date === todayStr) {
-      return stored.quests
-    }
-    return generateDailyQuests(todayStr)
-  }, [gam.dailyQuests, todayStr])
+  // Generate today's quests once — only regenerate if day changes
+  const baseQuests = useMemo(() => generateDailyQuests(todayStr), [todayStr])
 
-  // Update progress
+  // Use stored quests if available for today, otherwise use generated
+  const storedQuests = gam.dailyQuests?.date === todayStr ? gam.dailyQuests.quests : null
+
+  // Compute display progress from current app state (read-only, no persist)
   const todayXP = gam.todayXPDate === todayStr ? (gam.todayXP || 0) : 0
-  const updatedQuests = useMemo(
-    () => updateQuestProgress(quests, disciplines || {}, ratings || {}, reflections || {}, todayStr, todayXP),
-    [quests, disciplines, ratings, reflections, todayStr, todayXP]
+  const displayQuests = useMemo(
+    () => updateQuestProgress(storedQuests || baseQuests, disciplines || {}, ratings || {}, reflections || {}, todayStr, todayXP),
+    [storedQuests, baseQuests, disciplines, ratings, reflections, todayStr, todayXP]
   )
 
-  const allComplete = updatedQuests.every(q => q.completed)
+  const allComplete = displayQuests.every(q => q.completed)
   const chestClaimed = gam.dailyQuests?.chestClaimed && gam.dailyQuests?.date === todayStr
+
+  // Initialize today's quests once if not stored yet
+  useEffect(() => {
+    if (!setGamification) return
+    if (gam.dailyQuests?.date === todayStr) return
+    setGamification(prev => ({
+      ...prev,
+      dailyQuests: { date: todayStr, quests: baseQuests, chestClaimed: false },
+    }))
+  }, [todayStr, setGamification])
 
   const claimChest = () => {
     if (!allComplete || chestClaimed || !setGamification) return
@@ -101,26 +108,8 @@ function DailyQuests({ gamification, setGamification, disciplines, ratings, refl
     }))
   }
 
-  // Persist updated quests via effect (not during render)
-  useEffect(() => {
-    if (!setGamification) return
-    const storedDate = gam.dailyQuests?.date
-    const storedQuests = JSON.stringify(gam.dailyQuests?.quests)
-    const newQuests = JSON.stringify(updatedQuests)
-    if (storedDate !== todayStr || storedQuests !== newQuests) {
-      setGamification(prev => ({
-        ...prev,
-        dailyQuests: {
-          date: todayStr,
-          quests: updatedQuests,
-          chestClaimed: prev.dailyQuests?.date === todayStr ? prev.dailyQuests?.chestClaimed : false,
-        },
-      }))
-    }
-  }, [todayStr, updatedQuests, setGamification])
-
   if (compact) {
-    const completedCount = updatedQuests.filter(q => q.completed).length
+    const completedCount = displayQuests.filter(q => q.completed).length
     return (
       <div className="rounded-2xl p-4" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
         <div className="flex items-center justify-between mb-3">
@@ -137,7 +126,7 @@ function DailyQuests({ gamification, setGamification, disciplines, ratings, refl
           </span>
         </div>
         <div className="flex gap-2">
-          {updatedQuests.map((q, i) => (
+          {displayQuests.map((q, i) => (
             <div key={q.id} className="flex-1 h-2 rounded-full overflow-hidden" style={{ background: 'var(--bg-tertiary)' }}>
               <motion.div
                 className="h-full rounded-full"
@@ -176,7 +165,7 @@ function DailyQuests({ gamification, setGamification, disciplines, ratings, refl
         )}
       </div>
 
-      {updatedQuests.map((quest) => (
+      {displayQuests.map((quest) => (
         <motion.div
           key={quest.id}
           className="rounded-2xl p-4 flex items-center gap-3"
