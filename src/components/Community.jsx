@@ -22,15 +22,14 @@ function Community({ disciplines, ratings, reflections, partners, settings, gami
   const [activeTab, setActiveTab] = useState('quests')
   const [showGame, setShowGame] = useState(false)
   const todayStr = format(new Date(), 'yyyy-MM-dd')
+  const gam = gamification || {}
 
   // XP earning on discipline completion
   useEffect(() => {
-    const dayData = disciplines[todayStr] || {}
+    if (!gamification || !setGamification) return
+    const dayData = disciplines?.[todayStr] || {}
     const completedCount = Object.values(dayData).filter(Boolean).length
-    const expectedXP = completedCount * XP_REWARDS.completeDiscipline
-
-    // Only add XP if we haven't already counted these
-    const trackedXP = gamification.todayXPDate === todayStr ? (gamification.todayXP || 0) : 0
+    const trackedXP = gam.todayXPDate === todayStr ? (gam.todayXP || 0) : 0
     const baseXPFromDisciplines = completedCount * XP_REWARDS.completeDiscipline
 
     if (baseXPFromDisciplines > trackedXP) {
@@ -41,28 +40,29 @@ function Community({ disciplines, ratings, reflections, partners, settings, gami
         todayXP: baseXPFromDisciplines,
         todayXPDate: todayStr,
         league: {
-          ...prev.league,
+          ...(prev.league || {}),
           weeklyXP: (prev.league?.weeklyXP || 0) + diff,
         },
       }))
     }
-  }, [disciplines, todayStr])
+  }, [disciplines, todayStr, gamification, setGamification])
 
   // Check for new achievements
   useEffect(() => {
-    const newAchievements = checkAchievements(gamification, disciplines, partners)
+    if (!gamification || !setGamification) return
+    const newAchievements = checkAchievements(gam, disciplines, partners)
     if (newAchievements.length > 0) {
       setGamification(prev => ({
         ...prev,
         achievements: [...(prev.achievements || []), ...newAchievements],
       }))
     }
-  }, [gamification.xp, disciplines, partners])
+  }, [gam.xp, disciplines, partners, gamification, setGamification])
 
   if (showGame) {
     return (
       <ScriptureMatchGame
-        gamification={gamification}
+        gamification={gam}
         setGamification={setGamification}
         onClose={() => setShowGame(false)}
       />
@@ -77,7 +77,7 @@ function Community({ disciplines, ratings, reflections, partners, settings, gami
           <h1 className="text-[28px] font-semibold mb-3" style={{ color: 'var(--text-primary)', fontFamily: "'Bebas Neue', sans-serif", letterSpacing: '0.03em' }}>
             Community
           </h1>
-          <XPBar gamification={gamification} />
+          <XPBar gamification={gam} />
         </motion.div>
       </header>
 
@@ -114,7 +114,7 @@ function Community({ disciplines, ratings, reflections, partners, settings, gami
           >
             {activeTab === 'quests' && (
               <DailyQuests
-                gamification={gamification}
+                gamification={gam}
                 setGamification={setGamification}
                 disciplines={disciplines}
                 ratings={ratings}
@@ -123,12 +123,12 @@ function Community({ disciplines, ratings, reflections, partners, settings, gami
             )}
 
             {activeTab === 'league' && (
-              <LeagueBoard gamification={gamification} settings={settings} />
+              <LeagueBoard gamification={gam} settings={settings} />
             )}
 
             {activeTab === 'friends' && (
               <FriendStreaks
-                gamification={gamification}
+                gamification={gam}
                 setGamification={setGamification}
                 partners={partners}
               />
@@ -150,7 +150,7 @@ function Community({ disciplines, ratings, reflections, partners, settings, gami
                   </p>
                   <div className="flex items-center justify-center gap-4 mb-4">
                     <div className="text-center">
-                      <p className="text-[18px] font-bold" style={{ color: '#D4A843' }}>{gamification.gamesPlayed || 0}</p>
+                      <p className="text-[18px] font-bold" style={{ color: '#D4A843' }}>{gam.gamesPlayed || 0}</p>
                       <p className="text-[11px]" style={{ color: 'var(--text-muted)' }}>Games played</p>
                     </div>
                     <div className="w-px h-8" style={{ background: 'var(--border)' }} />
@@ -182,7 +182,7 @@ function Community({ disciplines, ratings, reflections, partners, settings, gami
             )}
 
             {activeTab === 'badges' && (
-              <Achievements gamification={gamification} />
+              <Achievements gamification={gam} />
             )}
           </motion.div>
         </AnimatePresence>
